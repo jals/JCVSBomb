@@ -19,6 +19,11 @@ public class Command implements Serializable{
 	private String player;
 	private Operation operation;
 	
+	public Command(String player, Operation operation) {
+		this.player = player;
+		this.operation = operation;
+	}
+	
 	public String getPlayer() {
 		return player;
 	}
