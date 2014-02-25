@@ -1,14 +1,15 @@
 package bomberman;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class Client {
 	private String ip;
@@ -20,7 +21,7 @@ public class Client {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
 		joinGame(); // Code to make the methods not have warnings
-		move("up");
+		move("move_up");
 		leaveGame();
 	}
 
@@ -29,12 +30,14 @@ public class Client {
 	}
 
 	private void move(String direction) throws Exception {
-		Scanner a = new Scanner(System.in);
+//		@SuppressWarnings("resource")
+//		Scanner a = new Scanner(System.in);
 		while (true) {
-			direction = a.nextLine(); // TODO Do error cehcking
+//			direction = a.nextLine(); // TODO Do error cehcking
 			InetAddress IPAddress = InetAddress.getByName(ip);
-			DatagramPacket sendPacket = new DatagramPacket(
-					direction.getBytes(), direction.getBytes().length,
+			byte[] n = serialize(new Command(playerName,
+					Command.Operation.valueOf(direction.toUpperCase())));
+			DatagramPacket sendPacket = new DatagramPacket(n, n.length,
 					IPAddress, 9876);
 			clientSocket.send(sendPacket);
 		}
@@ -65,7 +68,7 @@ public class Client {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					System.out.println("FROM SERVER:" + modifiedSentence + receivePacket.getLength());
+					System.out.println("FROM SERVER:" + modifiedSentence);
 					// if (modifiedSentence.equals("Done")) {
 					// clientSocket.close();
 					// break;
@@ -113,4 +116,13 @@ public class Client {
 		in = new ObjectInputStream(bis);
 		return in.readObject();
 	}
+
+	public static byte[] serialize(Object obj) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ObjectOutputStream os = new ObjectOutputStream(out);
+		os.writeObject(obj);
+		os.flush();
+		return out.toByteArray();
+	}
+
 }
