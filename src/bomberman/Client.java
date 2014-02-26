@@ -21,7 +21,7 @@ public class Client {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
 		joinGame(); // Code to make the methods not have warnings
-		move("move_up");
+		move("join_game");
 		leaveGame();
 	}
 
@@ -30,10 +30,7 @@ public class Client {
 	}
 
 	private void move(String direction) throws Exception {
-//		@SuppressWarnings("resource")
-//		Scanner a = new Scanner(System.in);
 		while (true) {
-//			direction = a.nextLine(); // TODO Do error cehcking
 			InetAddress IPAddress = InetAddress.getByName(ip);
 			byte[] n = serialize(new Command(playerName,
 					Command.Operation.valueOf(direction.toUpperCase())));
@@ -45,11 +42,13 @@ public class Client {
 	}
 
 	private void joinGame() {
+		
+		//////////////////
 		Thread listen = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				while (true) {
+//				while (true) {
 					byte[] receiveData = new byte[1024 * 100];
 					DatagramPacket receivePacket = new DatagramPacket(
 							receiveData, receiveData.length);
@@ -59,22 +58,23 @@ public class Client {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					Object modifiedSentence = null;
+					Object grid = null;
 					try {
-						modifiedSentence = deserialize(Arrays.copyOfRange(
+						grid = deserialize(Arrays.copyOfRange(
 								receivePacket.getData(), 0,
 								receivePacket.getLength()));
 					} catch (ClassNotFoundException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					System.out.println("FROM SERVER:" + modifiedSentence);
+					System.out.println("FROM SERVER:" + getGridString((Object[][]) grid));
+					// TODO update the screen with the grid
 					// if (modifiedSentence.equals("Done")) {
 					// clientSocket.close();
 					// break;
 					// }
 				}
-			}
+//			}
 
 		});
 		listen.start();
@@ -124,5 +124,22 @@ public class Client {
 		os.flush();
 		return out.toByteArray();
 	}
+	
+	public static String getGridString(Object[][] grid) {
+		String toReturn = "";
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				if (grid[x][y] instanceof Player) {
+					toReturn += "p";
+				} else {
+					toReturn += "0";
+				}
+			}
+			toReturn+="\n";
+		}
+		return toReturn;
+
+	}
+
 
 }

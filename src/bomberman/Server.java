@@ -1,24 +1,25 @@
 package bomberman;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.awt.Point;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+
+import bomberman.Command.Operation;
 
 public class Server {
 
 	private List<Player> listOfPlayers;
 	private Object[][] grid;
+	private DatagramSocket serverSocket;
 
-	public Server() {
+	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
+		grid = new Object[10][10];
+		serverSocket = new DatagramSocket(9876);
 	}
 
 	public Server(String filename) {
@@ -41,40 +42,77 @@ public class Server {
 		this.grid = grid;
 	}
 
-	public static void main(String[] args) throws IOException, ClassNotFoundException {
-		@SuppressWarnings("resource")
-		DatagramSocket serverSocket = new DatagramSocket(9876);
-		byte[] receiveData = new byte[1024 * 100];
-		byte[] sendData = new byte[1024 * 100];
-		while (true) {
-			DatagramPacket receivePacket = new DatagramPacket(receiveData,
-					receiveData.length);
-			serverSocket.receive(receivePacket);
-			Object o = deserialize(receivePacket.getData());
-			System.out.println("RECEIVED: " + o);
-			InetAddress IPAddress = receivePacket.getAddress();
-			int port = receivePacket.getPort();
-			sendData = serialize(o);
-			DatagramPacket sendPacket = new DatagramPacket(sendData,
-					sendData.length, IPAddress, port);
-			serverSocket.send(sendPacket);
+	public void refreshGrid() {
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				if (grid[x][y] instanceof Player) {
+					grid[x][y] = null;
+				}
+			}
+			for (Player p : listOfPlayers) {
+				grid[(int) p.getLocation().getX()][(int) p.getLocation().getY()] = p;
+			}
 		}
 	}
 
-	public static byte[] serialize(Object obj) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream os = new ObjectOutputStream(out);
-		os.writeObject(obj);
-		os.flush();
-		return out.toByteArray();
+	public static void main(String[] args) throws IOException,
+			ClassNotFoundException {
+		Server server = new Server();
+		Object o = Utility.receiveMessage(server.getServerSocket());
+		Command c = (Command) o;
+		if (c.getOperation() == Command.Operation.JOIN_GAME) {
+			Player p = new Player(c.getPlayer());
+			p.setIsAlive(true);
+			p.setLocation(new Point (0,0));
+			p.setAddress(InetAddress.getByName("localhost")); //fix hardcoding
+			p.setPort(9876); // Fix hardcoding
+			server.listOfPlayers.add(p);
+		}
+		
+		new Worker(server).start();
 	}
 
-	public static Object deserialize(byte[] data) throws IOException,
-			ClassNotFoundException {
-		ByteArrayInputStream bis = new ByteArrayInputStream(data);
-		ObjectInput in = null;
-		in = new ObjectInputStream(bis);
-		return in.readObject();
+	public DatagramSocket getServerSocket() {
+		return serverSocket;
+	}
+
+}
+
+class Worker extends Thread {
+	Server server;
+
+	public Worker(Server server) {
+		this.server = server;
+	}
+
+	public void run() {
+
+		while (true) {
+			Object o = Utility.receiveMessage(server.getServerSocket());
+			Command c = (Command) o;
+			String playerName = c.getPlayer();
+			InetAddress IPAddress = null;
+			int port = 0;
+			for (Player player : server.getListOfPlayers()) {
+				if (player.getName().equals(playerName)) {
+					Point location = player.getLocation();
+					Point newLocation = getLocation(c.getOperation(), location);
+					IPAddress = player.getAddress();
+					port = player.getPort();
+					player.setLocation(newLocation);
+					server.refreshGrid();
+				}
+
+			}
+			// TODO Do something with the O
+			Utility.sendMessage(server.getServerSocket(), server.getGrid(),
+					IPAddress, port);
+		}
+
+	}
+
+	private Point getLocation(Operation operation, Point location) {
+		return location;
 	}
 
 }
