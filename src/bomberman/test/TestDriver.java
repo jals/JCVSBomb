@@ -25,12 +25,14 @@ public class TestDriver {
 		try {
 			String line = reader.readLine();
 			while (line != null) {
-				Operation operation = parseString(line);
-				
-				if (operation == null) {
+				Operation operation;
+				try {
+					operation = Operation.valueOf(line.toUpperCase());
+				} catch (IllegalArgumentException e) {
 					System.out.println("ERROR: Unrecognized command");
 					return;
 				}
+				
 				
 				// Create a new command with the operation
 				Command command = new Command(player, operation);
@@ -48,32 +50,32 @@ public class TestDriver {
 		}
 	}
 
-	/**
-	 * Returns the Operation corresponding to the input string. 
-	 * Returns null if the string is not recognized
-	 * @param string
-	 * @return
-	 */
-	private static Operation parseString(String string) {
-		switch (string.toUpperCase()) {
-			case "MOVE_LEFT":
-				return Operation.MOVE_UP;
-			case "MOVE_RIGHT":
-				return Operation.MOVE_RIGHT;
-			case "MOVE_UP":
-				return Operation.MOVE_UP;
-			case "MOVE_DOWN":
-				return Operation.MOVE_DOWN;
-			case "JOIN_GAME":
-				return Operation.JOIN_GAME;
-			case "LEAVE_GAME":
-				return Operation.LEAVE_GAME;
-			case "DROP_BOMB":
-				return Operation.DROP_BOMB;
-			default :
-				return null;
-		}
-	}
+//	/**
+//	 * Returns the Operation corresponding to the input string. 
+//	 * Returns null if the string is not recognized
+//	 * @param string
+//	 * @return
+//	 */
+//	private static Operation parseString(String string) {
+//		switch (string.toUpperCase()) {
+//			case "MOVE_LEFT":
+//				return Operation.MOVE_LEFT;
+//			case "MOVE_RIGHT":
+//				return Operation.MOVE_RIGHT;
+//			case "MOVE_UP":
+//				return Operation.MOVE_UP;
+//			case "MOVE_DOWN":
+//				return Operation.MOVE_DOWN;
+//			case "JOIN_GAME":
+//				return Operation.JOIN_GAME;
+//			case "LEAVE_GAME":
+//				return Operation.LEAVE_GAME;
+//			case "DROP_BOMB":
+//				return Operation.DROP_BOMB;
+//			default :
+//				return null;
+//		}
+//	}
 
 	/**
 	 * Usage: TestDriver {file name} {player name}
