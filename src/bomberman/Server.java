@@ -2,6 +2,7 @@ package bomberman;
 
 import java.awt.Point;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -15,11 +16,13 @@ public class Server {
 	private List<Player> listOfPlayers;
 	private Object[][] grid;
 	private DatagramSocket serverSocket;
+	private Object refreshed;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Object[10][10];
 		serverSocket = new DatagramSocket(9876);
+		refreshed = new Object();
 	}
 
 	public Server(String filename) {
@@ -53,23 +56,33 @@ public class Server {
 				grid[(int) p.getLocation().getX()][(int) p.getLocation().getY()] = p;
 			}
 		}
+		synchronized (refreshed) {
+			refreshed.notifyAll();
+		}
 	}
 
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException {
 		Server server = new Server();
-		Object o = Utility.receiveMessage(server.getServerSocket());
+		byte[] receiveData = new byte[1024 * 100];
+		DatagramPacket packet = new DatagramPacket(receiveData,
+				receiveData.length);
+		server.getServerSocket().receive(packet);
+		System.out.println("hello");
+		Object o = Utility.deserialize(packet.getData());
 		Command c = (Command) o;
+		Player p = null;
 		if (c.getOperation() == Command.Operation.JOIN_GAME) {
-			Player p = new Player(c.getPlayer());
+			p = new Player(c.getPlayer());
 			p.setIsAlive(true);
-			p.setLocation(new Point (0,0));
-			p.setAddress(InetAddress.getByName("localhost")); //fix hardcoding
-			p.setPort(9876); // Fix hardcoding
+			p.setLocation(new Point(0, 0));
+			p.setAddress(packet.getAddress());
+			p.setPort(packet.getPort());
 			server.listOfPlayers.add(p);
+			new Worker(server, server.refreshed, p).start();
+			server.refreshGrid();
+
 		}
-		
-		new Worker(server).start();
 	}
 
 	public DatagramSocket getServerSocket() {
@@ -80,9 +93,13 @@ public class Server {
 
 class Worker extends Thread {
 	Server server;
+	Object refreshed;
+	Player p;
 
-	public Worker(Server server) {
+	public Worker(Server server, Object object, Player p) {
 		this.server = server;
+		refreshed = object;
+		this.p = p;
 	}
 
 	public void run() {
@@ -90,20 +107,14 @@ class Worker extends Thread {
 		while (true) {
 			Object o = Utility.receiveMessage(server.getServerSocket());
 			Command c = (Command) o;
-			String playerName = c.getPlayer();
 			InetAddress IPAddress = null;
 			int port = 0;
-			for (Player player : server.getListOfPlayers()) {
-				if (player.getName().equals(playerName)) {
-					Point location = player.getLocation();
-					Point newLocation = getLocation(c.getOperation(), location);
-					IPAddress = player.getAddress();
-					port = player.getPort();
-					player.setLocation(newLocation);
-					server.refreshGrid();
-				}
-
-			}
+			Point location = p.getLocation();
+			Point newLocation = getLocation(c.getOperation(), location);
+			IPAddress = p.getAddress();
+			port = p.getPort();
+			p.setLocation(newLocation);
+			server.refreshGrid();
 			// TODO Do something with the O
 			Utility.sendMessage(server.getServerSocket(), server.getGrid(),
 					IPAddress, port);
@@ -112,7 +123,24 @@ class Worker extends Thread {
 	}
 
 	private Point getLocation(Operation operation, Point location) {
-		return location;
+		int x = (int) location.getX();
+		int y = (int) location.getY();
+		int newX = 5, newY = 5;
+
+		if (Operation.MOVE_DOWN == operation) {
+			newX = Math.min(x + 1, 9);
+			newY = y;
+		} else if (Operation.MOVE_UP == operation) {
+			newY = Math.max(x - 1, 0);
+			newY = y;
+		} else if (Operation.MOVE_LEFT == operation) {
+			newY = Math.max(y - 1, 0);
+			newX = x;
+		} else if (Operation.MOVE_RIGHT == operation) {
+			newY = Math.min(y + 1, 9);
+			newX = x;
+		}
+		return new Point(newX, newY);
 	}
 
 }

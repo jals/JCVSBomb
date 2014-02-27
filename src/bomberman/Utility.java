@@ -54,5 +54,23 @@ public class Utility {
 		in = new ObjectInputStream(bis);
 		return in.readObject();
 	}
+	
+	public static String getGridString(Object[][] grid) {
+		String toReturn = "";
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				if (grid[x][y] instanceof Player) {
+					toReturn += "p";
+				} else {
+					toReturn += "0";
+				}
+			}
+			toReturn+="\n";
+		}
+		return toReturn;
+
+	}
+
+
 
 }

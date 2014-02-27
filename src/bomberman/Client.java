@@ -1,18 +1,14 @@
 package bomberman;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
 
 public class Client {
-	private String ip;
+	private InetAddress ip;
+	private int port;
 	private String playerName;
 	private Object[][] grid;
 	private DatagramSocket clientSocket;
@@ -20,8 +16,10 @@ public class Client {
 	public Client(String playerName) throws Exception {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
+		ip = InetAddress.getByName(null);
+		port = 9876;
 		joinGame(); // Code to make the methods not have warnings
-		move("join_game");
+		move("move_right");
 		leaveGame();
 	}
 
@@ -30,51 +28,46 @@ public class Client {
 	}
 
 	private void move(String direction) throws Exception {
-		while (true) {
-			InetAddress IPAddress = InetAddress.getByName(ip);
-			byte[] n = serialize(new Command(playerName,
-					Command.Operation.valueOf(direction.toUpperCase())));
-			DatagramPacket sendPacket = new DatagramPacket(n, n.length,
-					IPAddress, 9876);
-			clientSocket.send(sendPacket);
-		}
+		Utility.sendMessage(clientSocket, new Command(playerName,
+				Command.Operation.valueOf(direction.toUpperCase())), ip, port);
 
 	}
 
-	private void joinGame() {
-		
-		//////////////////
+	private void joinGame() throws Exception {
+
+		move("join_game");
+
+		// ////////////////
 		Thread listen = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-//				while (true) {
+				while (true) {
 					byte[] receiveData = new byte[1024 * 100];
 					DatagramPacket receivePacket = new DatagramPacket(
 							receiveData, receiveData.length);
 					try {
 						clientSocket.receive(receivePacket);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					Object grid = null;
-					try {
-						grid = deserialize(Arrays.copyOfRange(
+						Object grid = null;
+						ip = receivePacket.getAddress();
+						port = receivePacket.getPort();
+
+						grid = Utility.deserialize(Arrays.copyOfRange(
 								receivePacket.getData(), 0,
 								receivePacket.getLength()));
+						System.out.println("FROM SERVER:"
+								+ Utility.getGridString((Object[][]) grid));
 					} catch (ClassNotFoundException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					System.out.println("FROM SERVER:" + getGridString((Object[][]) grid));
 					// TODO update the screen with the grid
 					// if (modifiedSentence.equals("Done")) {
 					// clientSocket.close();
 					// break;
 					// }
 				}
-//			}
+			}
 
 		});
 		listen.start();
@@ -83,14 +76,6 @@ public class Client {
 
 	private void leaveGame() {
 
-	}
-
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
 	}
 
 	public String getPlayerName() {
@@ -108,38 +93,5 @@ public class Client {
 	public void setGrid(Object[][] grid) {
 		this.grid = grid;
 	}
-
-	public static Object deserialize(byte[] data) throws IOException,
-			ClassNotFoundException {
-		ByteArrayInputStream bis = new ByteArrayInputStream(data);
-		ObjectInput in = null;
-		in = new ObjectInputStream(bis);
-		return in.readObject();
-	}
-
-	public static byte[] serialize(Object obj) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream os = new ObjectOutputStream(out);
-		os.writeObject(obj);
-		os.flush();
-		return out.toByteArray();
-	}
-	
-	public static String getGridString(Object[][] grid) {
-		String toReturn = "";
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				if (grid[x][y] instanceof Player) {
-					toReturn += "p";
-				} else {
-					toReturn += "0";
-				}
-			}
-			toReturn+="\n";
-		}
-		return toReturn;
-
-	}
-
 
 }
