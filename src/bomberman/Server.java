@@ -67,21 +67,23 @@ public class Server {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,
 				receiveData.length);
-		server.getServerSocket().receive(packet);
-		System.out.println("hello");
-		Object o = Utility.deserialize(packet.getData());
-		Command c = (Command) o;
-		Player p = null;
-		if (c.getOperation() == Command.Operation.JOIN_GAME) {
-			p = new Player(c.getPlayer());
-			p.setIsAlive(true);
-			p.setLocation(new Point(0, 0));
-			p.setAddress(packet.getAddress());
-			p.setPort(packet.getPort());
-			server.listOfPlayers.add(p);
-			new Worker(server, server.refreshed, p).start();
-			server.refreshGrid();
-
+		while (true) {
+			server.getServerSocket().receive(packet);
+//			System.out.println("hello");
+			Object o = Utility.deserialize(packet.getData());
+			Command c = (Command) o;
+			Player p = null;
+			if (c.getOperation() == Command.Operation.JOIN_GAME) {
+				p = new Player(c.getPlayer());
+				p.setIsAlive(true);
+				p.setLocation(new Point(0, 0));
+				p.setAddress(packet.getAddress());
+				p.setPort(packet.getPort());
+				server.listOfPlayers.add(p);
+				server.refreshGrid();
+				DatagramSocket socket = new DatagramSocket();
+				new Worker(server, server.refreshed, p, socket).start();
+			}
 		}
 	}
 
@@ -93,19 +95,26 @@ public class Server {
 
 class Worker extends Thread {
 	Server server;
+	DatagramSocket socket;
 	Object refreshed;
 	Player p;
 
-	public Worker(Server server, Object object, Player p) {
-		this.server = server;
+	public Worker(Server server, Object object, Player p, DatagramSocket socket) {
 		refreshed = object;
 		this.p = p;
+		this.server = server;
+		this.socket = socket;
+//		System.out.println(this.socket.getLocalPort());
+//		System.out.println(this.socket.getPort());
+		Utility.sendMessage(socket, "hello", p.getAddress(), p.getPort()); //just an ack
+//		System.out.println(this.socket.getLocalPort());
+//		System.out.println(this.socket.getPort());
 	}
 
 	public void run() {
 
 		while (true) {
-			Object o = Utility.receiveMessage(server.getServerSocket());
+			Object o = Utility.receiveMessage(socket);
 			Command c = (Command) o;
 			InetAddress IPAddress = null;
 			int port = 0;
@@ -116,8 +125,7 @@ class Worker extends Thread {
 			p.setLocation(newLocation);
 			server.refreshGrid();
 			// TODO Do something with the O
-			Utility.sendMessage(server.getServerSocket(), server.getGrid(),
-					IPAddress, port);
+			Utility.sendMessage(socket, server.getGrid(), IPAddress, port);
 		}
 
 	}

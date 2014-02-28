@@ -1,10 +1,8 @@
 package bomberman;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Arrays;
 
 public class Client {
 	private InetAddress ip;
@@ -20,6 +18,7 @@ public class Client {
 		port = 9876;
 		joinGame(); // Code to make the methods not have warnings
 		move("move_right");
+		move("move_down");
 		leaveGame();
 	}
 
@@ -28,6 +27,7 @@ public class Client {
 	}
 
 	private void move(String direction) throws Exception {
+//		System.out.println(clientSocket.getLocalPort());
 		Utility.sendMessage(clientSocket, new Command(playerName,
 				Command.Operation.valueOf(direction.toUpperCase())), ip, port);
 
@@ -36,6 +36,14 @@ public class Client {
 	private void joinGame() throws Exception {
 
 		move("join_game");
+		// Wait for an ack to know which port to finally communicate with.
+		byte[] receiveData = new byte[1024 * 100];
+		DatagramPacket receivePacket = new DatagramPacket(receiveData,
+				receiveData.length);
+		clientSocket.receive(receivePacket);
+		ip = receivePacket.getAddress();
+		port = receivePacket.getPort();
+		
 
 		// ////////////////
 		Thread listen = new Thread(new Runnable() {
@@ -43,24 +51,10 @@ public class Client {
 			@Override
 			public void run() {
 				while (true) {
-					byte[] receiveData = new byte[1024 * 100];
-					DatagramPacket receivePacket = new DatagramPacket(
-							receiveData, receiveData.length);
-					try {
-						clientSocket.receive(receivePacket);
-						Object grid = null;
-						ip = receivePacket.getAddress();
-						port = receivePacket.getPort();
+					Object grid = Utility.receiveMessage(clientSocket);
 
-						grid = Utility.deserialize(Arrays.copyOfRange(
-								receivePacket.getData(), 0,
-								receivePacket.getLength()));
-						System.out.println("FROM SERVER:"
-								+ Utility.getGridString((Object[][]) grid));
-					} catch (ClassNotFoundException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					System.out.println("FROM SERVER:"
+							+ Utility.getGridString((Object[][]) grid));
 					// TODO update the screen with the grid
 					// if (modifiedSentence.equals("Done")) {
 					// clientSocket.close();
