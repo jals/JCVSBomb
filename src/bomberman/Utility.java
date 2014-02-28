@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.List;
 
 import bomberman.Command.Operation;
 
@@ -58,12 +59,13 @@ public class Utility {
 		return in.readObject();
 	}
 	
-	public static String getGridString(Object[][] grid) {
+	public static String getGridString(Square[][] grid) {
 		String toReturn = "";
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {
-				if (grid[x][y] instanceof Player) {
-					toReturn += ((Player) grid[x][y]).getName();
+				List<Object> objects = grid[x][y].getObjects();
+				if (objects.size() > 0 && objects.get(0) instanceof Player) {
+					toReturn += ((Player) grid[x][y].getObjects().get(0)).getName();
 				} else {
 					toReturn += "0";
 				}

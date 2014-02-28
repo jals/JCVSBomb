@@ -22,6 +22,7 @@ public class Client {
 	}
 
 	public static void main(String[] args) throws Exception {
+		@SuppressWarnings("resource")
 		Scanner a = new Scanner(System.in);
 		Client j = new Client(a.nextLine().substring(0, 1));
 		while (true) {
@@ -33,7 +34,7 @@ public class Client {
 	public void move(String direction) throws Exception {
 		// System.out.println(clientSocket.getLocalPort());
 		Utility.sendMessage(clientSocket, new Command(playerName,
-				Command.Operation.valueOf(direction.toUpperCase())), ip, port);
+				Command.Operation.valueOf(direction.toUpperCase())), ip, port); // TODO Do error checking
 
 	}
 
@@ -56,7 +57,7 @@ public class Client {
 				while (true) {
 					Object grid = Utility.receiveMessage(clientSocket);
 
-					System.out.println(Utility.getGridString((Object[][]) grid));
+					System.out.println(Utility.getGridString((Square[][]) grid));
 					// TODO update the screen with the grid
 					// if (modifiedSentence.equals("Done")) {
 					// clientSocket.close();

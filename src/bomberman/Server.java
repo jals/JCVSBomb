@@ -11,13 +11,18 @@ import java.util.List;
 public class Server {
 
 	private List<Player> listOfPlayers;
-	private Object[][] grid;
+	private Square[][] grid;
 	private DatagramSocket serverSocket;
 	private Object refreshed;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
-		grid = new Object[10][10];
+		grid = new Square[10][10];
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				grid[x][y] = new Square();
+			}
+		}
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
 	}
@@ -38,21 +43,15 @@ public class Server {
 		return grid;
 	}
 
-	public void setGrid(Object[][] grid) {
-		this.grid = grid;
-	}
-
 	public synchronized void refreshGrid() {
-//		System.out.println("ggg");
+		// System.out.println("ggg");
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {
-				if (grid[x][y] instanceof Player) {
-					grid[x][y] = null;
-				}
+				grid[x][y].removePlayers();
 			}
-			for (Player p : listOfPlayers) {
-				grid[(int) p.getLocation().getX()][(int) p.getLocation().getY()] = p;
-			}
+		}
+		for (Player p : listOfPlayers) {
+			grid[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
 		}
 		synchronized (refreshed) {
 			refreshed.notifyAll();
@@ -120,7 +119,7 @@ class Worker extends Thread {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-//						System.out.println("hello" + p.getName());
+						// System.out.println("hello" + p.getName());
 						Utility.sendMessage(socket, server.getGrid(),
 								p.getAddress(), p.getPort());
 
@@ -134,7 +133,7 @@ class Worker extends Thread {
 
 		while (true) {
 			Object o = Utility.receiveMessage(socket);
-//			System.out.println("dsaf");
+			// System.out.println("dsaf");
 			Command c = (Command) o;
 			Point location = p.getLocation();
 			Point newLocation = Utility.getLocation(c.getOperation(), location);
