@@ -85,7 +85,7 @@ public class Utility {
 			newX = Math.min(x + 1, 9);
 			newY = y;
 		} else if (Operation.MOVE_UP == operation) {
-			newY = Math.max(x - 1, 0);
+			newX = Math.max(x - 1, 0);
 			newY = y;
 		} else if (Operation.MOVE_LEFT == operation) {
 			newY = Math.max(y - 1, 0);

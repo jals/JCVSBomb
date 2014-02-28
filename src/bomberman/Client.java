@@ -61,13 +61,13 @@ public class Client {
 			public void run() {
 				while (true) {
 					Object grid = Utility.receiveMessage(clientSocket);
+					if (grid instanceof String) {
+						clientSocket.close();
+						break;
+					}
 
 					System.out.println(Utility.getGridString((Square[][]) grid));
 					// TODO update the screen with the grid
-					// if (modifiedSentence.equals("Done")) {
-					// clientSocket.close();
-					// break;
-					// }
 				}
 			}
 

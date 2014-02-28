@@ -144,6 +144,7 @@ class Worker extends Thread {
 			p.setLocation(newLocation);
 			} else if (c.getOperation() == Command.Operation.LEAVE_GAME){
 				server.removePlayer(p);
+				Utility.sendMessage(socket, "Done", p.getAddress(), p.getPort());
 				break;
 			} else {
 				//TODO: Drop Bomb
