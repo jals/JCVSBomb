@@ -11,7 +11,11 @@ public class Command implements Serializable{
 		MOVE_DOWN, 
 		JOIN_GAME, 
 		LEAVE_GAME,
-		DROP_BOMB,
+		DROP_BOMB;
+		
+		public boolean isMove() {
+			return (this.ordinal() <= MOVE_DOWN.ordinal());
+		}
 	}
 	
 	private static final long serialVersionUID = 7342838579737714576L;

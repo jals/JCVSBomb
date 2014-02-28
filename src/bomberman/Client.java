@@ -33,9 +33,14 @@ public class Client {
 
 	public void move(String direction) throws Exception {
 		// System.out.println(clientSocket.getLocalPort());
-		Utility.sendMessage(clientSocket, new Command(playerName,
-				Command.Operation.valueOf(direction.toUpperCase())), ip, port); // TODO Do error checking
-
+		try {
+			Command.Operation operation = Command.Operation.valueOf(direction
+					.toUpperCase());
+			Utility.sendMessage(clientSocket,
+					new Command(playerName, operation), ip, port);
+		} catch (IllegalArgumentException e) {
+			System.out.println("Incorrect command entered. Please try again.");
+		}
 	}
 
 	private void joinGame() throws Exception {

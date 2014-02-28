@@ -93,6 +93,9 @@ public class Utility {
 		} else if (Operation.MOVE_RIGHT == operation) {
 			newY = Math.min(y + 1, 9);
 			newX = x;
+		} else {
+			newY = y;
+			newX = x;
 		}
 		return new Point(newX, newY);
 	}

@@ -34,6 +34,10 @@ public class Server {
 	public List<Player> getListOfPlayers() {
 		return listOfPlayers;
 	}
+	
+	public void removePlayer(Player p) {
+		listOfPlayers.remove(p);
+	}
 
 	public void setListOfPlayers(List<Player> listOfPlayers) {
 		this.listOfPlayers = listOfPlayers;
@@ -116,7 +120,6 @@ class Worker extends Thread {
 						try {
 							refreshed.wait();
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						// System.out.println("hello" + p.getName());
@@ -135,14 +138,19 @@ class Worker extends Thread {
 			Object o = Utility.receiveMessage(socket);
 			// System.out.println("dsaf");
 			Command c = (Command) o;
+			if (c.getOperation().isMove()) {
 			Point location = p.getLocation();
 			Point newLocation = Utility.getLocation(c.getOperation(), location);
 			p.setLocation(newLocation);
+			} else if (c.getOperation() == Command.Operation.LEAVE_GAME){
+				server.removePlayer(p);
+				break;
+			} else {
+				//TODO: Drop Bomb
+			}
 			server.refreshGrid();
-			// Utility.sendMessage(socket, server.getGrid(), p.getAddress(),
-			// p.getPort());
 		}
-
+		server.refreshGrid();
 	}
 
 }
