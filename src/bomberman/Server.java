@@ -4,12 +4,9 @@ import java.awt.Point;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-
-import bomberman.Command.Operation;
 
 public class Server {
 
@@ -45,7 +42,8 @@ public class Server {
 		this.grid = grid;
 	}
 
-	public void refreshGrid() {
+	public synchronized void refreshGrid() {
+//		System.out.println("ggg");
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {
 				if (grid[x][y] instanceof Player) {
@@ -69,7 +67,7 @@ public class Server {
 				receiveData.length);
 		while (true) {
 			server.getServerSocket().receive(packet);
-//			System.out.println("hello");
+			// System.out.println("hello");
 			Object o = Utility.deserialize(packet.getData());
 			Command c = (Command) o;
 			Player p = null;
@@ -99,56 +97,53 @@ class Worker extends Thread {
 	Object refreshed;
 	Player p;
 
-	public Worker(Server server, Object object, Player p, DatagramSocket socket) {
+	public Worker(final Server server, Object object, final Player p,
+			final DatagramSocket socket) {
 		refreshed = object;
 		this.p = p;
 		this.server = server;
 		this.socket = socket;
-//		System.out.println(this.socket.getLocalPort());
-//		System.out.println(this.socket.getPort());
-		Utility.sendMessage(socket, "hello", p.getAddress(), p.getPort()); //just an ack
-//		System.out.println(this.socket.getLocalPort());
-//		System.out.println(this.socket.getPort());
+		// System.out.println(this.socket.getLocalPort());
+		// System.out.println(this.socket.getPort());
+		Utility.sendMessage(socket, "hello", p.getAddress(), p.getPort()); // just
+																			// an
+																			// ack
+		// System.out.println(this.socket.getLocalPort());
+		// System.out.println(this.socket.getPort());
+		new Thread() {
+			public void run() {
+				while (true) {
+					synchronized (refreshed) {
+						try {
+							refreshed.wait();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+//						System.out.println("hello" + p.getName());
+						Utility.sendMessage(socket, server.getGrid(),
+								p.getAddress(), p.getPort());
+
+					}
+				}
+			}
+		}.start();
 	}
 
 	public void run() {
 
 		while (true) {
 			Object o = Utility.receiveMessage(socket);
+//			System.out.println("dsaf");
 			Command c = (Command) o;
-			InetAddress IPAddress = null;
-			int port = 0;
 			Point location = p.getLocation();
-			Point newLocation = getLocation(c.getOperation(), location);
-			IPAddress = p.getAddress();
-			port = p.getPort();
+			Point newLocation = Utility.getLocation(c.getOperation(), location);
 			p.setLocation(newLocation);
 			server.refreshGrid();
-			// TODO Do something with the O
-			Utility.sendMessage(socket, server.getGrid(), IPAddress, port);
+			// Utility.sendMessage(socket, server.getGrid(), p.getAddress(),
+			// p.getPort());
 		}
 
-	}
-
-	private Point getLocation(Operation operation, Point location) {
-		int x = (int) location.getX();
-		int y = (int) location.getY();
-		int newX = 5, newY = 5;
-
-		if (Operation.MOVE_DOWN == operation) {
-			newX = Math.min(x + 1, 9);
-			newY = y;
-		} else if (Operation.MOVE_UP == operation) {
-			newY = Math.max(x - 1, 0);
-			newY = y;
-		} else if (Operation.MOVE_LEFT == operation) {
-			newY = Math.max(y - 1, 0);
-			newX = x;
-		} else if (Operation.MOVE_RIGHT == operation) {
-			newY = Math.min(y + 1, 9);
-			newX = x;
-		}
-		return new Point(newX, newY);
 	}
 
 }

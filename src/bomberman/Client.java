@@ -3,6 +3,7 @@ package bomberman;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Scanner;
 
 public class Client {
 	private InetAddress ip;
@@ -17,17 +18,20 @@ public class Client {
 		ip = InetAddress.getByName(null);
 		port = 9876;
 		joinGame(); // Code to make the methods not have warnings
-		move("move_right");
-		move("move_down");
 		leaveGame();
 	}
 
 	public static void main(String[] args) throws Exception {
-		new Client("Jarred");
+		Scanner a = new Scanner(System.in);
+		Client j = new Client(a.nextLine().substring(0, 1));
+		while (true) {
+			j.move(a.nextLine());
+		}
+
 	}
 
-	private void move(String direction) throws Exception {
-//		System.out.println(clientSocket.getLocalPort());
+	public void move(String direction) throws Exception {
+		// System.out.println(clientSocket.getLocalPort());
 		Utility.sendMessage(clientSocket, new Command(playerName,
 				Command.Operation.valueOf(direction.toUpperCase())), ip, port);
 
@@ -43,7 +47,6 @@ public class Client {
 		clientSocket.receive(receivePacket);
 		ip = receivePacket.getAddress();
 		port = receivePacket.getPort();
-		
 
 		// ////////////////
 		Thread listen = new Thread(new Runnable() {
@@ -53,8 +56,7 @@ public class Client {
 				while (true) {
 					Object grid = Utility.receiveMessage(clientSocket);
 
-					System.out.println("FROM SERVER:"
-							+ Utility.getGridString((Object[][]) grid));
+					System.out.println(Utility.getGridString((Object[][]) grid));
 					// TODO update the screen with the grid
 					// if (modifiedSentence.equals("Done")) {
 					// clientSocket.close();

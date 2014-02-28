@@ -1,5 +1,6 @@
 package bomberman;
 
+import java.awt.Point;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,6 +10,8 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+
+import bomberman.Command.Operation;
 
 public class Utility {
 	public static void sendMessage(DatagramSocket socket, Object message, InetAddress add, int port) {
@@ -60,7 +63,7 @@ public class Utility {
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 10; y++) {
 				if (grid[x][y] instanceof Player) {
-					toReturn += "p";
+					toReturn += ((Player) grid[x][y]).getName();
 				} else {
 					toReturn += "0";
 				}
@@ -70,6 +73,29 @@ public class Utility {
 		return toReturn;
 
 	}
+	
+	public static Point getLocation(Operation operation, Point location) {
+		int x = (int) location.getX();
+		int y = (int) location.getY();
+		int newX = 5, newY = 5;
+
+		if (Operation.MOVE_DOWN == operation) {
+			newX = Math.min(x + 1, 9);
+			newY = y;
+		} else if (Operation.MOVE_UP == operation) {
+			newY = Math.max(x - 1, 0);
+			newY = y;
+		} else if (Operation.MOVE_LEFT == operation) {
+			newY = Math.max(y - 1, 0);
+			newX = x;
+		} else if (Operation.MOVE_RIGHT == operation) {
+			newY = Math.min(y + 1, 9);
+			newX = x;
+		}
+		return new Point(newX, newY);
+	}
+
+
 
 
 
