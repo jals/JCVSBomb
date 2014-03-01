@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Server {
@@ -34,7 +35,7 @@ public class Server {
 	public List<Player> getListOfPlayers() {
 		return listOfPlayers;
 	}
-	
+
 	public void removePlayer(Player p) {
 		listOfPlayers.remove(p);
 	}
@@ -55,7 +56,8 @@ public class Server {
 			}
 		}
 		for (Player p : listOfPlayers) {
-			grid[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
+			grid[(int) p.getLocation().getX()][(int) p.getLocation().getY()]
+					.addObject(p);
 		}
 		synchronized (refreshed) {
 			refreshed.notifyAll();
@@ -68,11 +70,13 @@ public class Server {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,
 				receiveData.length);
-		while (true) {
+		List<Worker> workers = new LinkedList<Worker>();
+		boolean done = false;
+		while (!done) {
 			server.getServerSocket().receive(packet);
-			// System.out.println("hello");
 			Object o = Utility.deserialize(packet.getData());
 			Command c = (Command) o;
+//			System.out.println(c.getOperation());
 			Player p = null;
 			if (c.getOperation() == Command.Operation.JOIN_GAME) {
 				p = new Player(c.getPlayer());
@@ -83,8 +87,14 @@ public class Server {
 				server.listOfPlayers.add(p);
 				server.refreshGrid();
 				DatagramSocket socket = new DatagramSocket();
-				new Worker(server, server.refreshed, p, socket).start();
+				workers.add(new Worker(server, server.refreshed, p, socket));
+			} else if (c.getOperation() == Command.Operation.START_GAME) {
+				done = true;
 			}
+		}
+//		System.out.println("hello");
+		for (Worker worker : workers) {
+			worker.start();
 		}
 	}
 
@@ -106,11 +116,11 @@ class Worker extends Thread {
 		this.p = p;
 		this.server = server;
 		this.socket = socket;
+		Utility.sendMessage(socket, "joined", p.getAddress(), p.getPort()); // just
+		// an
+		// ack
 		// System.out.println(this.socket.getLocalPort());
 		// System.out.println(this.socket.getPort());
-		Utility.sendMessage(socket, "hello", p.getAddress(), p.getPort()); // just
-																			// an
-																			// ack
 		// System.out.println(this.socket.getLocalPort());
 		// System.out.println(this.socket.getPort());
 		new Thread() {
@@ -133,21 +143,24 @@ class Worker extends Thread {
 	}
 
 	public void run() {
+		Utility.sendMessage(socket, Command.Operation.START_GAME,
+				p.getAddress(), p.getPort()); // just an ack
 
 		while (true) {
 			Object o = Utility.receiveMessage(socket);
 			// System.out.println("dsaf");
 			Command c = (Command) o;
 			if (c.getOperation().isMove()) {
-			Point location = p.getLocation();
-			Point newLocation = Utility.getLocation(c.getOperation(), location);
-			p.setLocation(newLocation);
-			} else if (c.getOperation() == Command.Operation.LEAVE_GAME){
+				Point location = p.getLocation();
+				Point newLocation = Utility.getLocation(c.getOperation(),
+						location);
+				p.setLocation(newLocation);
+			} else if (c.getOperation() == Command.Operation.LEAVE_GAME) {
 				server.removePlayer(p);
-				Utility.sendMessage(socket, "Done", p.getAddress(), p.getPort());
+				Utility.sendMessage(socket, Command.Operation.LEAVE_GAME, p.getAddress(), p.getPort());
 				break;
 			} else {
-				//TODO: Drop Bomb
+				// TODO: Drop Bomb
 			}
 			server.refreshGrid();
 		}

@@ -8,17 +8,22 @@ import java.util.Scanner;
 public class Client {
 	private InetAddress ip;
 	private int port;
+	private InetAddress listenIp;
+	private int listenPort;
 	private String playerName;
 	private Object[][] grid;
 	private DatagramSocket clientSocket;
+	private Boolean started;
 
 	public Client(String playerName) throws Exception {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
 		ip = InetAddress.getByName(null);
 		port = 9876;
+		listenIp = InetAddress.getByName(null);
+		listenPort = 9876;
+		started = Boolean.FALSE;
 		joinGame(); // Code to make the methods not have warnings
-		leaveGame();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -32,12 +37,23 @@ public class Client {
 	}
 
 	public void move(String direction) throws Exception {
-		// System.out.println(clientSocket.getLocalPort());
+//		System.out.println("sdfas");
 		try {
 			Command.Operation operation = Command.Operation.valueOf(direction
 					.toUpperCase());
-			Utility.sendMessage(clientSocket,
-					new Command(playerName, operation), ip, port);
+			if (operation == Command.Operation.START_GAME
+					|| operation == Command.Operation.JOIN_GAME) {
+				Utility.sendMessage(clientSocket, new Command(playerName,
+						operation), listenIp, listenPort);
+			} else {
+				synchronized (started) {
+					if (started) {
+						Utility.sendMessage(clientSocket, new Command(
+								playerName, operation), ip, port);
+					}
+				}
+			}
+
 		} catch (IllegalArgumentException e) {
 			System.out.println("Incorrect command entered. Please try again.");
 		}
@@ -54,29 +70,36 @@ public class Client {
 		ip = receivePacket.getAddress();
 		port = receivePacket.getPort();
 
+//		System.out.println("fdfdf");
 		// ////////////////
 		Thread listen = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				while (true) {
-					Object grid = Utility.receiveMessage(clientSocket);
-					if (grid instanceof String) {
-						clientSocket.close();
-						break;
-					}
 
-					System.out.println(Utility.getGridString((Square[][]) grid));
+				boolean done = false;
+				while (!done) {
+					Object grid = Utility.receiveMessage(clientSocket);
+					if (grid instanceof Command.Operation) {
+						Command.Operation c = (Command.Operation) grid;
+						if (c == Command.Operation.LEAVE_GAME) {
+							clientSocket.close();
+							done = true;
+						} else {
+							synchronized (started) {
+								started = Boolean.TRUE;
+							}
+						}
+					} else {
+						System.out.println(Utility
+								.getGridString((Square[][]) grid));
+					}
 					// TODO update the screen with the grid
 				}
 			}
 
 		});
 		listen.start();
-
-	}
-
-	private void leaveGame() {
 
 	}
 

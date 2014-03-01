@@ -10,6 +10,7 @@ public class Command implements Serializable{
 		MOVE_UP,
 		MOVE_DOWN, 
 		JOIN_GAME, 
+		START_GAME,
 		LEAVE_GAME,
 		DROP_BOMB;
 		
