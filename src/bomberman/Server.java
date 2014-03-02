@@ -39,11 +39,15 @@ public class Server {
 
 	public Server(boolean testing) throws SocketException {
 		this();
-		isTesting = false;
+		isTesting = testing;
 	}
 
 	public void removePlayer(Player p) {
 		listOfPlayers.remove(p);
+	}
+
+	public void removeLastPlayer() {
+		listOfPlayers.remove(listOfPlayers.size() - 1);
 	}
 
 	public void setListOfPlayers(List<Player> listOfPlayers) {
@@ -87,7 +91,8 @@ public class Server {
 		for (Player p : listOfPlayers) {
 			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
 					.getY()].addObject(p);
-			if(p.getLocation().x == d.getLocation().x && p.getLocation().y == d.getLocation().y){
+			if (p.getLocation().x == d.getLocation().x
+					&& p.getLocation().y == d.getLocation().y) {
 				d.setVisible(true);
 			}
 		}
@@ -149,7 +154,18 @@ public class Server {
 		for (Worker worker : workers) {
 			worker.start();
 		}
-		
+		while (true) {
+			server.getServerSocket().receive(packet);
+			Object o = Utility.deserialize(packet.getData());
+			Command c = (Command) o;
+
+			// Log the command
+			logger.logCommand(c);
+
+			done = server.addPlayer(packet, workers, done, c);
+			server.removeLastPlayer();
+		}
+
 	}
 
 	/**
