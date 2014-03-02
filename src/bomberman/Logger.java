@@ -9,13 +9,20 @@ import java.util.Date;
 
 public class Logger {
 	
-	private static String PLAYER = "PLAYER";
-	private static String COMMAND = "COMMAND";
-	private static String OPERATION = "OPERATION";
+	private static final String PLAYER = "PLAYER";
+	private static final String COMMAND = "COMMAND";
+	private static final String OPERATION = "OPERATION";
+	private static final String BOARD_STATE = "BOARD_STATE";
+	private static final String REFRESH = "REFRESH";
 	
 	private static BufferedWriter log;
 	private String fileName;
 	
+	/**
+	 * Create a new logger object
+	 * Write the log to the given file
+	 * @param fileName
+	 */
 	public Logger(String fileName) {
 		this.fileName = fileName;
 		
@@ -33,6 +40,11 @@ public class Logger {
 		this("logs/bomberman-" + getDate() + ".log");
 	}
 	
+	/**
+	 * Log a command
+	 * @param command
+	 * @throws IOException
+	 */
 	public void logCommand(Command command) throws IOException {
 		synchronized (log) {
 			log.write(COMMAND + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation());
@@ -41,14 +53,48 @@ public class Logger {
 		}
 	}
 	
+	/**
+	 * Log a grid refresh
+	 * @throws IOException
+	 */
 	public void logRefresh() throws IOException {
 		synchronized (log) {
-			log.write("REFRESH,Server sent refreshed grid to client(s)");
+			log.write(REFRESH);
 			log.newLine();
 			log.flush();
 		}
 	}
 	
+	/**
+	 * Log the state of the grid
+	 * @param model
+	 * @throws IOException
+	 */
+	public void logGrid(Model model) throws IOException {
+		String grid = new String();
+		Square[][] board = model.getBoard();
+		
+		synchronized (log) {
+			for (int i=0; i<Model.BOARD_SIZE; i++) {
+				for (int j=0; j<Model.BOARD_SIZE; j++) {
+					if (board[i][j] == null) {
+						grid+=0;
+					} else {
+						grid += board[i][j];
+					}
+				}
+				log.write(BOARD_STATE + ",Row " + i + "," + grid);
+				log.newLine();
+				grid = new String();
+			}
+			log.flush();
+		}
+	}
+	
+	/**
+	 * Close the log file
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
 		log.close();
 	}

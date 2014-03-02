@@ -18,11 +18,12 @@ public class Server {
 	private Object refreshed;
 	private static Logger logger;
 	private Door d;
+	private boolean isTesting;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Model(
-				"C:\\Users\\jarredlinthorneshaw\\workspace\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
+				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
 		// for (int x = 0; x < 10; x++) {
 		// for (int y = 0; y < 10; y++) {
 		// grid[x][y] = new Square();
@@ -34,6 +35,11 @@ public class Server {
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
 		logger = new Logger();
+	}
+
+	public Server(boolean testing) throws SocketException {
+		this();
+		isTesting = false;
 	}
 
 	public Server(String filename) {
@@ -74,7 +80,7 @@ public class Server {
 			if (grid.getBoard()[x][y].numPlayers() == 0
 					&& !grid.getBoard()[x][y].hasWall()) {
 				isOkay = true;
-				toReturn = new Point(x,y);	
+				toReturn = new Point(x, y);
 			}
 		}
 		return toReturn;
@@ -104,21 +110,22 @@ public class Server {
 		}
 		List<Player> newPlayers = new ArrayList<Player>();
 		for (Player p : listOfPlayers) {
-			if(p.getIsAlive()) {
+			if (p.getIsAlive()) {
 				newPlayers.add(p);
 			} else {
-				grid.getBoard()[p.getLocation().x][p.getLocation().y].removePlayers();
+				grid.getBoard()[p.getLocation().x][p.getLocation().y]
+						.removePlayers();
 			}
 		}
 		listOfPlayers = newPlayers;
-		
-		
+
 		synchronized (refreshed) {
 			refreshed.notifyAll();
 		}
 
 		try {
 			logger.logRefresh();
+			logger.logGrid(grid);
 		} catch (IOException e) {
 			// Unable to log the refresh
 			e.printStackTrace();
@@ -127,7 +134,12 @@ public class Server {
 
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException {
-		Server server = new Server();
+		Server server = null;
+		if (Integer.parseInt(args[0]) == 0) {
+			server = new Server(false);
+		} else {
+			server = new Server(true);
+		}
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,
 				receiveData.length);
@@ -142,7 +154,7 @@ public class Server {
 			logger.logCommand(c);
 
 			// System.out.println(c.getOperation());
-			done = addPlayer(server, packet, workers, done, c);
+			done = server.addPlayer(packet, workers, done, c);
 		}
 		// System.out.println("hello");
 		for (Worker worker : workers) {
@@ -151,9 +163,10 @@ public class Server {
 	}
 
 	/**
-	 * Handles the JOIN_GAME command and adds a player to the grid. Starts the game when the START_GAME command is received.
-	 * NOTE: Once the game starts new players cannot joing.
-	 * @param server
+	 * Handles the JOIN_GAME command and adds a player to the grid. Starts the
+	 * game when the START_GAME command is received. NOTE: Once the game starts
+	 * new players cannot join.
+	 * 
 	 * @param packet
 	 * @param workers
 	 * @param done
@@ -161,24 +174,27 @@ public class Server {
 	 * @return
 	 * @throws SocketException
 	 */
-	public static boolean addPlayer(Server server, DatagramPacket packet,
-			List<Worker> workers, boolean done, Command c)
-			throws SocketException {
+	public boolean addPlayer(DatagramPacket packet, List<Worker> workers,
+			boolean done, Command c) throws SocketException {
 		Player p = null;
-		
-		//if JOIN_GAME is received add the player to the game
+
+		// if JOIN_GAME is received add the player to the game
 		if (c.getOperation() == Command.Operation.JOIN_GAME) {
 			p = new Player(c.getPlayer());
 			p.setIsAlive(true);
-			p.setLocation(server.getFreePoint());
+			if (!isTesting) {
+				p.setLocation(getFreePoint());
+			} else {
+				p.setLocation(new Point(1, 1));
+			}
 			p.setAddress(packet.getAddress());
 			p.setPort(packet.getPort());
-			server.listOfPlayers.add(p);
-			server.refreshGrid();
+			listOfPlayers.add(p);
+			refreshGrid();
 			DatagramSocket socket = new DatagramSocket();
-			workers.add(new Worker(server, server.refreshed, p, socket));
-		
-		//if START_GAME is received start the game
+			workers.add(new Worker(this, refreshed, p, socket));
+
+			// if START_GAME is received start the game
 		} else if (c.getOperation() == Command.Operation.START_GAME) {
 			done = true;
 		}
@@ -192,7 +208,7 @@ public class Server {
 	protected Logger getLogger() {
 		return logger;
 	}
-	
+
 	public static String getLogFile() {
 		return logger.getLogFile();
 	}
@@ -211,13 +227,8 @@ class Worker extends Thread {
 		this.p = p;
 		this.server = server;
 		this.socket = socket;
-		Utility.sendMessage(socket, "joined", p.getAddress(), p.getPort()); // just
-		// an
-		// ack
-		// System.out.println(this.socket.getLocalPort());
-		// System.out.println(this.socket.getPort());
-		// System.out.println(this.socket.getLocalPort());
-		// System.out.println(this.socket.getPort());
+		// just an ack
+		Utility.sendMessage(socket, "joined", p.getAddress(), p.getPort());
 		new Thread() {
 			public void run() {
 				while (true) {
@@ -227,7 +238,6 @@ class Worker extends Thread {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						// System.out.println("hello" + p.getName());
 						Utility.sendMessage(socket, server.getGrid(),
 								p.getAddress(), p.getPort());
 						if (!p.getIsAlive()) {
@@ -247,7 +257,6 @@ class Worker extends Thread {
 
 		while (true) {
 			Object o = Utility.receiveMessage(socket);
-			// System.out.println("dsaf");
 			Command c = (Command) o;
 
 			// Log the command
