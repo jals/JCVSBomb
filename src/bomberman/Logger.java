@@ -96,19 +96,33 @@ public class Logger extends Thread {
 					for (int j = 0; j < Model.BOARD_SIZE; j++) {
 						if (board[i][j] == null) {
 							// Border
-							grid += "X";
+							if (i==0 || i==11) {
+								grid+="-";
+							} else {
+								grid+="|";
+							}
 						} else if (board[i][j].hasWall()) {
 							// Wall
 							grid += "w";
 						} else if (board[i][j].numPlayers() > 0) {
 							// Player
 							grid += "P";
+						} else if (board[i][j].hasDoor()) {
+							// Door
+							grid += "D";
 						} else {
 							// Open space
-							grid += "+";
+							grid += " ";
 						}
 					}
-					log.write(BOARD_STATE + ",Row " + i + "," + grid);
+					
+					// Make it look all pretty
+					if (i>9) {
+						log.write(BOARD_STATE + ",Row" + i + "," + grid);
+					} else {
+						log.write(BOARD_STATE + ",Row " + i + "," + grid);
+					}
+					
 					log.newLine();
 					grid = new String();
 				}
