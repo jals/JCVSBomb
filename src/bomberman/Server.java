@@ -25,7 +25,9 @@ public class Server {
 				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
+		
 		logger = new Logger();
+		logger.start();
 	}
 
 	public Server(boolean testing) throws SocketException {

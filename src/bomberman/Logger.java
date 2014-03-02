@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Logger {
+public class Logger extends Thread {
 	
 	private static final String PLAYER = "PLAYER";
 	private static final String COMMAND = "COMMAND";
@@ -17,6 +17,8 @@ public class Logger {
 	
 	private static BufferedWriter log;
 	private String fileName;
+	
+	private boolean run = true;
 	
 	/**
 	 * Create a new logger object
@@ -38,6 +40,17 @@ public class Logger {
 	
 	public Logger() {
 		this("logs/bomberman-" + getDate() + ".log");
+	}
+	
+	public void run() {
+		while(run) {
+		}
+		
+		try {
+			close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -95,7 +108,7 @@ public class Logger {
 	 * Close the log file
 	 * @throws IOException
 	 */
-	public void close() throws IOException {
+	private void close() throws IOException {
 		log.close();
 	}
 	
@@ -109,4 +122,7 @@ public class Logger {
 		return fileName;
 	}
 	
+	public void shutdown() {
+		run = false;
+	}
 }

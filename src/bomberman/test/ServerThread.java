@@ -8,7 +8,8 @@ class ServerThread extends Thread {
 	
 	public void run() {
 		try {
-			Server.main(null);
+			String[] args = {"1"};
+			Server.main(args);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
