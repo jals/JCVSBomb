@@ -15,7 +15,7 @@ public class Server {
 	private Square[][] grid;
 	private DatagramSocket serverSocket;
 	private Object refreshed;
-	private Logger logger;
+	private static Logger logger;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
@@ -78,6 +78,10 @@ public class Server {
 			server.getServerSocket().receive(packet);
 			Object o = Utility.deserialize(packet.getData());
 			Command c = (Command) o;
+			
+			// Log the command
+			logger.logCommand(c);
+			
 //			System.out.println(c.getOperation());
 			Player p = null;
 			if (c.getOperation() == Command.Operation.JOIN_GAME) {

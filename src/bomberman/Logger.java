@@ -30,10 +30,12 @@ public class Logger {
 		return formatter.format(new Date());
 	}
 	
-	public synchronized void logCommand(Command command) throws IOException {
-		log.write("COMMAND: Player=" + command.getPlayer() + "; Operation=" + command.getOperation());
-		log.newLine();
-		log.flush();
+	public void logCommand(Command command) throws IOException {
+		synchronized (log) {
+			log.write("COMMAND: Player=" + command.getPlayer() + ", Operation=" + command.getOperation());
+			log.newLine();
+			log.flush();
+		}
 	}
 	
 	public void close() throws IOException {
