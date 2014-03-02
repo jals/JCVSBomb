@@ -12,18 +12,9 @@ public class Logger {
 	private static BufferedWriter log;
 	
 	public Logger(String fileName) {
-		
-		File folder = new File("logs");
-		if (!folder.exists()) {
-			try {
-				folder.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		
 		try {
+			File directory = new File("logs");
+			directory.mkdir();
 			log = new BufferedWriter(new FileWriter(new File(fileName)));
 		} catch (IOException e) {
 			System.out.println("ERROR: Could not create log file: " + fileName);
