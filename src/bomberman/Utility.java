@@ -82,7 +82,7 @@ public class Utility {
 		int newX = 5, newY = 5;
 
 		if (Operation.MOVE_DOWN == operation) {
-			newX = Math.min(x + 1, 9);
+			newX = Math.min(x + 1, 11);
 			newY = y;
 		} else if (Operation.MOVE_UP == operation) {
 			newX = Math.max(x - 1, 0);
@@ -91,7 +91,7 @@ public class Utility {
 			newY = Math.max(y - 1, 0);
 			newX = x;
 		} else if (Operation.MOVE_RIGHT == operation) {
-			newY = Math.min(y + 1, 9);
+			newY = Math.min(y + 1, 11);
 			newX = x;
 		} else {
 			newY = y;

@@ -8,23 +8,25 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class Server {
 
 	private List<Player> listOfPlayers;
-	private  Model grid;
+	private Model grid;
 	private DatagramSocket serverSocket;
 	private Object refreshed;
 	private static Logger logger;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
-		grid = new Model("", null);//Square[10][10];
-//		for (int x = 0; x < 10; x++) {
-//			for (int y = 0; y < 10; y++) {
-//				grid[x][y] = new Square();
-//			}
-//		}
+		grid = new Model(
+				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
+		// for (int x = 0; x < 10; x++) {
+		// for (int y = 0; y < 10; y++) {
+		// grid[x][y] = new Square();
+		// }
+		// }
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
 		logger = new Logger();
@@ -49,8 +51,29 @@ public class Server {
 	public Square[][] getGrid() {
 		return grid.getBoard();
 	}
+
 	public synchronized boolean canGo(int x, int y) {
-		return grid.getBoard()[x][y].hasWall();
+		Square interestedSquare = grid.getBoard()[x][y];
+		if (interestedSquare != null) {
+			return !interestedSquare.hasWall();
+		}
+		return false;
+	}
+
+	public Point getFreePoint() {
+		Point toReturn = null;
+		Random random = new Random();
+		boolean isOkay = false;
+		while (!isOkay) {
+			int x = random.nextInt(10) + 1;
+			int y = random.nextInt(10) + 1;
+			if (grid.getBoard()[x][y].numPlayers() == 0
+					&& !grid.getBoard()[x][y].hasWall()) {
+				isOkay = true;
+				toReturn = new Point(x,y);	
+			}
+		}
+		return toReturn;
 	}
 
 	public synchronized void refreshGrid() {
@@ -61,13 +84,32 @@ public class Server {
 			}
 		}
 		for (Player p : listOfPlayers) {
-			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()]
-					.addObject(p);
+			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
+					.getY()].addObject(p);
 		}
+		for (Player p : listOfPlayers) {
+			for (Player q : listOfPlayers) {
+				if (p != q && p.getLocation().equals(q.getLocation())) {
+					p.setIsAlive(false);
+					q.setIsAlive(false);
+				}
+			}
+		}
+		List<Player> newPlayers = new ArrayList<Player>();
+		for (Player p : listOfPlayers) {
+			if(p.getIsAlive()) {
+				newPlayers.add(p);
+			} else {
+				grid.getBoard()[p.getLocation().x][p.getLocation().y].removePlayers();
+			}
+		}
+		listOfPlayers = newPlayers;
+		
+		
 		synchronized (refreshed) {
 			refreshed.notifyAll();
 		}
-		
+
 		try {
 			logger.logRefresh();
 		} catch (IOException e) {
@@ -88,16 +130,16 @@ public class Server {
 			server.getServerSocket().receive(packet);
 			Object o = Utility.deserialize(packet.getData());
 			Command c = (Command) o;
-			
+
 			// Log the command
 			logger.logCommand(c);
-			
-//			System.out.println(c.getOperation());
+
+			// System.out.println(c.getOperation());
 			Player p = null;
 			if (c.getOperation() == Command.Operation.JOIN_GAME) {
 				p = new Player(c.getPlayer());
 				p.setIsAlive(true);
-				p.setLocation(new Point(1, 1));
+				p.setLocation(server.getFreePoint());
 				p.setAddress(packet.getAddress());
 				p.setPort(packet.getPort());
 				server.listOfPlayers.add(p);
@@ -108,7 +150,7 @@ public class Server {
 				done = true;
 			}
 		}
-//		System.out.println("hello");
+		// System.out.println("hello");
 		for (Worker worker : workers) {
 			worker.start();
 		}
@@ -159,6 +201,10 @@ class Worker extends Thread {
 						// System.out.println("hello" + p.getName());
 						Utility.sendMessage(socket, server.getGrid(),
 								p.getAddress(), p.getPort());
+						if (!p.getIsAlive()) {
+							done();
+							break;
+						}
 
 					}
 				}
@@ -174,23 +220,23 @@ class Worker extends Thread {
 			Object o = Utility.receiveMessage(socket);
 			// System.out.println("dsaf");
 			Command c = (Command) o;
-			
+
 			// Log the command
 			try {
 				server.getLogger().logCommand(c);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+
 			if (c.getOperation().isMove()) {
 				Point location = p.getLocation();
 				Point newLocation = Utility.getLocation(c.getOperation(),
 						location);
-				if (server.canGo(location.x, location.y));
-				p.setLocation(newLocation);
+				if (server.canGo(newLocation.x, newLocation.y)) {
+					p.setLocation(newLocation);
+				}
 			} else if (c.getOperation() == Command.Operation.LEAVE_GAME) {
-				server.removePlayer(p);
-				Utility.sendMessage(socket, Command.Operation.LEAVE_GAME, p.getAddress(), p.getPort());
+				done();
 				break;
 			} else {
 				// TODO: Drop Bomb
@@ -198,6 +244,13 @@ class Worker extends Thread {
 			server.refreshGrid();
 		}
 		server.refreshGrid();
+	}
+
+	private void done() {
+		server.removePlayer(p);
+		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME,
+				p.getAddress(), p.getPort());
+
 	}
 
 }

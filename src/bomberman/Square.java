@@ -36,12 +36,27 @@ public class Square implements Serializable {
 		objects = newObjects;
 	}
 
+	public boolean hasMultiplePlayers() {
+		return numPlayers() > 1;
+	}
+
 	public String toString() {
 		return objects.size() + "";
 	}
-	
+
 	public boolean hasWall() {
 		return objects.contains(1);
+	}
+
+	public int numPlayers() {
+		int numPlayers = 0;
+		for (int x = 0; x < objects.size(); x++) {
+			if (objects.get(x) instanceof Player) {
+				numPlayers++;
+			}
+		}
+		return numPlayers;
+
 	}
 
 	public void removeLast() {
