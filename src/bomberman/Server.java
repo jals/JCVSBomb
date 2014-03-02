@@ -15,6 +15,7 @@ public class Server {
 	private  Model grid;
 	private DatagramSocket serverSocket;
 	private Object refreshed;
+	private static Logger logger;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
@@ -26,6 +27,7 @@ public class Server {
 //		}
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
+		logger = new Logger();
 	}
 
 	public Server(String filename) {
@@ -76,6 +78,10 @@ public class Server {
 			server.getServerSocket().receive(packet);
 			Object o = Utility.deserialize(packet.getData());
 			Command c = (Command) o;
+			
+			// Log the command
+			logger.logCommand(c);
+			
 //			System.out.println(c.getOperation());
 			Player p = null;
 			if (c.getOperation() == Command.Operation.JOIN_GAME) {
@@ -100,6 +106,10 @@ public class Server {
 
 	public DatagramSocket getServerSocket() {
 		return serverSocket;
+	}
+
+	public Logger getLogger() {
+		return logger;
 	}
 
 }
@@ -150,6 +160,14 @@ class Worker extends Thread {
 			Object o = Utility.receiveMessage(socket);
 			// System.out.println("dsaf");
 			Command c = (Command) o;
+			
+			// Log the command
+			try {
+				server.getLogger().logCommand(c);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			if (c.getOperation().isMove()) {
 				Point location = p.getLocation();
 				Point newLocation = Utility.getLocation(c.getOperation(),

@@ -1,24 +1,45 @@
 package bomberman;
 
-public class Logger implements Runnable{
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-	private Object[][] grid;
+public class Logger {
 	
-	public void start(){
-		
+	private static BufferedWriter log;
+	
+	public Logger(String fileName) {
+		try {
+			log = new BufferedWriter(new FileWriter(new File(fileName)));
+		} catch (IOException e) {
+			System.out.println("ERROR: Could not create log file: " + fileName);
+			e.printStackTrace();
+		}
 	}
-
-	@Override
-	public void run() {
-		
+	
+	public Logger() {
+		this("logs/bomberman-" + getDate() + ".log");
 	}
-
-	public Object[][] getGrid() {
-		return grid;
+	
+	private static String getDate() {
+		SimpleDateFormat formatter = new SimpleDateFormat();
+		formatter.applyPattern("yyyy-MM-dd-HH-mm");
+		return formatter.format(new Date());
 	}
-
-	public void setGrid(Object[][] grid) {
-		this.grid = grid;
+	
+	public void logCommand(Command command) throws IOException {
+		synchronized (log) {
+			log.write("COMMAND: Player=" + command.getPlayer() + ", Operation=" + command.getOperation());
+			log.newLine();
+			log.flush();
+		}
 	}
-
+	
+	public void close() throws IOException {
+		log.close();
+	}
+	
 }

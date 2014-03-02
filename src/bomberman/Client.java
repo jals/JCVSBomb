@@ -32,7 +32,7 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		@SuppressWarnings("resource")
 		Scanner a = new Scanner(System.in);
-		Client j = new Client(a.nextLine().substring(0, 1));
+		Client j = new Client(sanitizeName(a.nextLine()));
 		while (true) {
 			j.move(a.nextLine());
 		}
@@ -126,6 +126,16 @@ public class Client {
 
 	public void setGrid(Object[][] grid) {
 		this.grid = grid;
+	}
+	
+	private static String sanitizeName(String name) {
+		// Remove anything not alpha-numerical
+		name = name.replaceAll("[^A-Za-z0-9 ]", "");
+		
+		// Remove spaces
+		name = name.replaceAll(" ", "");
+		
+		return name;
 	}
 
 }
