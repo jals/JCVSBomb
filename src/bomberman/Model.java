@@ -20,6 +20,8 @@ public class Model {
 	private Boolean[][] emptyBlocks;
 	private String input;
 	private int a = 0;
+	private boolean hasDoor;
+	private Door door;
 
 	public Model(String filename, Square[][] grid) {
 		board = new Square[BOARD_SIZE][BOARD_SIZE];
@@ -35,8 +37,12 @@ public class Model {
 					board[j][k] = new Square();
 					if (Integer.parseInt(input.substring(a, a + 1)) == 0) {
 						board[j][k].addObject(0);
-					} else {
+					} else if (Integer.parseInt(input.substring(a, a + 1)) == 1){
 						board[j][k].addObject(1);
+					}  else if (Integer.parseInt(input.substring(a, a + 1)) == 2){
+						door = new Door(new Point(j, k), false);
+						board[j][k].addObject(door);
+						setHasDoor(true);
 					}
 					a++;
 				}
@@ -278,5 +284,21 @@ public class Model {
 
 	public void setBoard(Square[][] board) {
 		this.board = board;
+	}
+
+	public boolean hasDoor() {
+		return hasDoor;
+	}
+
+	public void setHasDoor(boolean hasDoor) {
+		this.hasDoor = hasDoor;
+	}
+
+	public Door getDoor() {
+		return door;
+	}
+
+	public void setDoor(Door door) {
+		this.door = door;
 	}
 }
