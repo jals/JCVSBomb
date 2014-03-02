@@ -85,9 +85,17 @@ public class Logger extends Thread {
 				for (int i=0; i<Model.BOARD_SIZE; i++) {
 					for (int j=0; j<Model.BOARD_SIZE; j++) {
 						if (board[i][j] == null) {
-							grid+=0;
+							// Border
+							grid+="X";
+						} else if(board[i][j].hasWall()) {
+							// Wall
+							grid+="w";
+						} else if(board[i][j].numPlayers() > 0) {
+							// Player
+							grid+="P";
 						} else {
-							grid += board[i][j];
+							// Open space
+							grid+="+";
 						}
 					}
 					log.write(BOARD_STATE + ",Row " + i + "," + grid);
