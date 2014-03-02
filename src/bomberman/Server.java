@@ -135,25 +135,41 @@ public class Server {
 			logger.logCommand(c);
 
 			// System.out.println(c.getOperation());
-			Player p = null;
-			if (c.getOperation() == Command.Operation.JOIN_GAME) {
-				p = new Player(c.getPlayer());
-				p.setIsAlive(true);
-				p.setLocation(server.getFreePoint());
-				p.setAddress(packet.getAddress());
-				p.setPort(packet.getPort());
-				server.listOfPlayers.add(p);
-				server.refreshGrid();
-				DatagramSocket socket = new DatagramSocket();
-				workers.add(new Worker(server, server.refreshed, p, socket));
-			} else if (c.getOperation() == Command.Operation.START_GAME) {
-				done = true;
-			}
+			done = addPlayer(server, packet, workers, done, c);
 		}
 		// System.out.println("hello");
 		for (Worker worker : workers) {
 			worker.start();
 		}
+	}
+
+	/**
+	 * @param server
+	 * @param packet
+	 * @param workers
+	 * @param done
+	 * @param c
+	 * @return
+	 * @throws SocketException
+	 */
+	public static boolean addPlayer(Server server, DatagramPacket packet,
+			List<Worker> workers, boolean done, Command c)
+			throws SocketException {
+		Player p = null;
+		if (c.getOperation() == Command.Operation.JOIN_GAME) {
+			p = new Player(c.getPlayer());
+			p.setIsAlive(true);
+			p.setLocation(server.getFreePoint());
+			p.setAddress(packet.getAddress());
+			p.setPort(packet.getPort());
+			server.listOfPlayers.add(p);
+			server.refreshGrid();
+			DatagramSocket socket = new DatagramSocket();
+			workers.add(new Worker(server, server.refreshed, p, socket));
+		} else if (c.getOperation() == Command.Operation.START_GAME) {
+			done = true;
+		}
+		return done;
 	}
 
 	public DatagramSocket getServerSocket() {
