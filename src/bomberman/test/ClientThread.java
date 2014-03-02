@@ -8,7 +8,7 @@ public class ClientThread extends Thread {
 
 	public ClientThread(String player) {
 		try {
-			client = new Client(player, "locahost", 9876);
+			client = new Client(player, "127.0.0.1", 9876);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

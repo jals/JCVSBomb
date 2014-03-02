@@ -22,8 +22,7 @@ public class Server {
 
 	public Server(int port) throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
-		grid = new Model(
-				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);
+		grid = new Model("src/bomberman/gui/defaultMap.txt", null);
 		serverSocket = new DatagramSocket(port);
 		if (!grid.hasDoor()) {
 			Point doorPoint = getFreePoint();
