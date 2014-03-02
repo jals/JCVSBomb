@@ -17,16 +17,20 @@ public class Server {
 	private DatagramSocket serverSocket;
 	private Object refreshed;
 	private static Logger logger;
+	private Door d;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Model(
-				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
+				"C:\\Users\\jarredlinthorneshaw\\workspace\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
 		// for (int x = 0; x < 10; x++) {
 		// for (int y = 0; y < 10; y++) {
 		// grid[x][y] = new Square();
 		// }
 		// }
+		Point doorPoint = getFreePoint();
+		d = new Door(doorPoint, false);
+		grid.getBoard()[doorPoint.x][doorPoint.y].addObject(d);
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
 		logger = new Logger();
@@ -86,6 +90,9 @@ public class Server {
 		for (Player p : listOfPlayers) {
 			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
 					.getY()].addObject(p);
+			if(p.getLocation().x == d.getLocation().x && p.getLocation().y == d.getLocation().y){
+				d.setVisible(true);
+			}
 		}
 		for (Player p : listOfPlayers) {
 			for (Player q : listOfPlayers) {
