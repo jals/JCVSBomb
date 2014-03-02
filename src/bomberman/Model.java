@@ -58,29 +58,7 @@ public class Model {
 		if (grid != null) {
 			board = grid;
 		}
-		// clearOld();
-		// if (grid != null) {
-		// for (int i = 1; i < grid.length - 1; i++) {
-		// for (int j = 1; j < grid[0].length - 1; j++) {
-		// if (!(grid[i][j]).getObjects().isEmpty()) {
-		// oldObjects[i][j] = (grid[i][j]).getObjects().get(0);
-		// board[i][j].addObject(grid[i][j].getObjects().get(0));
-		// }
-		// }
-		// }
-		// }
 	}
-
-	// private void clearOld() {
-	// for (int i = 1; i < BOARD_SIZE - 1; i++) {
-	// for (int j = 1; j < BOARD_SIZE - 1; j++) {
-	// if (oldObjects[i][j] != null) {
-	// board[i][j] = new Square();
-	// board[i][j].addObject(0);
-	// }
-	// }
-	// }
-	// }
 
 	static String readFile(String path, Charset encoding) throws IOException {
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
@@ -111,13 +89,8 @@ public class Model {
 			for (int j = 1; j < BOARD_SIZE - 1; j++) {
 				if (emptyBlocks[i][j] == true) {
 					Point x = getClosestBlock(i, j, null);
-					Point y = getClosestBlock(i, j, x); // check point x to make
-														// sure you don't get
-														// same point again
-					// System.out.println("At x: " + i + " y: " + j +
-					// " 1st closest: " + getString(x.y) + " at " + x.x +
-					// " spaces" + " 2nd closest: " + getString(y.y) + " at " +
-					// y.x + " spaces");
+					// check point x to make sure you don't get same point again
+					Point y = getClosestBlock(i, j, x);
 					if (x.x != BOARD_SIZE) {
 						if (x.y == RIGHT) {
 							adjustRight(i, j, x.x);

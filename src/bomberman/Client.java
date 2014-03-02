@@ -94,8 +94,6 @@ public class Client {
 							}
 						}
 					} else {
-//						System.out.println(Utility
-//								.getGridString((Square[][]) grid)); //TODO SEND TO GUI
 						if (bc == null){
 							bc = new BombermanClient((Square[][]) grid);
 							bc.setVisible(true);
