@@ -7,6 +7,11 @@ import java.util.Scanner;
 
 import bomberman.gui.BombermanClient;
 
+/**
+ * 
+ * Client class which handles one player's UDP communication to the server and instantiates the GUI.
+ *
+ */
 public class Client {
 	private InetAddress ip;
 	private int port;
@@ -17,7 +22,13 @@ public class Client {
 	private DatagramSocket clientSocket;
 	private Boolean started;
 	private BombermanClient bc = null;
-
+	
+	/**
+	 * Client class constructor. Takes playerName as a parameter. Initializes the instance variables.
+	 * @param playerName
+	 * @throws Exception
+	 */
+	//TODO: Add the port as a parameter
 	public Client(String playerName) throws Exception {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
@@ -28,7 +39,11 @@ public class Client {
 		started = Boolean.FALSE;
 		joinGame(); // Code to make the methods not have warnings
 	}
-
+	/**
+	 * Main method for Client. Instantiates the client and moves it using a scanner which reads in the commands one line at a time.
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 		@SuppressWarnings("resource")
 		Scanner a = new Scanner(System.in);
@@ -36,9 +51,13 @@ public class Client {
 		while (true) {
 			j.move(a.nextLine());
 		}
-
 	}
 
+	/**
+	 * Moves the player in the grid taking the direction as a parameter.
+	 * @param direction
+	 * @throws Exception
+	 */
 	public void move(String direction) throws Exception {
 //		System.out.println("sdfas");
 		try {
@@ -62,6 +81,12 @@ public class Client {
 		}
 	}
 
+	/**
+	 * Handles the communication with the server that is necessary in order to join a game.
+	 * Creates a Thread to handle
+	 * 
+	 * @throws Exception
+	 */
 	private void joinGame() throws Exception {
 
 		move("join_game");
@@ -94,8 +119,6 @@ public class Client {
 							}
 						}
 					} else {
-//						System.out.println(Utility
-//								.getGridString((Square[][]) grid)); //TODO SEND TO GUI
 						if (bc == null){
 							bc = new BombermanClient((Square[][]) grid);
 							bc.setVisible(true);
@@ -111,23 +134,41 @@ public class Client {
 		listen.start();
 
 	}
-
+	
+	/**
+	 * Getter for playerName
+	 * @return
+	 */
 	public String getPlayerName() {
 		return playerName;
 	}
-
+	/**
+	 * Setter for playerName
+	 * @param playerName
+	 */
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
 	}
-
+	/**
+	 * Getter for grid
+	 * @return
+	 */
 	public Object[][] getGrid() {
 		return grid;
 	}
-
+	/**
+	 * Setter for grid.
+	 * @param grid
+	 */
 	public void setGrid(Object[][] grid) {
 		this.grid = grid;
 	}
 	
+	/**
+	 * Static method for removing spaces and non-alphanumeric characters.
+	 * @param name
+	 * @return
+	 */
 	private static String sanitizeName(String name) {
 		// Remove anything not alpha-numerical
 		name = name.replaceAll("[^A-Za-z0-9 ]", "");

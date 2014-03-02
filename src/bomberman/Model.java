@@ -20,6 +20,8 @@ public class Model {
 	private Boolean[][] emptyBlocks;
 	private String input;
 	private int a = 0;
+	private boolean hasDoor;
+	private Door door;
 
 	public Model(String filename, Square[][] grid) {
 		board = new Square[BOARD_SIZE][BOARD_SIZE];
@@ -35,8 +37,12 @@ public class Model {
 					board[j][k] = new Square();
 					if (Integer.parseInt(input.substring(a, a + 1)) == 0) {
 						board[j][k].addObject(0);
-					} else {
+					} else if (Integer.parseInt(input.substring(a, a + 1)) == 1){
 						board[j][k].addObject(1);
+					}  else if (Integer.parseInt(input.substring(a, a + 1)) == 2){
+						door = new Door(new Point(j, k), false);
+						board[j][k].addObject(door);
+						setHasDoor(true);
 					}
 					a++;
 				}
@@ -52,29 +58,7 @@ public class Model {
 		if (grid != null) {
 			board = grid;
 		}
-		// clearOld();
-		// if (grid != null) {
-		// for (int i = 1; i < grid.length - 1; i++) {
-		// for (int j = 1; j < grid[0].length - 1; j++) {
-		// if (!(grid[i][j]).getObjects().isEmpty()) {
-		// oldObjects[i][j] = (grid[i][j]).getObjects().get(0);
-		// board[i][j].addObject(grid[i][j].getObjects().get(0));
-		// }
-		// }
-		// }
-		// }
 	}
-
-	// private void clearOld() {
-	// for (int i = 1; i < BOARD_SIZE - 1; i++) {
-	// for (int j = 1; j < BOARD_SIZE - 1; j++) {
-	// if (oldObjects[i][j] != null) {
-	// board[i][j] = new Square();
-	// board[i][j].addObject(0);
-	// }
-	// }
-	// }
-	// }
 
 	static String readFile(String path, Charset encoding) throws IOException {
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
@@ -105,13 +89,8 @@ public class Model {
 			for (int j = 1; j < BOARD_SIZE - 1; j++) {
 				if (emptyBlocks[i][j] == true) {
 					Point x = getClosestBlock(i, j, null);
-					Point y = getClosestBlock(i, j, x); // check point x to make
-														// sure you don't get
-														// same point again
-					// System.out.println("At x: " + i + " y: " + j +
-					// " 1st closest: " + getString(x.y) + " at " + x.x +
-					// " spaces" + " 2nd closest: " + getString(y.y) + " at " +
-					// y.x + " spaces");
+					// check point x to make sure you don't get same point again
+					Point y = getClosestBlock(i, j, x);
 					if (x.x != BOARD_SIZE) {
 						if (x.y == RIGHT) {
 							adjustRight(i, j, x.x);
@@ -278,5 +257,21 @@ public class Model {
 
 	public void setBoard(Square[][] board) {
 		this.board = board;
+	}
+
+	public boolean hasDoor() {
+		return hasDoor;
+	}
+
+	public void setHasDoor(boolean hasDoor) {
+		this.hasDoor = hasDoor;
+	}
+
+	public Door getDoor() {
+		return door;
+	}
+
+	public void setDoor(Door door) {
+		this.door = door;
 	}
 }

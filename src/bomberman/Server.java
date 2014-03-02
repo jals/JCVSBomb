@@ -17,7 +17,7 @@ public class Server {
 	private DatagramSocket serverSocket;
 	private Object refreshed;
 	private static Logger logger;
-	private Door d;
+	private Door door;
 	private boolean isTesting;
 
 	public Server() throws SocketException {
@@ -29,9 +29,14 @@ public class Server {
 		// grid[x][y] = new Square();
 		// }
 		// }
-		Point doorPoint = getFreePoint();
-		d = new Door(doorPoint, false);
-		grid.getBoard()[doorPoint.x][doorPoint.y].addObject(d);
+		if(!grid.hasDoor()){
+			Point doorPoint = getFreePoint();
+			door = new Door(doorPoint, false);
+			grid.getBoard()[doorPoint.x][doorPoint.y].addObject(door);
+		} else {
+			door = grid.getDoor();
+			grid.getBoard()[door.getLocation().x][door.getLocation().y].addObject(door); //if loaded from file
+		}
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
 		
@@ -41,11 +46,15 @@ public class Server {
 
 	public Server(boolean testing) throws SocketException {
 		this();
-		isTesting = false;
+		isTesting = testing;
 	}
 
 	public void removePlayer(Player p) {
 		listOfPlayers.remove(p);
+	}
+
+	public void removeLastPlayer() {
+		listOfPlayers.remove(listOfPlayers.size() - 1);
 	}
 
 	public void setListOfPlayers(List<Player> listOfPlayers) {
@@ -89,8 +98,10 @@ public class Server {
 		for (Player p : listOfPlayers) {
 			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
 					.getY()].addObject(p);
-			if(p.getLocation().x == d.getLocation().x && p.getLocation().y == d.getLocation().y){
-				d.setVisible(true);
+			if(door!=null){
+				if(p.getLocation().x == door.getLocation().x && p.getLocation().y == door.getLocation().y){
+					door.setVisible(true);
+				}
 			}
 		}
 		for (Player p : listOfPlayers) {
@@ -146,7 +157,18 @@ public class Server {
 		for (Worker worker : workers) {
 			worker.start();
 		}
-		
+		while (true) {
+			server.getServerSocket().receive(packet);
+			Object o = Utility.deserialize(packet.getData());
+			Command c = (Command) o;
+
+			// Log the command
+			logger.logCommand(c);
+
+			done = server.addPlayer(packet, workers, done, c);
+			server.removeLastPlayer();
+		}
+
 	}
 
 	/**
