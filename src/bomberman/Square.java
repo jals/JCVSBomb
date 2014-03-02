@@ -66,8 +66,8 @@ public class Square implements Serializable {
 		return numPlayers;
 
 	}
-	
-	public boolean hasDoor(){
+
+	public boolean hasDoor() {
 		for (int x = 0; x < objects.size(); x++) {
 			if (objects.get(x) instanceof Door) {
 				return true;

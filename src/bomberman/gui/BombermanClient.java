@@ -14,10 +14,10 @@ public class BombermanClient extends JFrame {
 	private Model model;
 	private BoardDisplay board;
 
-	public BombermanClient(String filename, Square[][] grid){
+	public BombermanClient(String filename, Square[][] grid) {
 		model = new Model(filename, grid);
 		board = new BoardDisplay(model);
-		
+
 		JPanel content = new JPanel();
 		content.setLayout(new BorderLayout());
 
@@ -30,22 +30,22 @@ public class BombermanClient extends JFrame {
 		pack();
 		setLocationRelativeTo(null); // Center it.
 	}
-	
-	public BombermanClient(Square[][] grid){
+
+	public BombermanClient(Square[][] grid) {
 		this("", grid);
 	}
-	
+
 	public BombermanClient() {
 		this("", null);
 	}
-	
-	public void refresh(Square[][] grid){
+
+	public void refresh(Square[][] grid) {
 		model.refreshGrid(grid);
 		repaint();
 	}
 
 	public static void main(String[] args) {
-		if(args.length != 0){
+		if (args.length != 0) {
 			new BombermanClient(args[0], null).setVisible(true);
 		} else {
 			new BombermanClient().setVisible(true);

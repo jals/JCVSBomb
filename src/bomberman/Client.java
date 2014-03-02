@@ -9,8 +9,9 @@ import bomberman.gui.BombermanClient;
 
 /**
  * 
- * Client class which handles one player's UDP communication to the server and instantiates the GUI.
- *
+ * Client class which handles one player's UDP communication to the server and
+ * instantiates the GUI.
+ * 
  */
 public class Client {
 	private InetAddress ip;
@@ -24,7 +25,7 @@ public class Client {
 	private BombermanClient bc = null;
 
 	public Client(String playerName, String host, int port) throws Exception {
-	
+
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
 		ip = InetAddress.getByName(host);
@@ -32,10 +33,13 @@ public class Client {
 		listenIp = InetAddress.getByName(host);
 		this.listenPort = port;
 		started = Boolean.FALSE;
-		joinGame(); //TODO: Code to make the methods not have warnings
+		joinGame(); // TODO: Code to make the methods not have warnings
 	}
+
 	/**
-	 * Main method for Client. Instantiates the client and moves it using a scanner which reads in the commands one line at a time.
+	 * Main method for Client. Instantiates the client and moves it using a
+	 * scanner which reads in the commands one line at a time.
+	 * 
 	 * @param args
 	 * @throws Exception
 	 */
@@ -51,6 +55,7 @@ public class Client {
 
 	/**
 	 * Moves the player in the grid taking the direction as a parameter.
+	 * 
 	 * @param direction
 	 * @throws Exception
 	 */
@@ -77,8 +82,8 @@ public class Client {
 	}
 
 	/**
-	 * Handles the communication with the server that is necessary in order to join a game.
-	 * Creates a Thread to handle
+	 * Handles the communication with the server that is necessary in order to
+	 * join a game. Creates a Thread to handle
 	 * 
 	 * @throws Exception
 	 */
@@ -127,38 +132,46 @@ public class Client {
 		listen.start();
 
 	}
-	
+
 	/**
 	 * Getter for playerName
+	 * 
 	 * @return
 	 */
 	public String getPlayerName() {
 		return playerName;
 	}
+
 	/**
 	 * Setter for playerName
+	 * 
 	 * @param playerName
 	 */
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
 	}
+
 	/**
 	 * Getter for grid
+	 * 
 	 * @return
 	 */
 	public Object[][] getGrid() {
 		return grid;
 	}
+
 	/**
 	 * Setter for grid.
+	 * 
 	 * @param grid
 	 */
 	public void setGrid(Object[][] grid) {
 		this.grid = grid;
 	}
-	
+
 	/**
 	 * Static method for removing spaces and non-alphanumeric characters.
+	 * 
 	 * @param name
 	 * @return
 	 */

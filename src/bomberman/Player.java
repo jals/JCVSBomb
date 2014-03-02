@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.io.Serializable;
 import java.net.InetAddress;
 
-public class Player implements Serializable{
+public class Player implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String playerName;
@@ -12,27 +12,27 @@ public class Player implements Serializable{
 	private Boolean isAlive;
 	private InetAddress address;
 	private int port;
-	
-	public Player(String playerName){
+
+	public Player(String playerName) {
 		this.playerName = playerName;
 	}
-	
+
 	public String getName() {
 		return playerName;
 	}
-	
+
 	public Point getLocation() {
 		return location;
 	}
-	
+
 	public void setLocation(Point location) {
 		this.location = location;
 	}
-	
+
 	public Boolean getIsAlive() {
 		return isAlive;
 	}
-	
+
 	public void setIsAlive(Boolean isAlive) {
 		this.isAlive = isAlive;
 	}
@@ -52,6 +52,5 @@ public class Player implements Serializable{
 	public void setPort(int port) {
 		this.port = port;
 	}
-	
-	
+
 }

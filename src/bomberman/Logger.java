@@ -8,27 +8,27 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Logger extends Thread {
-	
+
 	private static final String PLAYER = "PLAYER";
 	private static final String COMMAND = "COMMAND";
 	private static final String OPERATION = "OPERATION";
 	private static final String BOARD_STATE = "BOARD_STATE";
 	private static final String REFRESH = "REFRESH";
 	private static final String ERROR = "ERROR";
-	
+
 	private static BufferedWriter log;
 	private String fileName;
-	
+
 	private boolean run = true;
-	
+
 	/**
-	 * Create a new logger object
-	 * Write the log to the given file
+	 * Create a new logger object Write the log to the given file
+	 * 
 	 * @param fileName
 	 */
 	public Logger(String fileName) {
 		this.fileName = fileName;
-		
+
 		try {
 			File directory = new File("logs");
 			directory.mkdir();
@@ -38,47 +38,51 @@ public class Logger extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Create a new logger object with the date and time as a filename
 	 */
 	public Logger() {
 		this("logs/bomberman-" + getDate() + ".log");
 	}
-	
+
 	/**
 	 * Loop while run is true (haven't shut down)
 	 */
 	public void run() {
-		while(run) {
+		while (run) {
 		}
-		
+
 		try {
 			close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Log a command
+	 * 
 	 * @param command
 	 * @throws IOException
 	 */
 	public void logCommand(Command command) {
-		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation());
+		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer()
+				+ "," + OPERATION + "=" + command.getOperation());
 	}
-	
+
 	/**
 	 * Log a grid refresh
+	 * 
 	 * @throws IOException
 	 */
 	public void logRefresh() {
 		writeStringToLog(REFRESH);
 	}
-	
+
 	/**
 	 * Log the state of the grid
+	 * 
 	 * @param model
 	 * @throws IOException
 	 */
@@ -86,22 +90,22 @@ public class Logger extends Thread {
 		try {
 			String grid = new String();
 			Square[][] board = model.getBoard();
-			
+
 			synchronized (log) {
-				for (int i=0; i<Model.BOARD_SIZE; i++) {
-					for (int j=0; j<Model.BOARD_SIZE; j++) {
+				for (int i = 0; i < Model.BOARD_SIZE; i++) {
+					for (int j = 0; j < Model.BOARD_SIZE; j++) {
 						if (board[i][j] == null) {
 							// Border
-							grid+="X";
-						} else if(board[i][j].hasWall()) {
+							grid += "X";
+						} else if (board[i][j].hasWall()) {
 							// Wall
-							grid+="w";
-						} else if(board[i][j].numPlayers() > 0) {
+							grid += "w";
+						} else if (board[i][j].numPlayers() > 0) {
 							// Player
-							grid+="P";
+							grid += "P";
 						} else {
 							// Open space
-							grid+="+";
+							grid += "+";
 						}
 					}
 					log.write(BOARD_STATE + ",Row " + i + "," + grid);
@@ -114,26 +118,30 @@ public class Logger extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Log an error
+	 * 
 	 * @param command
 	 * @param error
 	 */
 	public void logError(Command command, String error) {
-		writeStringToLog(ERROR + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation() + "," + error);
+		writeStringToLog(ERROR + "," + PLAYER + "=" + command.getPlayer() + ","
+				+ OPERATION + "=" + command.getOperation() + "," + error);
 	}
-	
+
 	/**
 	 * Close the log file
+	 * 
 	 * @throws IOException
 	 */
 	private void close() throws IOException {
 		log.close();
 	}
-	
+
 	/**
 	 * Formats and gets the current date, for the log file name
+	 * 
 	 * @return
 	 */
 	private static String getDate() {
@@ -141,24 +149,26 @@ public class Logger extends Thread {
 		formatter.applyPattern("yyyy-MM-dd-HH-mm");
 		return formatter.format(new Date());
 	}
-	
-	/** 
+
+	/**
 	 * Get the log file location
+	 * 
 	 * @return
 	 */
 	public String getLogFile() {
 		return fileName;
 	}
-	
+
 	/**
 	 * Stop the logger thread
 	 */
 	public void shutdown() {
 		run = false;
 	}
-	
+
 	/**
 	 * Write a string to the log
+	 * 
 	 * @param s
 	 */
 	private void writeStringToLog(String s) {

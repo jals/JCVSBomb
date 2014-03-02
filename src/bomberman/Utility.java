@@ -14,7 +14,8 @@ import java.net.InetAddress;
 import bomberman.Command.Operation;
 
 public class Utility {
-	public static void sendMessage(DatagramSocket socket, Object message, InetAddress add, int port) {
+	public static void sendMessage(DatagramSocket socket, Object message,
+			InetAddress add, int port) {
 		try {
 			byte[] sendData = new byte[1024 * 100];
 			sendData = serialize(message);
@@ -28,7 +29,7 @@ public class Utility {
 
 	}
 
-	public static Object receiveMessage(DatagramSocket socket){
+	public static Object receiveMessage(DatagramSocket socket) {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket receivePacket = new DatagramPacket(receiveData,
 				receiveData.length);
@@ -57,7 +58,7 @@ public class Utility {
 		in = new ObjectInputStream(bis);
 		return in.readObject();
 	}
-	
+
 	public static Point getLocation(Operation operation, Point location) {
 		int x = (int) location.getX();
 		int y = (int) location.getY();
@@ -81,9 +82,5 @@ public class Utility {
 		}
 		return new Point(newX, newY);
 	}
-
-
-
-
 
 }

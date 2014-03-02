@@ -5,10 +5,10 @@ import java.io.IOException;
 import bomberman.Server;
 
 class ServerThread extends Thread {
-	
+
 	public void run() {
 		try {
-			String[] args = {"1"};
+			String[] args = { "1" };
 			Server.main(args);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -16,9 +16,9 @@ class ServerThread extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String getLogFile() {
 		return Server.getLogFile();
 	}
-	
+
 }

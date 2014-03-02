@@ -3,9 +3,9 @@ package bomberman.test;
 import bomberman.Client;
 
 public class ClientThread extends Thread {
-	
+
 	private Client client;
-	
+
 	public ClientThread(String player) {
 		try {
 			client = new Client(player, "locahost", 9876);
@@ -15,12 +15,12 @@ public class ClientThread extends Thread {
 	}
 
 	public void run() {
-			while(true) {
-			}				
+		while (true) {
+		}
 	}
-	
+
 	public Client getClient() {
 		return client;
 	}
-	
+
 }
