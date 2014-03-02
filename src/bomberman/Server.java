@@ -116,13 +116,8 @@ public class Server {
 			refreshed.notifyAll();
 		}
 
-		try {
-			logger.logRefresh();
-			logger.logGrid(grid);
-		} catch (IOException e) {
-			// Unable to log the refresh
-			e.printStackTrace();
-		}
+		logger.logRefresh();
+		logger.logGrid(grid);
 	}
 
 	public static void main(String[] args) throws IOException,
@@ -252,11 +247,7 @@ class Worker extends Thread {
 			Command c = (Command) o;
 
 			// Log the command
-			try {
-				server.getLogger().logCommand(c);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			server.getLogger().logCommand(c);
 
 			if (c.getOperation().isMove()) {
 				Point location = p.getLocation();
@@ -264,6 +255,8 @@ class Worker extends Thread {
 						location);
 				if (server.canGo(newLocation.x, newLocation.y)) {
 					p.setLocation(newLocation);
+				} else {
+					server.getLogger().logError(c, "Cannot move here");
 				}
 			} else if (c.getOperation() == Command.Operation.LEAVE_GAME) {
 				done();
