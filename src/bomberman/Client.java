@@ -37,7 +37,7 @@ public class Client {
 		listenIp = InetAddress.getByName(null);
 		listenPort = 9876;
 		started = Boolean.FALSE;
-		joinGame(); // Code to make the methods not have warnings
+		joinGame(); //TODO: Code to make the methods not have warnings
 	}
 	/**
 	 * Main method for Client. Instantiates the client and moves it using a scanner which reads in the commands one line at a time.
