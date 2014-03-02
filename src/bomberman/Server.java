@@ -20,22 +20,22 @@ public class Server {
 	private Door d;
 	private boolean isTesting;
 
-	public Server() throws SocketException {
+	public Server(int port) throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Model(
 				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
 		Point doorPoint = getFreePoint();
 		d = new Door(doorPoint, false);
 		grid.getBoard()[doorPoint.x][doorPoint.y].addObject(d);
-		serverSocket = new DatagramSocket(9876);
+		serverSocket = new DatagramSocket(port);
 		refreshed = new Object();
 		
 		logger = new Logger();
 		logger.start();
 	}
 
-	public Server(boolean testing) throws SocketException {
-		this();
+	public Server(int port, boolean testing) throws SocketException {
+		this(port);
 		isTesting = testing;
 	}
 
@@ -68,8 +68,8 @@ public class Server {
 		Random random = new Random();
 		boolean isOkay = false;
 		while (!isOkay) {
-			int x = random.nextInt(10) + 1;
-			int y = random.nextInt(10) + 1;
+			int x = random.nextInt(Model.BOARD_SIZE - 2) + 1;
+			int y = random.nextInt(Model.BOARD_SIZE - 2) + 1;
 			if (grid.getBoard()[x][y].numPlayers() == 0
 					&& !grid.getBoard()[x][y].hasWall()) {
 				isOkay = true;
@@ -129,9 +129,9 @@ public class Server {
 			ClassNotFoundException {
 		Server server = null;
 		if (Integer.parseInt(args[0]) == 0) {
-			server = new Server(false);
+			server = new Server(Integer.parseInt(args[1]), false);
 		} else {
-			server = new Server(true);
+			server = new Server(Integer.parseInt(args[1]), true);
 		}
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,

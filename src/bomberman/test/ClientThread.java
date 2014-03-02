@@ -4,22 +4,19 @@ import bomberman.Client;
 
 public class ClientThread extends Thread {
 	
-	private static Client client;
+	private Client client;
 	
 	public ClientThread(String player) {
 		try {
-			client = new Client(player);
+			client = new Client(player, "locahost", 9876);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void run() {
-		try {
-			client.main(null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			while(true) {
+			}				
 	}
 	
 	public Client getClient() {

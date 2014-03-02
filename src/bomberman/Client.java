@@ -18,13 +18,13 @@ public class Client {
 	private Boolean started;
 	private BombermanClient bc = null;
 
-	public Client(String playerName) throws Exception {
+	public Client(String playerName, String host, int port) throws Exception {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
-		ip = InetAddress.getByName(null);
-		port = 9876;
-		listenIp = InetAddress.getByName(null);
-		listenPort = 9876;
+		ip = InetAddress.getByName(host);
+		this.port = port;
+		listenIp = InetAddress.getByName(host);
+		this.listenPort = port;
 		started = Boolean.FALSE;
 		joinGame(); // Code to make the methods not have warnings
 	}
@@ -32,7 +32,8 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		@SuppressWarnings("resource")
 		Scanner a = new Scanner(System.in);
-		Client j = new Client(sanitizeName(a.nextLine()));
+		Client j = new Client(sanitizeName(a.nextLine()), args[0],
+				Integer.parseInt(args[1]));
 		while (true) {
 			j.move(a.nextLine());
 		}
@@ -40,7 +41,6 @@ public class Client {
 	}
 
 	public void move(String direction) throws Exception {
-//		System.out.println("sdfas");
 		try {
 			Command.Operation operation = Command.Operation.valueOf(direction
 					.toUpperCase());
@@ -73,8 +73,6 @@ public class Client {
 		ip = receivePacket.getAddress();
 		port = receivePacket.getPort();
 
-//		System.out.println("fdfdf");
-		// ////////////////
 		Thread listen = new Thread(new Runnable() {
 
 			@Override
@@ -94,7 +92,7 @@ public class Client {
 							}
 						}
 					} else {
-						if (bc == null){
+						if (bc == null) {
 							bc = new BombermanClient((Square[][]) grid);
 							bc.setVisible(true);
 						} else {
@@ -125,14 +123,14 @@ public class Client {
 	public void setGrid(Object[][] grid) {
 		this.grid = grid;
 	}
-	
+
 	private static String sanitizeName(String name) {
 		// Remove anything not alpha-numerical
 		name = name.replaceAll("[^A-Za-z0-9 ]", "");
-		
+
 		// Remove spaces
 		name = name.replaceAll(" ", "");
-		
+
 		return name;
 	}
 
