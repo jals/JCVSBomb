@@ -112,6 +112,7 @@ public class Server {
 
 		try {
 			logger.logRefresh();
+			logger.logGrid(grid);
 		} catch (IOException e) {
 			// Unable to log the refresh
 			e.printStackTrace();
