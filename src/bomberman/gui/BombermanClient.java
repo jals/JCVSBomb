@@ -5,13 +5,16 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import bomberman.Model;
+import bomberman.Square;
+
 public class BombermanClient extends JFrame {
 	private static final long serialVersionUID = -5111494396046772840L;
 
 	private Model model;
 	private BoardDisplay board;
 
-	public BombermanClient(String filename, Object[][] grid){
+	public BombermanClient(String filename, Square[][] grid){
 		model = new Model(filename, grid);
 		board = new BoardDisplay(model);
 		
@@ -28,7 +31,7 @@ public class BombermanClient extends JFrame {
 		setLocationRelativeTo(null); // Center it.
 	}
 	
-	public BombermanClient(Object[][] grid){
+	public BombermanClient(Square[][] grid){
 		this("", grid);
 	}
 	
@@ -36,7 +39,7 @@ public class BombermanClient extends JFrame {
 		this("", null);
 	}
 	
-	public void refresh(Object[][] grid){
+	public void refresh(Square[][] grid){
 		model.refreshGrid(grid);
 		repaint();
 	}

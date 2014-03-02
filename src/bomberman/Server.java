@@ -12,18 +12,18 @@ import java.util.List;
 public class Server {
 
 	private List<Player> listOfPlayers;
-	private Square[][] grid;
+	private  Model grid;
 	private DatagramSocket serverSocket;
 	private Object refreshed;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
-		grid = new Square[10][10];
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				grid[x][y] = new Square();
-			}
-		}
+		grid = new Model("", null);//Square[10][10];
+//		for (int x = 0; x < 10; x++) {
+//			for (int y = 0; y < 10; y++) {
+//				grid[x][y] = new Square();
+//			}
+//		}
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
 	}
@@ -44,19 +44,19 @@ public class Server {
 		this.listOfPlayers = listOfPlayers;
 	}
 
-	public Object[][] getGrid() {
-		return grid;
+	public Square[][] getGrid() {
+		return grid.getBoard();
 	}
 
 	public synchronized void refreshGrid() {
 		// System.out.println("ggg");
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				grid[x][y].removePlayers();
+		for (int x = 1; x < 11; x++) {
+			for (int y = 1; y < 11; y++) {
+				grid.getBoard()[x][y].removePlayers();
 			}
 		}
 		for (Player p : listOfPlayers) {
-			grid[(int) p.getLocation().getX()][(int) p.getLocation().getY()]
+			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()]
 					.addObject(p);
 		}
 		synchronized (refreshed) {
@@ -81,7 +81,7 @@ public class Server {
 			if (c.getOperation() == Command.Operation.JOIN_GAME) {
 				p = new Player(c.getPlayer());
 				p.setIsAlive(true);
-				p.setLocation(new Point(0, 0));
+				p.setLocation(new Point(1, 1));
 				p.setAddress(packet.getAddress());
 				p.setPort(packet.getPort());
 				server.listOfPlayers.add(p);

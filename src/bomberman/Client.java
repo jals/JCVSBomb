@@ -97,10 +97,10 @@ public class Client {
 //						System.out.println(Utility
 //								.getGridString((Square[][]) grid)); //TODO SEND TO GUI
 						if (bc == null){
-							bc = new BombermanClient((Object[][]) grid);
+							bc = new BombermanClient((Square[][]) grid);
 							bc.setVisible(true);
 						} else {
-							bc.refresh((Object[][]) grid);
+							bc.refresh((Square[][]) grid);
 						}
 					}
 					// TODO update the screen with the grid
