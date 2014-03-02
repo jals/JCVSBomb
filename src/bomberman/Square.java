@@ -41,7 +41,19 @@ public class Square implements Serializable {
 	}
 
 	public String toString() {
-		return objects.size() + "";
+		for(Object o: objects){
+			if(o instanceof Door){
+				if(((Door)o).isVisible()){
+					return o.toString() + "";
+				} else {
+					return "D"; //TODO change to empty string to fully hide door
+				}
+			} else if(o instanceof Player){
+				return ((Player) o).getName();
+			}
+		}
+		
+		return "";
 	}
 
 	public boolean hasWall() {
