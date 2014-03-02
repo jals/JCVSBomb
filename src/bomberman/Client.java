@@ -5,6 +5,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Scanner;
 
+import bomberman.gui.BombermanClient;
+
 public class Client {
 	private InetAddress ip;
 	private int port;
@@ -14,6 +16,7 @@ public class Client {
 	private Object[][] grid;
 	private DatagramSocket clientSocket;
 	private Boolean started;
+	private BombermanClient bc = null;
 
 	public Client(String playerName) throws Exception {
 		this.playerName = playerName;
@@ -91,8 +94,14 @@ public class Client {
 							}
 						}
 					} else {
-						System.out.println(Utility
-								.getGridString((Square[][]) grid));
+//						System.out.println(Utility
+//								.getGridString((Square[][]) grid)); //TODO SEND TO GUI
+						if (bc == null){
+							bc = new BombermanClient((Object[][]) grid);
+							bc.setVisible(true);
+						} else {
+							bc.refresh((Object[][]) grid);
+						}
 					}
 					// TODO update the screen with the grid
 				}
