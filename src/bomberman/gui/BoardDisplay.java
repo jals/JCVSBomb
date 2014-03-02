@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import javax.swing.JComponent;
 
 import bomberman.Model;
+import bomberman.Square;
 
 public class BoardDisplay  extends JComponent {
 	private static final long serialVersionUID = -83694624035879827L;
@@ -47,12 +48,12 @@ public class BoardDisplay  extends JComponent {
     }
     
     private void fillInnerWalls(Graphics g){
-    	Object[][] b = model.getBoard();
+    	Square[][] b = model.getBoard();
     	g.setColor(Color.GRAY);
     	for(int i=1; i< PUZZLE_SIZE - 1; i++){
     		for(int j=1; j< PUZZLE_SIZE - 1; j++){
-    			if(b[i][j] instanceof Integer){
-    				if((int) b[i][j] == 1){ //fill all rectangles that have a value of 1
+    			if(b[i][j] instanceof Square){
+    				if((Integer)b[i][j].getObjects().get(0) == 1){ //fill all rectangles that have a value of 1
     					g.fillRect(j * CELL_PIXELS, i * CELL_PIXELS, 1 * CELL_PIXELS, 1 * CELL_PIXELS);
     				}
     			}

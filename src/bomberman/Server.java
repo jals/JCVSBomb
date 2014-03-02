@@ -67,6 +67,13 @@ public class Server {
 		synchronized (refreshed) {
 			refreshed.notifyAll();
 		}
+		
+		try {
+			logger.logRefresh();
+		} catch (IOException e) {
+			// Unable to log the refresh
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) throws IOException,
