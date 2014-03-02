@@ -15,6 +15,7 @@ public class Server {
 	private Square[][] grid;
 	private DatagramSocket serverSocket;
 	private Object refreshed;
+	private Logger logger;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
@@ -26,6 +27,7 @@ public class Server {
 		}
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
+		logger = new Logger();
 	}
 
 	public Server(String filename) {
@@ -102,6 +104,10 @@ public class Server {
 		return serverSocket;
 	}
 
+	public Logger getLogger() {
+		return logger;
+	}
+
 }
 
 class Worker extends Thread {
@@ -150,6 +156,14 @@ class Worker extends Thread {
 			Object o = Utility.receiveMessage(socket);
 			// System.out.println("dsaf");
 			Command c = (Command) o;
+			
+			// Log the command
+			try {
+				server.getLogger().logCommand(c);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 			if (c.getOperation().isMove()) {
 				Point location = p.getLocation();
 				Point newLocation = Utility.getLocation(c.getOperation(),
