@@ -144,6 +144,8 @@ public class Server {
 	}
 
 	/**
+	 * Handles the JOIN_GAME command and adds a player to the grid. Starts the game when the START_GAME command is received.
+	 * NOTE: Once the game starts new players cannot joing.
 	 * @param server
 	 * @param packet
 	 * @param workers
@@ -156,6 +158,8 @@ public class Server {
 			List<Worker> workers, boolean done, Command c)
 			throws SocketException {
 		Player p = null;
+		
+		//if JOIN_GAME is received add the player to the game
 		if (c.getOperation() == Command.Operation.JOIN_GAME) {
 			p = new Player(c.getPlayer());
 			p.setIsAlive(true);
@@ -166,6 +170,8 @@ public class Server {
 			server.refreshGrid();
 			DatagramSocket socket = new DatagramSocket();
 			workers.add(new Worker(server, server.refreshed, p, socket));
+		
+		//if START_GAME is received start the game
 		} else if (c.getOperation() == Command.Operation.START_GAME) {
 			done = true;
 		}
