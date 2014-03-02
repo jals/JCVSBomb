@@ -24,12 +24,6 @@ public class Logger {
 		this("logs/bomberman-" + getDate() + ".log");
 	}
 	
-	private static String getDate() {
-		SimpleDateFormat formatter = new SimpleDateFormat();
-		formatter.applyPattern("yyyy-MM-dd-HH-mm");
-		return formatter.format(new Date());
-	}
-	
 	public void logCommand(Command command) throws IOException {
 		synchronized (log) {
 			log.write("COMMAND: Player=" + command.getPlayer() + ", Operation=" + command.getOperation());
@@ -38,8 +32,22 @@ public class Logger {
 		}
 	}
 	
+	public void logRefresh() throws IOException {
+		synchronized (log) {
+			log.write("REFRESH: Server sent refreshed grid to client(s)");
+			log.newLine();
+			log.flush();
+		}
+	}
+	
 	public void close() throws IOException {
 		log.close();
+	}
+	
+	private static String getDate() {
+		SimpleDateFormat formatter = new SimpleDateFormat();
+		formatter.applyPattern("yyyy-MM-dd-HH-mm");
+		return formatter.format(new Date());
 	}
 	
 }
