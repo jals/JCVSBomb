@@ -12,19 +12,20 @@ import java.util.List;
 public class Server {
 
 	private List<Player> listOfPlayers;
-	private  Model grid;
+	private Model grid;
 	private DatagramSocket serverSocket;
 	private Object refreshed;
 	private static Logger logger;
 
 	public Server() throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
-		grid = new Model("", null);//Square[10][10];
-//		for (int x = 0; x < 10; x++) {
-//			for (int y = 0; y < 10; y++) {
-//				grid[x][y] = new Square();
-//			}
-//		}
+		grid = new Model(
+				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
+		// for (int x = 0; x < 10; x++) {
+		// for (int y = 0; y < 10; y++) {
+		// grid[x][y] = new Square();
+		// }
+		// }
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
 		logger = new Logger();
@@ -49,8 +50,13 @@ public class Server {
 	public Square[][] getGrid() {
 		return grid.getBoard();
 	}
+
 	public synchronized boolean canGo(int x, int y) {
-		return grid.getBoard()[x][y].hasWall();
+		Square interestedSquare = grid.getBoard()[x][y];
+		if (interestedSquare != null) {
+			return !interestedSquare.hasWall();
+		}
+		return false;
 	}
 
 	public synchronized void refreshGrid() {
@@ -61,13 +67,13 @@ public class Server {
 			}
 		}
 		for (Player p : listOfPlayers) {
-			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()]
-					.addObject(p);
+			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
+					.getY()].addObject(p);
 		}
 		synchronized (refreshed) {
 			refreshed.notifyAll();
 		}
-		
+
 		try {
 			logger.logRefresh();
 		} catch (IOException e) {
@@ -88,11 +94,11 @@ public class Server {
 			server.getServerSocket().receive(packet);
 			Object o = Utility.deserialize(packet.getData());
 			Command c = (Command) o;
-			
+
 			// Log the command
 			logger.logCommand(c);
-			
-//			System.out.println(c.getOperation());
+
+			// System.out.println(c.getOperation());
 			Player p = null;
 			if (c.getOperation() == Command.Operation.JOIN_GAME) {
 				p = new Player(c.getPlayer());
@@ -108,7 +114,7 @@ public class Server {
 				done = true;
 			}
 		}
-//		System.out.println("hello");
+		// System.out.println("hello");
 		for (Worker worker : workers) {
 			worker.start();
 		}
@@ -170,23 +176,25 @@ class Worker extends Thread {
 			Object o = Utility.receiveMessage(socket);
 			// System.out.println("dsaf");
 			Command c = (Command) o;
-			
+
 			// Log the command
 			try {
 				server.getLogger().logCommand(c);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+
 			if (c.getOperation().isMove()) {
 				Point location = p.getLocation();
 				Point newLocation = Utility.getLocation(c.getOperation(),
 						location);
-				if (server.canGo(location.x, location.y));
-				p.setLocation(newLocation);
+				if (server.canGo(newLocation.x, newLocation.y)) {
+					p.setLocation(newLocation);
+				}
 			} else if (c.getOperation() == Command.Operation.LEAVE_GAME) {
 				server.removePlayer(p);
-				Utility.sendMessage(socket, Command.Operation.LEAVE_GAME, p.getAddress(), p.getPort());
+				Utility.sendMessage(socket, Command.Operation.LEAVE_GAME,
+						p.getAddress(), p.getPort());
 				break;
 			} else {
 				// TODO: Drop Bomb
