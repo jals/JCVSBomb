@@ -17,17 +17,22 @@ public class Server {
 	private DatagramSocket serverSocket;
 	private Object refreshed;
 	private static Logger logger;
-	private Door d;
+	private Door door;
 	private boolean isTesting;
 
 	public Server(int port) throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Model(
 				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
-		Point doorPoint = getFreePoint();
-		d = new Door(doorPoint, false);
-		grid.getBoard()[doorPoint.x][doorPoint.y].addObject(d);
 		serverSocket = new DatagramSocket(port);
+		if(!grid.hasDoor()){
+			Point doorPoint = getFreePoint();
+			door = new Door(doorPoint, false);
+			grid.getBoard()[doorPoint.x][doorPoint.y].addObject(door);
+		} else {
+			door = grid.getDoor();
+			grid.getBoard()[door.getLocation().x][door.getLocation().y].addObject(door); //if loaded from file
+		}
 		refreshed = new Object();
 		
 		logger = new Logger();
@@ -88,9 +93,10 @@ public class Server {
 		for (Player p : listOfPlayers) {
 			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
 					.getY()].addObject(p);
-			if (p.getLocation().x == d.getLocation().x
-					&& p.getLocation().y == d.getLocation().y) {
-				d.setVisible(true);
+			if(door!=null){
+				if(p.getLocation().x == door.getLocation().x && p.getLocation().y == door.getLocation().y){
+					door.setVisible(true);
+				}
 			}
 		}
 		for (Player p : listOfPlayers) {
