@@ -39,10 +39,16 @@ public class Logger extends Thread {
 		}
 	}
 	
+	/**
+	 * Create a new logger object with the date and time as a filename
+	 */
 	public Logger() {
 		this("logs/bomberman-" + getDate() + ".log");
 	}
 	
+	/**
+	 * Loop while run is true (haven't shut down)
+	 */
 	public void run() {
 		while(run) {
 		}
@@ -109,6 +115,11 @@ public class Logger extends Thread {
 		}
 	}
 	
+	/**
+	 * Log an error
+	 * @param command
+	 * @param error
+	 */
 	public void logError(Command command, String error) {
 		writeStringToLog(ERROR + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation() + "," + error);
 	}
@@ -121,20 +132,35 @@ public class Logger extends Thread {
 		log.close();
 	}
 	
+	/**
+	 * Formats and gets the current date, for the log file name
+	 * @return
+	 */
 	private static String getDate() {
 		SimpleDateFormat formatter = new SimpleDateFormat();
 		formatter.applyPattern("yyyy-MM-dd-HH-mm");
 		return formatter.format(new Date());
 	}
 	
+	/** 
+	 * Get the log file location
+	 * @return
+	 */
 	public String getLogFile() {
 		return fileName;
 	}
 	
+	/**
+	 * Stop the logger thread
+	 */
 	public void shutdown() {
 		run = false;
 	}
 	
+	/**
+	 * Write a string to the log
+	 * @param s
+	 */
 	private void writeStringToLog(String s) {
 		synchronized (log) {
 			try {
