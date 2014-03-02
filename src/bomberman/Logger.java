@@ -12,6 +12,17 @@ public class Logger {
 	private static BufferedWriter log;
 	
 	public Logger(String fileName) {
+		
+		File folder = new File("logs");
+		if (!folder.exists()) {
+			try {
+				folder.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 		try {
 			log = new BufferedWriter(new FileWriter(new File(fileName)));
 		} catch (IOException e) {
