@@ -23,18 +23,19 @@ public class Server {
 	public Server(int port) throws SocketException {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Model(
-				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
+				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);
 		serverSocket = new DatagramSocket(port);
-		if(!grid.hasDoor()){
+		if (!grid.hasDoor()) {
 			Point doorPoint = getFreePoint();
 			door = new Door(doorPoint, false);
 			grid.getBoard()[doorPoint.x][doorPoint.y].addObject(door);
 		} else {
 			door = grid.getDoor();
-			grid.getBoard()[door.getLocation().x][door.getLocation().y].addObject(door); //if loaded from file
+			grid.getBoard()[door.getLocation().x][door.getLocation().y]
+					.addObject(door); // if loaded from file
 		}
 		refreshed = new Object();
-		
+
 		logger = new Logger();
 		logger.start();
 	}
@@ -93,8 +94,9 @@ public class Server {
 		for (Player p : listOfPlayers) {
 			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
 					.getY()].addObject(p);
-			if(door!=null){
-				if(p.getLocation().x == door.getLocation().x && p.getLocation().y == door.getLocation().y){
+			if (door != null) {
+				if (p.getLocation().x == door.getLocation().x
+						&& p.getLocation().y == door.getLocation().y) {
 					door.setVisible(true);
 				}
 			}
@@ -189,7 +191,13 @@ public class Server {
 			if (!isTesting) {
 				p.setLocation(getFreePoint());
 			} else {
-				p.setLocation(new Point(1, 1));
+				if (grid.getBoard()[1][1].numPlayers() == 0) {
+					p.setLocation(new Point(1, 1));
+				} else {
+					p.setLocation(new Point(Model.BOARD_SIZE - 2,
+							Model.BOARD_SIZE - 2));
+
+				}
 			}
 			p.setAddress(packet.getAddress());
 			p.setPort(packet.getPort());
