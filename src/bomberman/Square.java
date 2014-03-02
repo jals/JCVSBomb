@@ -39,6 +39,10 @@ public class Square implements Serializable {
 	public String toString() {
 		return objects.size() + "";
 	}
+	
+	public boolean hasWall() {
+		return objects.contains(1);
+	}
 
 	public void removeLast() {
 		objects.remove(objects.size() - 1);

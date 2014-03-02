@@ -49,6 +49,9 @@ public class Server {
 	public Square[][] getGrid() {
 		return grid.getBoard();
 	}
+	public synchronized boolean canGo(int x, int y) {
+		return grid.getBoard()[x][y].hasWall();
+	}
 
 	public synchronized void refreshGrid() {
 		// System.out.println("ggg");
@@ -172,6 +175,7 @@ class Worker extends Thread {
 				Point location = p.getLocation();
 				Point newLocation = Utility.getLocation(c.getOperation(),
 						location);
+				if (server.canGo(location.x, location.y));
 				p.setLocation(newLocation);
 			} else if (c.getOperation() == Command.Operation.LEAVE_GAME) {
 				server.removePlayer(p);
