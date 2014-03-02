@@ -9,9 +9,16 @@ import java.util.Date;
 
 public class Logger {
 	
+	private static String PLAYER = "PLAYER";
+	private static String COMMAND = "COMMAND";
+	private static String OPERATION = "OPERATION";
+	
 	private static BufferedWriter log;
+	private String fileName;
 	
 	public Logger(String fileName) {
+		this.fileName = fileName;
+		
 		try {
 			File directory = new File("logs");
 			directory.mkdir();
@@ -28,7 +35,7 @@ public class Logger {
 	
 	public void logCommand(Command command) throws IOException {
 		synchronized (log) {
-			log.write("COMMAND: Player=" + command.getPlayer() + ", Operation=" + command.getOperation());
+			log.write(COMMAND + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation());
 			log.newLine();
 			log.flush();
 		}
@@ -36,7 +43,7 @@ public class Logger {
 	
 	public void logRefresh() throws IOException {
 		synchronized (log) {
-			log.write("REFRESH: Server sent refreshed grid to client(s)");
+			log.write("REFRESH,Server sent refreshed grid to client(s)");
 			log.newLine();
 			log.flush();
 		}
@@ -50,6 +57,10 @@ public class Logger {
 		SimpleDateFormat formatter = new SimpleDateFormat();
 		formatter.applyPattern("yyyy-MM-dd-HH-mm");
 		return formatter.format(new Date());
+	}
+	
+	public String getLogFile() {
+		return fileName;
 	}
 	
 }

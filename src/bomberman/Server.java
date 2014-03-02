@@ -118,8 +118,12 @@ public class Server {
 		return serverSocket;
 	}
 
-	public Logger getLogger() {
+	protected Logger getLogger() {
 		return logger;
+	}
+	
+	public static String getLogFile() {
+		return logger.getLogFile();
 	}
 
 }
