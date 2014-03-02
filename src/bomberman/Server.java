@@ -33,14 +33,6 @@ public class Server {
 		isTesting = false;
 	}
 
-	public Server(String filename) {
-		setListOfPlayers(new ArrayList<Player>());
-	}
-
-	public List<Player> getListOfPlayers() {
-		return listOfPlayers;
-	}
-
 	public void removePlayer(Player p) {
 		listOfPlayers.remove(p);
 	}
@@ -78,7 +70,6 @@ public class Server {
 	}
 
 	public synchronized void refreshGrid() {
-		// System.out.println("ggg");
 		for (int x = 1; x < 11; x++) {
 			for (int y = 1; y < 11; y++) {
 				grid.getBoard()[x][y].removePlayers();
@@ -140,13 +131,12 @@ public class Server {
 			// Log the command
 			logger.logCommand(c);
 
-			// System.out.println(c.getOperation());
 			done = server.addPlayer(packet, workers, done, c);
 		}
-		// System.out.println("hello");
 		for (Worker worker : workers) {
 			worker.start();
 		}
+		
 	}
 
 	/**
