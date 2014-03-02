@@ -34,7 +34,9 @@ public class Server {
 		grid.getBoard()[doorPoint.x][doorPoint.y].addObject(d);
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
+		
 		logger = new Logger();
+		logger.start();
 	}
 
 	public Server(boolean testing) throws SocketException {
