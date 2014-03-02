@@ -14,6 +14,7 @@ public class Logger extends Thread {
 	private static final String OPERATION = "OPERATION";
 	private static final String BOARD_STATE = "BOARD_STATE";
 	private static final String REFRESH = "REFRESH";
+	private static final String ERROR = "ERROR";
 	
 	private static BufferedWriter log;
 	private String fileName;
@@ -58,24 +59,16 @@ public class Logger extends Thread {
 	 * @param command
 	 * @throws IOException
 	 */
-	public void logCommand(Command command) throws IOException {
-		synchronized (log) {
-			log.write(COMMAND + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation());
-			log.newLine();
-			log.flush();
-		}
+	public void logCommand(Command command) {
+		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation());
 	}
 	
 	/**
 	 * Log a grid refresh
 	 * @throws IOException
 	 */
-	public void logRefresh() throws IOException {
-		synchronized (log) {
-			log.write(REFRESH);
-			log.newLine();
-			log.flush();
-		}
+	public void logRefresh() {
+		writeStringToLog(REFRESH);
 	}
 	
 	/**
@@ -83,25 +76,41 @@ public class Logger extends Thread {
 	 * @param model
 	 * @throws IOException
 	 */
-	public void logGrid(Model model) throws IOException {
-		String grid = new String();
-		Square[][] board = model.getBoard();
-		
-		synchronized (log) {
-			for (int i=0; i<Model.BOARD_SIZE; i++) {
-				for (int j=0; j<Model.BOARD_SIZE; j++) {
-					if (board[i][j] == null) {
-						grid+=0;
-					} else {
-						grid += board[i][j];
+	public void logGrid(Model model) {
+		try {
+			String grid = new String();
+			Square[][] board = model.getBoard();
+			
+			synchronized (log) {
+				for (int i=0; i<Model.BOARD_SIZE; i++) {
+					for (int j=0; j<Model.BOARD_SIZE; j++) {
+						if (board[i][j] == null) {
+							// Border
+							grid+="X";
+						} else if(board[i][j].hasWall()) {
+							// Wall
+							grid+="w";
+						} else if(board[i][j].numPlayers() > 0) {
+							// Player
+							grid+="P";
+						} else {
+							// Open space
+							grid+="+";
+						}
 					}
+					log.write(BOARD_STATE + ",Row " + i + "," + grid);
+					log.newLine();
+					grid = new String();
 				}
-				log.write(BOARD_STATE + ",Row " + i + "," + grid);
-				log.newLine();
-				grid = new String();
+				log.flush();
 			}
-			log.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+	}
+	
+	public void logError(Command command, String error) {
+		writeStringToLog(ERROR + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation() + "," + error);
 	}
 	
 	/**
@@ -124,5 +133,17 @@ public class Logger extends Thread {
 	
 	public void shutdown() {
 		run = false;
+	}
+	
+	private void writeStringToLog(String s) {
+		synchronized (log) {
+			try {
+				log.write(s);
+				log.newLine();
+				log.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
