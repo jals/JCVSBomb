@@ -24,11 +24,6 @@ public class Server {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Model(
 				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
-		// for (int x = 0; x < 10; x++) {
-		// for (int y = 0; y < 10; y++) {
-		// grid[x][y] = new Square();
-		// }
-		// }
 		Point doorPoint = getFreePoint();
 		d = new Door(doorPoint, false);
 		grid.getBoard()[doorPoint.x][doorPoint.y].addObject(d);

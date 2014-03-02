@@ -4,13 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO Work on the idea of more than one object on a square.
-// This skeleton class is a good place to start
 public class Square implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1121507013822267342L;
 	List<Object> objects;
 
@@ -41,18 +36,19 @@ public class Square implements Serializable {
 	}
 
 	public String toString() {
-		for(Object o: objects){
-			if(o instanceof Door){
-				if(((Door)o).isVisible()){
+		for (Object o : objects) {
+			if (o instanceof Door) {
+				if (((Door) o).isVisible()) {
 					return o.toString() + "";
 				} else {
-					return "D"; //TODO change to empty string to fully hide door
+					return "D"; // TODO change to empty string to fully hide
+								// door
 				}
-			} else if(o instanceof Player){
+			} else if (o instanceof Player) {
 				return ((Player) o).getName();
 			}
 		}
-		
+
 		return "";
 	}
 
