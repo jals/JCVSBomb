@@ -14,6 +14,8 @@ public class Command implements Serializable{
 		LEAVE_GAME,
 		DROP_BOMB;
 		
+		// There are 4 types of move available. They are the first 4
+		// of the enum.
 		public boolean isMove() {
 			return (this.ordinal() <= MOVE_DOWN.ordinal());
 		}

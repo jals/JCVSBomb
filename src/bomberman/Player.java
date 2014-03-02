@@ -6,9 +6,6 @@ import java.net.InetAddress;
 
 public class Player implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private String playerName;
 	private Point location;
@@ -22,10 +19,6 @@ public class Player implements Serializable{
 	
 	public String getName() {
 		return playerName;
-	}
-	
-	public void setName(String name) {
-		this.playerName = name;
 	}
 	
 	public Point getLocation() {

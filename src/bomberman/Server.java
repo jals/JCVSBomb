@@ -24,34 +24,27 @@ public class Server {
 		setListOfPlayers(new ArrayList<Player>());
 		grid = new Model(
 				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);// Square[10][10];
-		// for (int x = 0; x < 10; x++) {
-		// for (int y = 0; y < 10; y++) {
-		// grid[x][y] = new Square();
-		// }
-		// }
 		Point doorPoint = getFreePoint();
 		d = new Door(doorPoint, false);
 		grid.getBoard()[doorPoint.x][doorPoint.y].addObject(d);
 		serverSocket = new DatagramSocket(9876);
 		refreshed = new Object();
+		
 		logger = new Logger();
+		logger.start();
 	}
 
 	public Server(boolean testing) throws SocketException {
 		this();
-		isTesting = false;
-	}
-
-	public Server(String filename) {
-		setListOfPlayers(new ArrayList<Player>());
-	}
-
-	public List<Player> getListOfPlayers() {
-		return listOfPlayers;
+		isTesting = testing;
 	}
 
 	public void removePlayer(Player p) {
 		listOfPlayers.remove(p);
+	}
+
+	public void removeLastPlayer() {
+		listOfPlayers.remove(listOfPlayers.size() - 1);
 	}
 
 	public void setListOfPlayers(List<Player> listOfPlayers) {
@@ -87,7 +80,6 @@ public class Server {
 	}
 
 	public synchronized void refreshGrid() {
-		// System.out.println("ggg");
 		for (int x = 1; x < 11; x++) {
 			for (int y = 1; y < 11; y++) {
 				grid.getBoard()[x][y].removePlayers();
@@ -96,7 +88,8 @@ public class Server {
 		for (Player p : listOfPlayers) {
 			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
 					.getY()].addObject(p);
-			if(p.getLocation().x == d.getLocation().x && p.getLocation().y == d.getLocation().y){
+			if (p.getLocation().x == d.getLocation().x
+					&& p.getLocation().y == d.getLocation().y) {
 				d.setVisible(true);
 			}
 		}
@@ -153,13 +146,23 @@ public class Server {
 			// Log the command
 			logger.logCommand(c);
 
-			// System.out.println(c.getOperation());
 			done = server.addPlayer(packet, workers, done, c);
 		}
-		// System.out.println("hello");
 		for (Worker worker : workers) {
 			worker.start();
 		}
+		while (true) {
+			server.getServerSocket().receive(packet);
+			Object o = Utility.deserialize(packet.getData());
+			Command c = (Command) o;
+
+			// Log the command
+			logger.logCommand(c);
+
+			done = server.addPlayer(packet, workers, done, c);
+			server.removeLastPlayer();
+		}
+
 	}
 
 	/**

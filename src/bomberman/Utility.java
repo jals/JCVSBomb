@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.List;
 
 import bomberman.Command.Operation;
 
@@ -59,30 +58,13 @@ public class Utility {
 		return in.readObject();
 	}
 	
-	public static String getGridString(Square[][] grid) {
-		String toReturn = "";
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				List<Object> objects = grid[x][y].getObjects();
-				if (objects.size() > 0 && objects.get(0) instanceof Player) {
-					toReturn += ((Player) grid[x][y].getObjects().get(0)).getName();
-				} else {
-					toReturn += "0";
-				}
-			}
-			toReturn+="\n";
-		}
-		return toReturn;
-
-	}
-	
 	public static Point getLocation(Operation operation, Point location) {
 		int x = (int) location.getX();
 		int y = (int) location.getY();
 		int newX = 5, newY = 5;
 
 		if (Operation.MOVE_DOWN == operation) {
-			newX = Math.min(x + 1, 11);
+			newX = Math.min(x + 1, Model.BOARD_SIZE - 1);
 			newY = y;
 		} else if (Operation.MOVE_UP == operation) {
 			newX = Math.max(x - 1, 0);
@@ -91,7 +73,7 @@ public class Utility {
 			newY = Math.max(y - 1, 0);
 			newX = x;
 		} else if (Operation.MOVE_RIGHT == operation) {
-			newY = Math.min(y + 1, 11);
+			newY = Math.min(y + 1, Model.BOARD_SIZE - 1);
 			newX = x;
 		} else {
 			newY = y;
