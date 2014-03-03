@@ -1,3 +1,13 @@
+/**
+ * Author: Vinayak Bansal
+ * Dated: Mar 3, 2014
+ * 
+ * This represents one square on the grid. It is nothing
+ * fancier than a grid of objects. This is required, as we can have
+ * multiple objects at a square. It forms the third dimension for a 
+ * 2-D array.
+ * TODO In the future, have an enum, instead of generic objects.
+ */
 package bomberman;
 
 import java.io.Serializable;
@@ -21,6 +31,10 @@ public class Square implements Serializable {
 		objects.add(o);
 	}
 
+	/**
+	 * Removes any players that are in this square.
+	 * Makes it easy when refreshing the grid.
+	 */
 	public void removePlayers() {
 		List<Object> newObjects = new ArrayList<Object>();
 		for (int x = 0; x < objects.size(); x++) {
@@ -35,14 +49,17 @@ public class Square implements Serializable {
 		return numPlayers() > 1;
 	}
 
+	/**
+	 * String representation for what to print on the GUI
+	 */
 	public String toString() {
 		for (Object o : objects) {
 			if (o instanceof Door) {
 				if (((Door) o).isVisible()) {
 					return o.toString() + "";
 				} else {
-					return "D"; // TODO change to empty string to fully hide
-								// door
+					// TODO change to empty string to fully hide door
+					return "D"; 
 				}
 			} else if (o instanceof Player) {
 				return ((Player) o).getName();
@@ -52,10 +69,17 @@ public class Square implements Serializable {
 		return "";
 	}
 
+	/**
+	 * Handy method to see if the player can come to this square
+	 * @return true if this square is a wall. False, otherwise.
+	 */
 	public boolean hasWall() {
 		return objects.contains(1);
 	}
 
+	/**
+	 * Returns the number of players in this square.
+	 */
 	public int numPlayers() {
 		int numPlayers = 0;
 		for (int x = 0; x < objects.size(); x++) {
@@ -76,6 +100,10 @@ public class Square implements Serializable {
 		return false;
 	}
 
+	/**
+	 * This is to undo the addObject method
+	 * This is required with fixing the grid.
+	 */
 	public void removeLast() {
 		objects.remove(objects.size() - 1);
 	}

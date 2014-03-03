@@ -1,3 +1,10 @@
+/**
+ * Author: Vinayak Bansal
+ * Dated: Mar 3, 2014
+ * 
+ * Handy methods used for all classes.
+ */
+
 package bomberman;
 
 import java.awt.Point;
@@ -14,6 +21,9 @@ import java.net.InetAddress;
 import bomberman.Command.Operation;
 
 public class Utility {
+	/**
+	 * Sends the message over the specified socket.
+	 */
 	public static void sendMessage(DatagramSocket socket, Object message,
 			InetAddress add, int port) {
 		try {
@@ -23,12 +33,14 @@ public class Utility {
 					sendData.length, add, port);
 			socket.send(sendPacket);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 
+	/**
+	 * Receives a message object from the specified object and returns it.
+	 */
 	public static Object receiveMessage(DatagramSocket socket) {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket receivePacket = new DatagramPacket(receiveData,
@@ -43,6 +55,9 @@ public class Utility {
 
 	}
 
+	/**
+	 * Returns a serial version of the specified object.
+	 */
 	public static byte[] serialize(Object obj) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ObjectOutputStream os = new ObjectOutputStream(out);
@@ -51,6 +66,9 @@ public class Utility {
 		return out.toByteArray();
 	}
 
+	/**
+	 * Returns an object from the list of bytes, after deserializing them.
+	 */
 	public static Object deserialize(byte[] data) throws IOException,
 			ClassNotFoundException {
 		ByteArrayInputStream bis = new ByteArrayInputStream(data);
@@ -59,6 +77,9 @@ public class Utility {
 		return in.readObject();
 	}
 
+	/**
+	 * Given an operation, and a location, it computes the new location.
+	 */
 	public static Point getLocation(Operation operation, Point location) {
 		int x = (int) location.getX();
 		int y = (int) location.getY();
