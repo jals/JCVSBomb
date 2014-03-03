@@ -41,7 +41,8 @@ public class Model {
 				input = readFile(filename, Charset.defaultCharset())
 						.replaceAll("\\s+", "");
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("ERROR: File could not be found/read.");
+				return;
 			}
 			for (int j = 1; j < BOARD_SIZE - 1; j++) {
 				for (int k = 1; k < BOARD_SIZE - 1; k++) {

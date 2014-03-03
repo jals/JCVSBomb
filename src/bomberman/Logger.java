@@ -70,7 +70,7 @@ public class Logger extends Thread {
 		try {
 			close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("ERROR: Could not close file.");
 		}
 	}
 
@@ -78,7 +78,6 @@ public class Logger extends Thread {
 	 * Log a command
 	 * 
 	 * @param command
-	 * @throws IOException
 	 */
 	public void logCommand(Command command) {
 		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer()
@@ -88,7 +87,6 @@ public class Logger extends Thread {
 	/**
 	 * Log a grid refresh
 	 * 
-	 * @throws IOException
 	 */
 	public void logRefresh() {
 		writeStringToLog(REFRESH);
@@ -98,7 +96,6 @@ public class Logger extends Thread {
 	 * Log the state of the grid
 	 * 
 	 * @param model
-	 * @throws IOException
 	 */
 	public void logGrid(Model model) {
 		try {

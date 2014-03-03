@@ -33,9 +33,9 @@ public class Client {
 		listenIp = InetAddress.getByName(host);
 		this.listenPort = port;
 		started = Boolean.FALSE;
-		joinGame(); // TODO: Code to make the methods not have warnings
+		joinGame();
 	}
-
+	
 	/**
 	 * Main method for Client. Instantiates the client and moves it using a
 	 * scanner which reads in the commands one line at a time.
@@ -43,13 +43,30 @@ public class Client {
 	 * @param args
 	 * @throws Exception
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
+		if(args.length < 2){
+			System.out.println("Please specify two command line arguments. localhost, and port number.");
+			return;
+		}
+		System.out.println("Enter a player name: \n");
 		@SuppressWarnings("resource")
 		Scanner a = new Scanner(System.in);
-		Client j = new Client(sanitizeName(a.nextLine()), args[0],
-				Integer.parseInt(args[1]));
+		Client client = null;
+		try {
+			client = new Client(sanitizeName(a.nextLine()), args[0],
+					Integer.parseInt(args[1]));
+		} catch (Exception e) {
+			System.err.println("ERROR: Client could not be created properly.\n");
+			return;
+		}
+		System.out.println("Enter player commands: \n");
 		while (true) {
-			j.move(a.nextLine());
+			try {
+				client.move(a.nextLine());
+			} catch (Exception e) {
+				System.err.println("ERROR: Command failed.\n");
+				
+			}
 		}
 	}
 
@@ -87,7 +104,7 @@ public class Client {
 	 * 
 	 * @throws Exception
 	 */
-	private void joinGame() throws Exception {
+	private void joinGame() throws Exception{
 
 		move("join_game");
 		// Wait for an ack to know which port to finally communicate with.
@@ -124,7 +141,6 @@ public class Client {
 							bc.refresh((Square[][]) grid);
 						}
 					}
-					// TODO update the screen with the grid
 				}
 			}
 

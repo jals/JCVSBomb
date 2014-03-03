@@ -127,13 +127,24 @@ public class Server {
 		logger.logGrid(grid);
 	}
 
-	public static void main(String[] args) throws IOException,
-			ClassNotFoundException {
+	public static void main(String[] args) {
 		Server server = null;
+		if(args.length < 2){
+			System.out.println("Please specify two command line arguments. 0/1 for not testing/testing, and port number.");
+			return;
+		}
 		if (Integer.parseInt(args[0]) == 0) {
-			server = new Server(Integer.parseInt(args[1]), false);
+			try {
+				server = new Server(Integer.parseInt(args[1]), false);
+			} catch (Exception e) {
+				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
+			}
 		} else {
-			server = new Server(Integer.parseInt(args[1]), true);
+			try {
+				server = new Server(Integer.parseInt(args[1]), true);
+			} catch (Exception e) {
+				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
+			}
 		}
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,
@@ -141,27 +152,53 @@ public class Server {
 		List<Worker> workers = new LinkedList<Worker>();
 		boolean done = false;
 		while (!done) {
-			server.getServerSocket().receive(packet);
-			Object o = Utility.deserialize(packet.getData());
+			try {
+				server.getServerSocket().receive(packet);
+			} catch (IOException e) {
+				System.err.println("ERROR: Could not receive packet from a socket.");
+			}
+			Object o = null;
+			try {
+				o = Utility.deserialize(packet.getData());
+			} catch (Exception e) {
+				System.err.println("ERROR: Could not deserialize the packet data.");
+			}
 			Command c = (Command) o;
 
 			// Log the command
 			logger.logCommand(c);
 
-			done = server.addPlayer(packet, workers, done, c);
+			try {
+				done = server.addPlayer(packet, workers, done, c);
+			} catch (SocketException e) {
+				System.err.println("ERROR: Couldn't add player.");
+			}
 		}
 		for (Worker worker : workers) {
 			worker.start();
 		}
 		while (true) {
-			server.getServerSocket().receive(packet);
-			Object o = Utility.deserialize(packet.getData());
+			try {
+				server.getServerSocket().receive(packet);
+			} catch (IOException e) {
+				System.err.println("ERROR: Could not receive packet from a socket.");
+			}
+			Object o = null;
+			try {
+				o = Utility.deserialize(packet.getData());
+			} catch (Exception e) {
+				System.err.println("ERROR: Could not deserialize the packet data.");
+			}
 			Command c = (Command) o;
 
 			// Log the command
 			logger.logCommand(c);
 
-			done = server.addPlayer(packet, workers, done, c);
+			try {
+				done = server.addPlayer(packet, workers, done, c);
+			} catch (SocketException e) {
+				System.err.println("ERROR: Couldn't add player.");
+			}
 			server.removeLastPlayer();
 		}
 
@@ -207,6 +244,7 @@ public class Server {
 
 			// if START_GAME is received start the game
 		} else if (c.getOperation() == Command.Operation.START_GAME) {
+			refreshGrid();
 			done = true;
 		}
 		return done;
@@ -295,6 +333,7 @@ class Worker extends Thread {
 
 	private void done() {
 		server.removePlayer(p);
+		server.refreshGrid();
 		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME,
 				p.getAddress(), p.getPort());
 
