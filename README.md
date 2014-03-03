@@ -49,3 +49,4 @@ For the first milestone, we have created three test cases
 * one_player_move_to_door.txt - Creates one player (at 1,1) and moves right until the player reaches the foor (at 1,4).
 * two_players_test.txt - Creates two players, one at (1,1) the other at (10,10). Both players move around for a time, then leave the game.
 * two_player_test_touch.txt - Creates two players, one at (1,1) the other at (10,10). Player one moves down and player two moves left until they touch in the bottom left corner.
+* one_player_wall_error.txt - Creates one player, the player moves around, then tries to move into a wall, then leaves. Examining the log from the server should show an error when the player tries to move into the wall
