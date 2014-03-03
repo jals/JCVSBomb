@@ -60,6 +60,9 @@ public class TestDriver {
 					
 					// Add the command into the array list to track what has been done
 					commands.add(new Command(split[1], Operation.JOIN_GAME));
+					
+					// Sleep for a time
+					Thread.sleep(1000);
 				}
 				
 				// Process the command
