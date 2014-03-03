@@ -1,3 +1,9 @@
+/**
+ * Author: Vinayak Bansal
+ * Dated: Mar 3, 2014
+ * This is part of the model, and the server keeps track of a 
+ * list of Player objects. It is very close to a C struct
+ */
 package bomberman;
 
 import java.awt.Point;

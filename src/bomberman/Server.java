@@ -1,3 +1,12 @@
+/**
+ * Author: Vinayak Bansal
+ * Dated: March 2, 2014
+ * 
+ * This class interacts with all the clients (Players).
+ * It has an instance of the model for keeping track of
+ * what is happening on grid.
+ */
+
 package bomberman;
 
 import java.awt.Point;
@@ -12,16 +21,20 @@ import java.util.Random;
 
 public class Server {
 
+	//All the players that are alive
 	private List<Player> listOfPlayers;
 	private Model grid;
-	private DatagramSocket serverSocket;
-	private Object refreshed;
+	private DatagramSocket serverSocket; //dedicated listening socket
+	private Object refreshed; // lock object for sending updates
 	private static Logger logger;
-	private Door door;
+	private Door door; // where is the door?
+	 // If we are testing, we put the players at specific locations
 	private boolean isTesting;
 
 	public Server(int port) throws SocketException {
-		setListOfPlayers(new ArrayList<Player>());
+		listOfPlayers = new ArrayList<Player>();
+		// TODO The name of the file is hardcoded for testing. For next milestone,
+		// Make it a command line argument
 		grid = new Model(
 				"M:\\git\\JCVSBomb\\src\\bomberman\\gui\\defaultMap.txt", null);
 		serverSocket = new DatagramSocket(port);
@@ -35,7 +48,6 @@ public class Server {
 					.addObject(door); // if loaded from file
 		}
 		refreshed = new Object();
-
 		logger = new Logger();
 		logger.start();
 	}
@@ -49,18 +61,29 @@ public class Server {
 		listOfPlayers.remove(p);
 	}
 
+	/**
+	 * Removes the lsat player from the list of players.
+	 * It is required when a player dies.
+	 */
 	public void removeLastPlayer() {
 		listOfPlayers.remove(listOfPlayers.size() - 1);
 	}
 
-	public void setListOfPlayers(List<Player> listOfPlayers) {
-		this.listOfPlayers = listOfPlayers;
-	}
-
+	/**
+	 * This method is not synchronized as this is being used only 
+	 * for reading purposes.
+	 * @return the grid of Square of Objects
+	 */
 	public Square[][] getGrid() {
 		return grid.getBoard();
 	}
 
+	/**
+	 * For the give point, checks to see if there is a wall or not.
+	 * @param x: The x location of the point
+	 * @param y: The y location of the point
+	 * @return: True if there isnt a wall at the given point
+	 */
 	public synchronized boolean canGo(int x, int y) {
 		Square interestedSquare = grid.getBoard()[x][y];
 		if (interestedSquare != null) {
@@ -69,11 +92,16 @@ public class Server {
 		return false;
 	}
 
+	/**
+	 * Randomly returns a square where there are no players, and no walls.
+	 * It cannot be a utility method as it needs access to the grid::Model.
+	 * @return: A point where a player can be placed.
+	 */
 	public Point getFreePoint() {
 		Point toReturn = null;
 		Random random = new Random();
 		boolean isOkay = false;
-		while (!isOkay) {
+		while (!isOkay) { // Keep trying until you find a spot
 			int x = random.nextInt(Model.BOARD_SIZE - 2) + 1;
 			int y = random.nextInt(Model.BOARD_SIZE - 2) + 1;
 			if (grid.getBoard()[x][y].numPlayers() == 0
@@ -85,12 +113,20 @@ public class Server {
 		return toReturn;
 	}
 
+	/**
+	 * This is an important method that updates the grid.
+	 * It changes the model, so it must be synchronized.
+	 * It updates the location of the players. Then checks to see
+	 * if players are at the same location or not. If that is the case,
+	 * then it kills them.
+	 */
 	public synchronized void refreshGrid() {
 		for (int x = 1; x < 11; x++) {
 			for (int y = 1; y < 11; y++) {
 				grid.getBoard()[x][y].removePlayers();
 			}
 		}
+		//Open the door if the player is at the door.
 		for (Player p : listOfPlayers) {
 			grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation()
 					.getY()].addObject(p);
@@ -101,6 +137,8 @@ public class Server {
 				}
 			}
 		}
+		//Check if two players are at the same location.
+		//if yes, kill both of them
 		for (Player p : listOfPlayers) {
 			for (Player q : listOfPlayers) {
 				if (p != q && p.getLocation().equals(q.getLocation())) {
@@ -120,6 +158,8 @@ public class Server {
 		}
 		listOfPlayers = newPlayers;
 
+		//Notifying everybody to send refreshed grid to their respective
+		// clients.
 		synchronized (refreshed) {
 			refreshed.notifyAll();
 		}
@@ -149,7 +189,7 @@ public class Server {
 			// Log the command
 			logger.logCommand(c);
 
-			done = server.addPlayer(packet, workers, done, c);
+			done = server.addPlayer(packet, workers, c);
 		}
 		for (Worker worker : workers) {
 			worker.start();
@@ -162,7 +202,7 @@ public class Server {
 			// Log the command
 			logger.logCommand(c);
 
-			done = server.addPlayer(packet, workers, done, c);
+			done = server.addPlayer(packet, workers, c);
 			server.removeLastPlayer();
 		}
 
@@ -170,18 +210,16 @@ public class Server {
 
 	/**
 	 * Handles the JOIN_GAME command and adds a player to the grid. Starts the
-	 * game when the START_GAME command is received. NOTE: Once the game starts
-	 * new players cannot join.
+	 * game when the START_GAME command is received.
+	 * NOTE: Once the game starts, new players requesting to join become
+	 * spectators.
 	 * 
-	 * @param packet
-	 * @param workers
-	 * @param done
-	 * @param c
-	 * @return
-	 * @throws SocketException
+	 * @param packet: Required to see where the packet came from.
+	 * @param workers: List of players that are waiting to run.
+	 * @param c: What was the command that a client sent.
+	 * @return: True if it was a start_game call
 	 */
-	public boolean addPlayer(DatagramPacket packet, List<Worker> workers,
-			boolean done, Command c) throws SocketException {
+	public boolean addPlayer(DatagramPacket packet, List<Worker> workers, Command c) throws SocketException {
 		Player p = null;
 
 		// if JOIN_GAME is received add the player to the game
@@ -189,6 +227,7 @@ public class Server {
 			p = new Player(c.getPlayer());
 			p.setIsAlive(true);
 			if (!isTesting) {
+				//Random location if we are not testing.
 				p.setLocation(getFreePoint());
 			} else {
 				if (grid.getBoard()[1][1].numPlayers() == 0) {
@@ -203,14 +242,15 @@ public class Server {
 			p.setPort(packet.getPort());
 			listOfPlayers.add(p);
 			refreshGrid();
+			//Create a fresh socket over which the client will now communicate
 			DatagramSocket socket = new DatagramSocket();
 			workers.add(new Worker(this, refreshed, p, socket));
 
 			// if START_GAME is received start the game
 		} else if (c.getOperation() == Command.Operation.START_GAME) {
-			done = true;
+			return true;
 		}
-		return done;
+		return false;
 	}
 
 	public DatagramSocket getServerSocket() {
@@ -227,6 +267,16 @@ public class Server {
 
 }
 
+/**
+ * There is exactly one instance of Worker class for each player that
+ * requests to join.
+ * Each instance has two threads, one for receiving commands, and one for 
+ * sending refreshes.
+ * For spectator classes, the first thread for receiving messages is not
+ * started.
+ * @author vinayakbansal
+ *
+ */
 class Worker extends Thread {
 	Server server;
 	DatagramSocket socket;
@@ -239,8 +289,10 @@ class Worker extends Thread {
 		this.p = p;
 		this.server = server;
 		this.socket = socket;
-		// just an ack
+		// just an ack saying you have joined the game
 		Utility.sendMessage(socket, "joined", p.getAddress(), p.getPort());
+		//Creating a separate thread to wait for a notify on the refresh object,
+		//and then send a new grid to the client.
 		new Thread() {
 			public void run() {
 				while (true) {
@@ -263,9 +315,14 @@ class Worker extends Thread {
 		}.start();
 	}
 
+	/**
+	 * This method receives new messages from the client, processes them,
+	 * and then asks the server to update itself.
+	 */
 	public void run() {
+		// just an ack saying that the game has started.
 		Utility.sendMessage(socket, Command.Operation.START_GAME,
-				p.getAddress(), p.getPort()); // just an ack
+				p.getAddress(), p.getPort()); 
 
 		while (true) {
 			Object o = Utility.receiveMessage(socket);
@@ -294,6 +351,9 @@ class Worker extends Thread {
 		server.refreshGrid();
 	}
 
+	/**
+	 * The game is over. Tell the client that.
+	 */
 	private void done() {
 		server.removePlayer(p);
 		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME,

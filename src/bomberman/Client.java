@@ -1,3 +1,8 @@
+/**
+ * Author: Vinayak Bansal
+ * Dated: Mar 3, 2014
+ */
+
 package bomberman;
 
 import java.net.DatagramPacket;
@@ -10,30 +15,36 @@ import bomberman.gui.BombermanClient;
 /**
  * 
  * Client class which handles one player's UDP communication to the server and
- * instantiates the GUI.
+ * instantiates the GUI. Another name for this class can be Player. But that has
+ * already been used for the Player(Model).
  * 
  */
+
 public class Client {
 	private InetAddress ip;
 	private int port;
+	// The next two are the address for the dedicated listening port of the
+	// server.
 	private InetAddress listenIp;
 	private int listenPort;
 	private String playerName;
-	private Object[][] grid;
 	private DatagramSocket clientSocket;
 	private Boolean started;
+	// The class required for GUI
 	private BombermanClient bc = null;
 
 	public Client(String playerName, String host, int port) throws Exception {
 
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
+		// Next two lines will be overwritten when the client has joined
+		// the game
 		ip = InetAddress.getByName(host);
 		this.port = port;
 		listenIp = InetAddress.getByName(host);
 		this.listenPort = port;
 		started = Boolean.FALSE;
-		joinGame(); // TODO: Code to make the methods not have warnings
+		joinGame();
 	}
 
 	/**
@@ -48,6 +59,8 @@ public class Client {
 		Scanner a = new Scanner(System.in);
 		Client j = new Client(sanitizeName(a.nextLine()), args[0],
 				Integer.parseInt(args[1]));
+		// TODO: We are aware that this thread should terminate once there is a 
+		// LEAVE_GAME received. But we are yet to find an elegant way to do it.
 		while (true) {
 			j.move(a.nextLine());
 		}
@@ -55,20 +68,22 @@ public class Client {
 
 	/**
 	 * Moves the player in the grid taking the direction as a parameter.
-	 * 
-	 * @param direction
-	 * @throws Exception
+	 * The string must be one of the names defined in ::Command.Operation
 	 */
-	public void move(String direction) throws Exception {
+	public void move(String direction) {
 		try {
 			Command.Operation operation = Command.Operation.valueOf(direction
 					.toUpperCase());
+			// We send START_GAME and JOIN_GAME to the dedicated listening
+			// port of the server. All the other messages go to the specific
+			// socket for this client.
 			if (operation == Command.Operation.START_GAME
 					|| operation == Command.Operation.JOIN_GAME) {
 				Utility.sendMessage(clientSocket, new Command(playerName,
 						operation), listenIp, listenPort);
 			} else {
 				synchronized (started) {
+					// Don't send messages until the game is started.
 					if (started) {
 						Utility.sendMessage(clientSocket, new Command(
 								playerName, operation), ip, port);
@@ -85,7 +100,6 @@ public class Client {
 	 * Handles the communication with the server that is necessary in order to
 	 * join a game. Creates a Thread to handle
 	 * 
-	 * @throws Exception
 	 */
 	private void joinGame() throws Exception {
 
@@ -98,13 +112,14 @@ public class Client {
 		ip = receivePacket.getAddress();
 		port = receivePacket.getPort();
 
+		// Starting a separate thread for listening to updated grids.
 		Thread listen = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 
 				boolean done = false;
-				while (!done) {
+				while (!done) { // Iterate until LEAVE_GAME is received.
 					Object grid = Utility.receiveMessage(clientSocket);
 					if (grid instanceof Command.Operation) {
 						Command.Operation c = (Command.Operation) grid;
@@ -116,7 +131,7 @@ public class Client {
 								started = Boolean.TRUE;
 							}
 						}
-					} else {
+					} else { // we need to refresh the grid.
 						if (bc == null) {
 							bc = new BombermanClient((Square[][]) grid);
 							bc.setVisible(true);
@@ -124,7 +139,6 @@ public class Client {
 							bc.refresh((Square[][]) grid);
 						}
 					}
-					// TODO update the screen with the grid
 				}
 			}
 
@@ -134,46 +148,7 @@ public class Client {
 	}
 
 	/**
-	 * Getter for playerName
-	 * 
-	 * @return
-	 */
-	public String getPlayerName() {
-		return playerName;
-	}
-
-	/**
-	 * Setter for playerName
-	 * 
-	 * @param playerName
-	 */
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
-	}
-
-	/**
-	 * Getter for grid
-	 * 
-	 * @return
-	 */
-	public Object[][] getGrid() {
-		return grid;
-	}
-
-	/**
-	 * Setter for grid.
-	 * 
-	 * @param grid
-	 */
-	public void setGrid(Object[][] grid) {
-		this.grid = grid;
-	}
-
-	/**
 	 * Static method for removing spaces and non-alphanumeric characters.
-	 * 
-	 * @param name
-	 * @return
 	 */
 	private static String sanitizeName(String name) {
 		// Remove anything not alpha-numerical

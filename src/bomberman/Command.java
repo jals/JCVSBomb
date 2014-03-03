@@ -1,3 +1,11 @@
+/**
+ * Author: Vinayak Bansal
+ * Dated: Mar 3. 2014
+ * 
+ * An instance of this class is what the client will be sending to the server.
+ * It has a player name, and the operation that the user inputted.
+ * This forms the basis for our commincation protocol.
+ */
 package bomberman;
 
 import java.io.Serializable;
@@ -28,15 +36,8 @@ public class Command implements Serializable {
 		return player;
 	}
 
-	public void setPlayer(String player) {
-		this.player = player;
-	}
-
 	public Operation getOperation() {
 		return operation;
 	}
 
-	public void setOperation(Operation operation) {
-		this.operation = operation;
-	}
 }
