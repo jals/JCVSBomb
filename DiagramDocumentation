@@ -1,0 +1,24 @@
+In the server class diagram, the server class Utility Class to send and receive messages
+For every player, it creates a worker instance, that has two threads: one for listening
+and one for sending.
+It also has a Model for saving the grid of Squares.
+It manipulates the model based on messages that it receives.
+
+
+The client class uses the Utility class to send and receive messages. It sends instances of
+Command class over UDP. It also maintains an instance of GUI, that refreshes the display
+by maintaining an instance of Model as its current state. It sends its first message to the 
+dedicated listening port, but does further communication over a socket that is assigned to it.
+
+The test driver creates an instance of the Server, and possibly multiple instances of
+the client. Then executes a bunch of commands on the client's behalf. All this time, it logs 
+server behavior.
+
+
+
+Subsystem Diagram
+The system can be divided into Client, Server, Communication, Common, Gui and Testing. 
+The common classes are used by both the server and client. The Client uses the GUI component
+to display the game state to the user. The communication protocol is the way the server and 
+client interact. The testing module is just a driver to run repeatable, automated sequences.
+
