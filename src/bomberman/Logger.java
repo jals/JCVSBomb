@@ -7,34 +7,47 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
+/**
+ * Thread for logging Commands as they are processed by the server
+ * Also logs any errors (e.g. trying to move into a wall), and logs
+ * the game state everytime the server sends out a refresh of the board
+ * 
+ * @author spbyron
+ *
+ */
+
 public class Logger extends Thread {
 
-	private static final String PLAYER = "PLAYER";
-	private static final String COMMAND = "COMMAND";
-	private static final String OPERATION = "OPERATION";
-	private static final String BOARD_STATE = "BOARD_STATE";
-	private static final String REFRESH = "REFRESH";
-	private static final String ERROR = "ERROR";
-
+	// String constants. Are writted in the log file
+	public static final String PLAYER = "PLAYER";
+	public static final String COMMAND = "COMMAND";
+	public static final String OPERATION = "OPERATION";
+	public static final String BOARD_STATE = "BOARD_STATE";
+	public static final String REFRESH = "REFRESH";
+	public static final String ERROR = "ERROR";
+	
+	// A BufferedWriter for writing out to the log file
 	private static BufferedWriter log;
-	private String fileName;
-
+	// The full path to the log file
+	private String logFilePath;
+	// Boolean to control when the thread should shut down
 	private boolean run = true;
 
 	/**
 	 * Create a new logger object Write the log to the given file
 	 * 
-	 * @param fileName
+	 * @param logFilePath
 	 */
-	public Logger(String fileName) {
-		this.fileName = fileName;
+	public Logger(String logFilePath) {
+		this.logFilePath = logFilePath;
 
 		try {
 			File directory = new File("logs");
 			directory.mkdir();
-			log = new BufferedWriter(new FileWriter(new File(fileName)));
+			log = new BufferedWriter(new FileWriter(new File(logFilePath)));
 		} catch (IOException e) {
-			System.out.println("ERROR: Could not create log file: " + fileName);
+			System.out.println("ERROR: Could not create log file: " + logFilePath);
 			e.printStackTrace();
 		}
 	}
@@ -47,12 +60,13 @@ public class Logger extends Thread {
 	}
 
 	/**
-	 * Loop while run is true (haven't shut down)
+	 * Loop while run is true (we haven't been shut down)
 	 */
 	public void run() {
 		while (run) {
 		}
 
+		// Close the buffered reader before exiting
 		try {
 			close();
 		} catch (IOException e) {
@@ -96,19 +110,33 @@ public class Logger extends Thread {
 					for (int j = 0; j < Model.BOARD_SIZE; j++) {
 						if (board[i][j] == null) {
 							// Border
-							grid += "X";
+							if (i==0 || i==11) {
+								grid+="-";
+							} else {
+								grid+="|";
+							}
 						} else if (board[i][j].hasWall()) {
 							// Wall
 							grid += "w";
 						} else if (board[i][j].numPlayers() > 0) {
 							// Player
 							grid += "P";
+						} else if (board[i][j].hasDoor()) {
+							// Door
+							grid += "D";
 						} else {
 							// Open space
-							grid += "+";
+							grid += " ";
 						}
 					}
-					log.write(BOARD_STATE + ",Row " + i + "," + grid);
+					
+					// Make it look all pretty
+					if (i>9) {
+						log.write(BOARD_STATE + ",Row" + i + "," + grid);
+					} else {
+						log.write(BOARD_STATE + ",Row " + i + "," + grid);
+					}
+					
 					log.newLine();
 					grid = new String();
 				}
@@ -156,7 +184,7 @@ public class Logger extends Thread {
 	 * @return
 	 */
 	public String getLogFile() {
-		return fileName;
+		return logFilePath;
 	}
 
 	/**
