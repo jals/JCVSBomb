@@ -6,13 +6,13 @@ By Vinayak Bansal, Jarred Linthorn, Sean Byron & Chris Siewecke
 -------------
 ###1.1 Server
 To start up the server, call its main method with the following arguments:
-*Mode - 1 starts the server in test mode, 0 starts the server in normal, game mode
-*Port - Port to listed for clients on
+* Mode - 1 starts the server in test mode, 0 starts the server in normal, game mode
+* Port - Port to listed for clients on
 
 ###1.2 Client
 To start up a client, call its main method with the following arguments:
-*Server IP - IP address of the server
-*Port - The port the server is listening on
+* Server IP - IP address of the server
+* Port - The port the server is listening on
 
 Once the client is running, type you name on the command line and press enter.
 
@@ -21,10 +21,10 @@ Once the client is running, type you name on the command line and press enter.
 Once a server is started, and one or more clients are connected, type START_GAME on the command line from your client to start up the game. Once the game has started, the GUI will be displayed.
 
 To move around the board, type the following commands on the command line:
-*MOVE_UP
-*MOVE_DOWN
-*MOVE_LEFT
-*MOVE_RIGHT
+* MOVE_UP
+* MOVE_DOWN
+* MOVE_LEFT
+* MOVE_RIGHT
 
 To leave the game, type LEAVE_GAME
 
@@ -46,6 +46,6 @@ The TestDriver starts the server in test mode, meaning that the default board is
 ###3.3 Test Cases
 For the first milestone, we have created three test cases
 
-*one_player_move_to_door.txt - Creates one player (at 1,1) and moves right until the player reaches the foor (at 1,4).
-*two_players_test.txt - Creates two players, one at (1,1) the other at (10,10). Both players move around for a time, then leave the game.
-*two_player_test_touch.txt - Creates two players, one at (1,1) the other at (10,10). Player one moves down and player two moves left until they touch in the bottom left corner.
+* one_player_move_to_door.txt - Creates one player (at 1,1) and moves right until the player reaches the foor (at 1,4).
+* two_players_test.txt - Creates two players, one at (1,1) the other at (10,10). Both players move around for a time, then leave the game.
+* two_player_test_touch.txt - Creates two players, one at (1,1) the other at (10,10). Player one moves down and player two moves left until they touch in the bottom left corner.
