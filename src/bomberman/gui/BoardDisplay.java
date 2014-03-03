@@ -11,6 +11,15 @@ import bomberman.Door;
 import bomberman.Model;
 import bomberman.Square;
 
+/**
+ * This class is used by the GUI to create the visuals. The size of the
+ * graphical units are specified here, as well as the font used. This class
+ * creates the illusion of walls by painting the outer and inner walls of the
+ * grid as different colours than the walkable area.
+ * 
+ * @author Jarred Linthorne
+ * 
+ */
 public class BoardDisplay extends JComponent {
 	private static final long serialVersionUID = -83694624035879827L;
 	private static final int CELL_PIXELS = 75; // Size of each cell.
@@ -22,12 +31,24 @@ public class BoardDisplay extends JComponent {
 
 	private Model model;
 
+	/**
+	 * The constructor sets the size of the component and the default background
+	 * colour
+	 * 
+	 * @param model
+	 */
 	public BoardDisplay(Model model) {
 		setPreferredSize(new Dimension(BOARD_PIXELS + 1, BOARD_PIXELS + 1));
 		setBackground(Color.WHITE);
 		this.model = model;
 	}
 
+	/**
+	 * This method paints the background, and calls the methods to draw the
+	 * walls and grid lines
+	 * 
+	 * @param g
+	 */
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -40,6 +61,12 @@ public class BoardDisplay extends JComponent {
 		drawCellValues(g);
 	}
 
+	/**
+	 * This method is used to fill in the outer walls to show a boundary for the
+	 * grid
+	 * 
+	 * @param g
+	 */
 	private void fillOuterWalls(Graphics g) {
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, CELL_PIXELS * PUZZLE_SIZE, CELL_PIXELS); // top border
@@ -50,20 +77,20 @@ public class BoardDisplay extends JComponent {
 				* PUZZLE_SIZE, CELL_PIXELS * PUZZLE_SIZE); // bottom border
 	}
 
+	/**
+	 * This method is used to fill in the inner walls to show the squares that
+	 * aren't able to be walked on
+	 * 
+	 * @param g
+	 */
 	private void fillInnerWalls(Graphics g) {
 		Square[][] b = model.getBoard();
 		g.setColor(Color.GRAY);
 		for (int i = 1; i < PUZZLE_SIZE - 1; i++) {
 			for (int j = 1; j < PUZZLE_SIZE - 1; j++) {
 				if (!(b[i][j].getObjects().get(0) instanceof Door)) {
-					if ((Integer) b[i][j].getObjects().get(0) == 1) { // fill
-																		// all
-																		// rectangles
-																		// that
-																		// have
-																		// a
-																		// value
-																		// of 1
+					// fill all rectangles that have a value of 1
+					if ((Integer) b[i][j].getObjects().get(0) == 1) {
 						g.fillRect(j * CELL_PIXELS, i * CELL_PIXELS,
 								1 * CELL_PIXELS, 1 * CELL_PIXELS);
 					}
@@ -72,6 +99,12 @@ public class BoardDisplay extends JComponent {
 		}
 	}
 
+	/**
+	 * This method is used to draw each of the inner lines that segment the
+	 * squares
+	 * 
+	 * @param g
+	 */
 	private void drawGridLines(Graphics g) {
 		for (int i = 1; i <= PUZZLE_SIZE - 1; i++) {
 			int grid = i * CELL_PIXELS;
@@ -80,6 +113,12 @@ public class BoardDisplay extends JComponent {
 		}
 	}
 
+	/**
+	 * This method is used to draw the string values into the square to display
+	 * names, etc.
+	 * 
+	 * @param g
+	 */
 	private void drawCellValues(Graphics g) {
 		g.setFont(TEXT_FONT);
 		for (int i = 0; i < PUZZLE_SIZE; i++) {
