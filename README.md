@@ -38,8 +38,8 @@ To run a test case, call the main method of TestDriver, and pass the path to the
 ###3.2 Specifying a test case
 A test case is a comma separated list of instructions for the TestDriver. There are two instructions:
 
-*PLAYER,{player_name}- Creates a new client with the name player_name and starts the client
-*COMMAND,{player_name},{operation} - Executes the giver operation (START_GAME, LEAVE_GAME, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT)
+* PLAYER,{player_name}- Creates a new client with the name player_name and starts the client
+* COMMAND,{player_name},{operation} - Executes the giver operation (START_GAME, LEAVE_GAME, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT)
 	
 The TestDriver starts the server in test mode, meaning that the default board is loaded, the players are always added to the board in the same place (1,1 for player 1, 10,10 for player 2), and the door is always in the same place. Using these pre-conditions, and a test case made up of a series of commands, it is possible to test a variety of scenarios.
 
