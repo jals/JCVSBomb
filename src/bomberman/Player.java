@@ -18,6 +18,7 @@ public class Player implements Serializable {
 	private Boolean isAlive;
 	private InetAddress address;
 	private int port;
+	private int lastDirection = Model.DOWN;
 
 	public Player(String playerName) {
 		this.playerName = playerName;
@@ -32,6 +33,17 @@ public class Player implements Serializable {
 	}
 
 	public void setLocation(Point location) {
+		if(this.location != null){
+			if(this.location.y > location.y){
+				setLastDirection(Model.LEFT);
+			} else if(this.location.y < location.y){
+				setLastDirection(Model.RIGHT);
+			} else if(this.location.x > location.x){
+				setLastDirection(Model.UP);
+			} else {
+				setLastDirection(Model.DOWN);
+			}
+		}
 		this.location = location;
 	}
 
@@ -57,6 +69,14 @@ public class Player implements Serializable {
 
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	public int getLastDirection() {
+		return lastDirection;
+	}
+
+	public void setLastDirection(int lastDirection) {
+		this.lastDirection = lastDirection;
 	}
 
 }

@@ -4,11 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
 import bomberman.Door;
 import bomberman.Model;
+import bomberman.Player;
 import bomberman.Square;
 
 /**
@@ -27,6 +31,8 @@ public class BoardDisplay extends JComponent {
 	private static final int BOARD_PIXELS = CELL_PIXELS * PUZZLE_SIZE;
 	private static final int X_OFFSET = 18; // Fine tuning placement of text.
 	private static final int Y_OFFSET = 28; // Fine tuning placement of text.
+	private static final int X_PICTURE_OFFSET = 6; // Fine tuning placement of text.
+	private static final int Y__PICTURE_OFFSET = 35; // Fine tuning placement of text.
 	private static final Font TEXT_FONT = new Font("Sansserif", Font.BOLD, 24);
 
 	private Model model;
@@ -54,11 +60,19 @@ public class BoardDisplay extends JComponent {
 		super.paintComponent(g);
 		g.setColor(getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
-		fillOuterWalls(g);
+		try {
+			fillOuterWalls(g);
+		} catch (IOException e1) {
+			System.err.println("Outer walls could not be created.");
+		}
 		fillInnerWalls(g);
 		g.setColor(Color.BLACK);
 		drawGridLines(g);
-		drawCellValues(g);
+		try {
+			drawCellValues(g);
+		} catch (IOException e) {
+			System.err.println("Error reading image file.");
+		}
 	}
 
 	/**
@@ -66,8 +80,9 @@ public class BoardDisplay extends JComponent {
 	 * grid
 	 * 
 	 * @param g
+	 * @throws IOException 
 	 */
-	private void fillOuterWalls(Graphics g) {
+	private void fillOuterWalls(Graphics g) throws IOException {
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, CELL_PIXELS * PUZZLE_SIZE, CELL_PIXELS); // top border
 		g.fillRect(0, 0, CELL_PIXELS, CELL_PIXELS * PUZZLE_SIZE); // left border
@@ -75,6 +90,7 @@ public class BoardDisplay extends JComponent {
 				* PUZZLE_SIZE, CELL_PIXELS * PUZZLE_SIZE); // right border
 		g.fillRect(CELL_PIXELS * PUZZLE_SIZE - CELL_PIXELS, 0, CELL_PIXELS
 				* PUZZLE_SIZE, CELL_PIXELS * PUZZLE_SIZE); // bottom border
+		g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Title.png")), 225, 0, null);
 	}
 
 	/**
@@ -118,8 +134,9 @@ public class BoardDisplay extends JComponent {
 	 * names, etc.
 	 * 
 	 * @param g
+	 * @throws IOException 
 	 */
-	private void drawCellValues(Graphics g) {
+	private void drawCellValues(Graphics g) throws IOException {
 		g.setFont(TEXT_FONT);
 		for (int i = 0; i < PUZZLE_SIZE; i++) {
 			int yDisplacement = (i + 1) * CELL_PIXELS - Y_OFFSET;
@@ -130,7 +147,27 @@ public class BoardDisplay extends JComponent {
 					if (value.length() > 4) {
 						value = model.getVal(i, j).toString().substring(0, 4);
 					}
-					g.drawString(value, xDisplacement, yDisplacement);
+					Player p = model.getBoard()[i][j].getPlayer();
+					Door d = model.getBoard()[i][j].getDoor();
+					if(p != null){
+						if(p.getLastDirection() == Model.LEFT){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else if(p.getLastDirection() == Model.RIGHT){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else if(p.getLastDirection() == Model.UP){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Upward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else {
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Downward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						}
+					} else if (d != null){
+						if (d.isVisible()){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/DoorHole.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else {
+							g.drawString(value, xDisplacement, yDisplacement);
+						}
+					} else {
+						g.drawString(value, xDisplacement, yDisplacement);
+					}
 				}
 			}
 		}

@@ -44,6 +44,15 @@ public class Square implements Serializable {
 		}
 		objects = newObjects;
 	}
+	
+	public Player getPlayer(){
+		for (int x = 0; x < objects.size(); x++) {
+			if ((objects.get(x) instanceof Player)) {
+				return (Player) objects.get(x);
+			}
+		}
+		return null;
+	}
 
 	public boolean hasMultiplePlayers() {
 		return numPlayers() > 1;
@@ -99,7 +108,15 @@ public class Square implements Serializable {
 		}
 		return false;
 	}
-
+	
+	public Door getDoor(){
+		for (int x = 0; x < objects.size(); x++) {
+			if (objects.get(x) instanceof Door) {
+				return (Door) objects.get(x);
+			}
+		}
+		return null;
+	}
 	/**
 	 * This is to undo the addObject method
 	 * This is required with fixing the grid.
