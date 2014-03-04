@@ -18,10 +18,12 @@ public class Player implements Serializable {
 	private Boolean isAlive;
 	private InetAddress address;
 	private int port;
+	private int identifier;
 	private int lastDirection = Model.DOWN;
 
-	public Player(String playerName) {
+	public Player(String playerName, int identifier) {
 		this.playerName = playerName;
+		this.setIdentifier(identifier);
 	}
 
 	public String getName() {
@@ -77,6 +79,14 @@ public class Player implements Serializable {
 
 	public void setLastDirection(int lastDirection) {
 		this.lastDirection = lastDirection;
+	}
+
+	public int getIdentifier() {
+		return identifier;
+	}
+
+	public void setIdentifier(int identifier) {
+		this.identifier = identifier;
 	}
 
 }

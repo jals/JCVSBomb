@@ -151,13 +151,13 @@ public class BoardDisplay extends JComponent {
 					Door d = model.getBoard()[i][j].getDoor();
 					if(p != null){
 						if(p.getLastDirection() == Model.LEFT){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						} else if(p.getLastDirection() == Model.RIGHT){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						} else if(p.getLastDirection() == Model.UP){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Upward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Upward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						} else {
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Downward.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Downward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						}
 					} else if (d != null){
 						if (d.isVisible()){

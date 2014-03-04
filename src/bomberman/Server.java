@@ -30,6 +30,7 @@ public class Server {
 	private Door door; // where is the door?
 	 // If we are testing, we put the players at specific locations
 	private boolean isTesting;
+	private int playerId = 1;
 
 	public Server(int port) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
@@ -260,7 +261,11 @@ public class Server {
 
 		// if JOIN_GAME is received add the player to the game
 		if (c.getOperation() == Command.Operation.JOIN_GAME) {
-			p = new Player(c.getPlayer());
+			p = new Player(c.getPlayer(), playerId);
+			playerId++;
+			if(playerId > 4){ //Only have 4 different colours for players
+				playerId = 1;
+			}
 			p.setIsAlive(true);
 			if (!isTesting) {
 				//Random location if we are not testing.
