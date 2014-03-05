@@ -50,6 +50,8 @@ public class Server {
 		refreshed = new Object();
 		logger = new Logger();
 		logger.start();
+		
+		startServer(this);
 	}
 
 	public Server(int port, boolean testing) throws SocketException {
@@ -187,6 +189,9 @@ public class Server {
 				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
 			}
 		}
+	}
+	
+	private void startServer(Server server) {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,
 				receiveData.length);
@@ -242,7 +247,6 @@ public class Server {
 			}
 			server.removeLastPlayer();
 		}
-
 	}
 
 	/**
