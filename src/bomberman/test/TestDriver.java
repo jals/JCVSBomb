@@ -37,7 +37,7 @@ public class TestDriver {
 		server.start();
 
 		// Hashmap to keep track of the clients that have been spawned off
-		HashMap<String, Client> clients = new HashMap<String, Client>();
+		HashMap<String, ClientThread> clients = new HashMap<String, ClientThread>();
 		
 		// Open the file for reading
 		BufferedReader reader;
@@ -60,9 +60,7 @@ public class TestDriver {
 					System.out.println("Adding new player: " + split[1]);
 					
 					ClientThread clientThread = new ClientThread(split[1]);
-					
-					Client client = clientThread.getClient();
-					clients.put(split[1], client);
+					clients.put(split[1], clientThread);
 					
 					clientThread.start();
 					
@@ -82,8 +80,8 @@ public class TestDriver {
 					commands.add(new Command(split[1], operation));
 					
 					// Send the command to the correct client
-					Client client = clients.get(split[1]);
-					client.move(split[2]);
+					ClientThread clientThread = clients.get(split[1]);
+					clientThread.getClient().move(split[2]);
 					
 					// Sleep for a time
 					Thread.sleep(500);
@@ -108,7 +106,14 @@ public class TestDriver {
 		// Shutdown all the clients
 		Set<String> players = clients.keySet();
 		for (String s : players) {
-			clients.get(s).shutDown();
+			clients.get(s).shutdown();
+			
+			// Wait for the client to shutdown
+			try {
+				clients.get(s).join(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		String log = server.getLogFile();
@@ -116,7 +121,7 @@ public class TestDriver {
 		
 		// Wait for the server to shutdown before continuing
 		try {
-			server.join();
+			server.join(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -191,6 +196,12 @@ public class TestDriver {
 			System.out.println("Test case completed successfully\n");
 		}
 	}
+	
+	private static void runAll(File[] files) {
+		for (int i=0; i<files.length; i++) {
+			executeTestCase(files[i]);
+		}
+	}
 
 	/**
 	 * Usage: TestDriver {test_directory} (optional)
@@ -225,23 +236,28 @@ public class TestDriver {
 			System.out.println(i + "\t" + files[i].getName());
 		}
 		
-		System.out.print("Type a test number and press enter to run it (exit to quit): ");
+		System.out.print("Type a test number and press enter to run it (all to run all tests, exit to quit): ");
 		Scanner console = new Scanner(System.in);
 		String input = console.nextLine();
 		
 		while (!input.equals("exit")) {
-			int numEntered = Integer.parseInt(input);
-			if (numEntered < files.length) {
-				executeTestCase(files[numEntered]);
+			
+			if (input.equals("all")) {
+				runAll(files);
 			} else {
-				System.out.println("Invalid number entered. Please enter a number between 0 and " + (files.length-1));
+				int numEntered = Integer.parseInt(input);
+				if (numEntered < files.length) {
+					executeTestCase(files[numEntered]);
+				} else {
+					System.out.println("Invalid number entered. Please enter a number between 0 and " + (files.length-1));
+				}
+				
+				for (int i=0; i<files.length; i++) {
+					System.out.println(i + "\t" + files[i].getName());
+				}
 			}
 			
-			for (int i=0; i<files.length; i++) {
-				System.out.println(i + "\t" + files[i].getName());
-			}
-			
-			System.out.print("Type a test number and press enter to run it (exit to quit): ");
+			System.out.print("Type a test number and press enter to run it (all to run all tests, exit to quit): ");
 			input = console.nextLine();
 		}
 		

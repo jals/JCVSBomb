@@ -5,9 +5,11 @@
 
 package bomberman;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Scanner;
 
 import bomberman.gui.BombermanClient;
@@ -32,9 +34,9 @@ public class Client {
 	private Boolean started;
 	// The class required for GUI
 	private BombermanClient bc = null;
+	private boolean running = true;
 
 	public Client(String playerName, String host, int port) throws Exception {
-
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
 		// Next two lines will be overwritten when the client has joined
@@ -44,7 +46,6 @@ public class Client {
 		listenIp = InetAddress.getByName(host);
 		this.listenPort = port;
 		started = Boolean.FALSE;
-		joinGame();
 	}
 	
 	/**
@@ -59,27 +60,50 @@ public class Client {
 			System.out.println("Please specify two command line arguments. localhost, and port number.");
 			return;
 		}
+		
 		System.out.println("Enter a player name: \n");
-		@SuppressWarnings("resource")
 		Scanner a = new Scanner(System.in);
 		Client client = null;
+		
 		try {
-			client = new Client(sanitizeName(a.nextLine()), args[0],
-					Integer.parseInt(args[1]));
+			client = new Client(sanitizeName(a.nextLine()), args[0], Integer.parseInt(args[1]));
 		} catch (Exception e) {
 			System.err.println("ERROR: Client could not be created properly.\n");
+			a.close();
 			return;
 		}
-		System.out.println("Enter player commands: \n");
-		// TODO: We are aware that this thread should terminate once there is a 
-		// LEAVE_GAME received. But we are yet to find an elegant way to do it.
-		while (true) {
-			try {
-				client.move(a.nextLine());
-			} catch (Exception e) {
-				System.err.println("ERROR: Command failed.\n");
-				
+		
+		a.close();
+		client.startClient(false);
+	}
+	
+	public void startClient(boolean testMode) {
+		// Join a game
+		try {
+			joinGame();
+		} catch (IOException e1) {
+			if (e1 instanceof SocketException) {
+				// Socket was closed, game is over
+				return;
 			}
+			e1.printStackTrace();
+		}
+		
+		if (!testMode) {
+			// Now start receiving commands from the command line
+			System.out.println("Enter player commands: \n");
+			Scanner a = new Scanner(System.in);
+			// TODO: We are aware that this thread should terminate once there is a 
+			// LEAVE_GAME received. But we are yet to find an elegant way to do it.
+			while (running) {
+				try {
+					move(a.nextLine());
+				} catch (Exception e) {
+					System.err.println("ERROR: Command failed.\n");
+					
+				}
+			}
+			a.close();
 		}
 	}
 
@@ -116,9 +140,10 @@ public class Client {
 	/**
 	 * Handles the communication with the server that is necessary in order to
 	 * join a game. Creates a Thread to handle
+	 * @throws IOException 
 	 * 
 	 */
-	private void joinGame() throws Exception{
+	private void joinGame() throws IOException {
 
 		move("join_game");
 		// Wait for an ack to know which port to finally communicate with.
@@ -141,7 +166,7 @@ public class Client {
 					if (grid instanceof Command.Operation) {
 						Command.Operation c = (Command.Operation) grid;
 						if (c == Command.Operation.LEAVE_GAME) {
-							clientSocket.close();
+							shutDown();
 							done = true;
 						} else {
 							synchronized (started) {
@@ -178,7 +203,13 @@ public class Client {
 	}
 	
 	public void shutDown() {
+		running = false;
+		clientSocket.close();
 		bc.dispose();
+	}
+	
+	public synchronized boolean isRunning() {
+		return running;
 	}
 
 }

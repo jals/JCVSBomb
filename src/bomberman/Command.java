@@ -40,4 +40,7 @@ public class Command implements Serializable {
 		return operation;
 	}
 
+	public String toString() {
+		return player + ":" + operation;
+	}
 }
