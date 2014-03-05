@@ -1,5 +1,7 @@
 package bomberman.test;
 
+import java.net.SocketException;
+
 import bomberman.Server;
 
 /**
@@ -10,14 +12,27 @@ import bomberman.Server;
  */
 class ServerThread extends Thread {
 
+	private Server server;
+	private boolean running;
+	
+	public ServerThread() {
+		try {
+			server = new Server(9876, true);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
+		running = true;
+	}
+
 	/**
 	 * Run the thread
 	 */
 	public void run() {
-		// Start the server in "Test" mode (flag=1) on port 9876
-		String[] args = { "1", "9876" };
-		// Start the server
-		Server.main(args);
+		server.startServer();
+		
+		while(server.isRunning()) {
+		}
+		
 	}
 
 	/**
@@ -26,7 +41,11 @@ class ServerThread extends Thread {
 	 * @return
 	 */
 	public String getLogFile() {
-		return Server.getLogFile();
+		return server.getLogFile();
+	}
+	
+	public void shutdown() {
+		server.shutdownServer();
 	}
 
 }

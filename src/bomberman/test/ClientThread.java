@@ -27,21 +27,11 @@ public class ClientThread extends Thread {
 	}
 
 	/**
-	 * Run the thread
-	 */
-	public void run() {
-		// Run forever
-		// TODO: Stop the thread when the player dies
-		while (true) {
-		}
-	}
-
-	/**
 	 * Returns the Client object that is being run by the thread
 	 * @return
 	 */
 	public Client getClient() {
 		return client;
 	}
-
+	
 }

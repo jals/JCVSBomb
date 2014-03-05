@@ -178,7 +178,6 @@ public class Client {
 	}
 	
 	public void shutDown() {
-		//clientSocket.close();
 		bc.dispose();
 	}
 

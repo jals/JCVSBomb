@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.Set;
 
 import bomberman.Client;
 import bomberman.Command;
@@ -25,16 +27,13 @@ public class TestDriver {
 	// compared with the list of commands recieved by the server later
 	private static ArrayList<Command> commands = new ArrayList<Command>();
 	
-	// A server thread to send commands to
-	private static ServerThread server;
-
 	/**
 	 * Runs the given test case
-	 * @param filename
+	 * @param testFile
 	 */
-	private static void runTest(String filename) {
+	private static String runTest(File testFile) {
 		// Start up a server
-		server = new ServerThread();
+		ServerThread server = new ServerThread();
 		server.start();
 
 		// Hashmap to keep track of the clients that have been spawned off
@@ -43,10 +42,10 @@ public class TestDriver {
 		// Open the file for reading
 		BufferedReader reader;
 		try {
-			reader = new BufferedReader(new FileReader(new File(filename)));
+			reader = new BufferedReader(new FileReader(testFile));
 		} catch (FileNotFoundException e1) {
 			System.out.println("ERROR: File not found");
-			return;
+			return server.getLogFile();
 		}
 
 		// Start processing the test case
@@ -71,7 +70,7 @@ public class TestDriver {
 					commands.add(new Command(split[1], Operation.JOIN_GAME));
 					
 					// Sleep for a time
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				}
 				
 				// Process the command
@@ -87,7 +86,7 @@ public class TestDriver {
 					client.move(split[2]);
 					
 					// Sleep for a time
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				}
 				
 				line = reader.readLine();
@@ -105,6 +104,23 @@ public class TestDriver {
 				e.printStackTrace();
 			}
 		}
+		
+		// Shutdown all the clients
+		Set<String> players = clients.keySet();
+		for (String s : players) {
+			clients.get(s).shutDown();
+		}
+		
+		String log = server.getLogFile();
+		server.shutdown();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return log;
 	}
 	
 	/**
@@ -113,12 +129,12 @@ public class TestDriver {
 	 * If the two match, the test case completed successfully
 	 * @return
 	 */
-	private static boolean verifyServerLog() {
+	private static boolean verifyServerLog(String logFile) {
 		BufferedReader reader = null;
 		boolean ret = true;
 		
 		try {
-			reader = new BufferedReader(new FileReader(new File(server.getLogFile())));
+			reader = new BufferedReader(new FileReader(new File(logFile)));
 			String line = reader.readLine();
 			int i=0;
 			
@@ -163,28 +179,74 @@ public class TestDriver {
 		return ret;
 		
 	}
+	
+	private static void executeTestCase(File file) {
+		String logFile = runTest(file);
+		
+		if (!verifyServerLog(logFile)) {
+			System.out.println("Server log file does not match the list of commands "
+					+ "sent by the test case.\n"
+					+ "Test case DID NOT execute successfully.\n");
+		} else {
+			System.out.println("Test case completed successfully\n");
+		}
+	}
 
 	/**
-	 * Usage: TestDriver {file name}
+	 * Usage: TestDriver {test_directory} (optional)
 	 * 
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
+		String location = new String();
+		
 		if (args.length < 1) {
-			System.out.println("Error: Please specify a path to a test file to be run");
+			location = "tests/";
+		} else {
+			location = args[0];
+		}
+		
+		File testDirectory = new File(location);
+		
+		if (!testDirectory.exists()) {
+			System.out.println("ERROR: Directory specified does not exist");
 			return;
 		}
 		
-		runTest(args[0]);
-		
-		if (!verifyServerLog()) {
-			System.out.println("Server log file does not match the list of commands "
-					+ "sent by the test case.\n"
-					+ "Test case DID NOT execute successfully.");
-		} else {
-			System.out.println("Test case completed successfully");
+		if (!testDirectory.isDirectory()) {
+			System.out.println("ERROR: Location specified is not a directory");
+			return;
 		}
+		
+		File[] files = testDirectory.listFiles();
+		
+		for (int i=0; i<files.length; i++) {
+			System.out.println(i + "\t" + files[i].getName());
+		}
+		
+		System.out.print("Type a test number and press enter to run it (exit to quit): ");
+		Scanner console = new Scanner(System.in);
+		String input = console.nextLine();
+		
+		while (!input.equals("exit")) {
+			int numEntered = Integer.parseInt(input);
+			if (numEntered < files.length) {
+				executeTestCase(files[numEntered]);
+			} else {
+				System.out.println("Invalid number entered. Please enter a number between 0 and " + (files.length-1));
+			}
+			
+			for (int i=0; i<files.length; i++) {
+				System.out.println(i + "\t" + files[i].getName());
+			}
+			
+			System.out.print("Type a test number and press enter to run it (exit to quit): ");
+			input = console.nextLine();
+		}
+		
+		console.close();
+		
 	}
 
 }
