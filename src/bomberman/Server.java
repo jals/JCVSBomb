@@ -32,7 +32,7 @@ public class Server {
 	private boolean isTesting;
 	private int playerId = 1;
 
-	public Server(int port) throws SocketException {
+	public Server(int port, boolean testing) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
 		// TODO The name of the file is hardcoded for testing. For next milestone,
 		// Make it a command line argument
@@ -50,13 +50,8 @@ public class Server {
 		refreshed = new Object();
 		logger = new Logger();
 		logger.start();
-		
-		startServer(this);
-	}
-
-	public Server(int port, boolean testing) throws SocketException {
-		this(port);
 		isTesting = testing;
+		startServer(this);
 	}
 
 	public void removePlayer(Player p) {

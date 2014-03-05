@@ -176,5 +176,10 @@ public class Client {
 
 		return name;
 	}
+	
+	public void shutDown() {
+		//clientSocket.close();
+		bc.dispose();
+	}
 
 }
