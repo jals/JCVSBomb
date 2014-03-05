@@ -25,7 +25,6 @@ public class Server {
 	private List<Player> listOfPlayers;
 	private Model grid;
 	private DatagramSocket serverSocket; //dedicated listening socket
-	private Object refreshed; // lock object for sending updates
 	private static Logger logger;
 	private Door door; // where is the door?
 	 // If we are testing, we put the players at specific locations
@@ -48,7 +47,6 @@ public class Server {
 			grid.getBoard()[door.getLocation().x][door.getLocation().y]
 					.addObject(door); // if loaded from file
 		}
-		refreshed = new Object();
 		logger = new Logger();
 		logger.start();
 		isTesting = testing;
@@ -154,12 +152,6 @@ public class Server {
 			}
 		}
 		listOfPlayers = newPlayers;
-
-		//Notifying everybody to send refreshed grid to their respective
-		// clients.
-		synchronized (refreshed) {
-			refreshed.notifyAll();
-		}
 
 		logger.logRefresh();
 		logger.logGrid(grid);
@@ -296,7 +288,7 @@ public class Server {
 			refreshGrid();
 			//Create a fresh socket over which the client will now communicate
 			DatagramSocket socket = new DatagramSocket();
-			workers.add(new Worker(this, refreshed, p, socket));
+			workers.add(new Worker(this, p, socket));
 
 			// if START_GAME is received start the game
 		} else if (c.getOperation() == Command.Operation.START_GAME) {
@@ -342,12 +334,10 @@ public class Server {
 class Worker extends Thread {
 	Server server;
 	DatagramSocket socket;
-	Object refreshed;
 	Player p;
 
-	public Worker(final Server server, Object object, final Player p,
+	public Worker(final Server server, final Player p,
 			final DatagramSocket socket) {
-		refreshed = object;
 		this.p = p;
 		this.server = server;
 		this.socket = socket;
@@ -358,20 +348,19 @@ class Worker extends Thread {
 		new Thread() {
 			public void run() {
 				while (server.isRunning()) {
-					synchronized (refreshed) {
-						try {
-							refreshed.wait();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
 						Utility.sendMessage(socket, server.getGrid(),
 								p.getAddress(), p.getPort());
 						if (!p.getIsAlive()) {
 							done();
 							break;
 						}
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 
-					}
 				}
 				socket.close();
 				return;
