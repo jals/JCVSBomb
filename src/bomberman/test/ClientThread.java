@@ -25,6 +25,14 @@ public class ClientThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+	
+	public void run() {
+		client.startClient(true);
+		
+		while (client.isRunning()) {
+			
+		}
+	}
 
 	/**
 	 * Returns the Client object that is being run by the thread
@@ -32,6 +40,10 @@ public class ClientThread extends Thread {
 	 */
 	public Client getClient() {
 		return client;
+	}
+	
+	public void shutdown() {
+		client.shutDown();
 	}
 	
 }
