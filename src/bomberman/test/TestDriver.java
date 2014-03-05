@@ -113,13 +113,13 @@ public class TestDriver {
 		
 		String log = server.getLogFile();
 		server.shutdown();
+		
+		// Wait for the server to shutdown before continuing
 		try {
-			Thread.sleep(1000);
+			server.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		return log;
 	}
 	

@@ -197,6 +197,10 @@ public class Server {
 			try {
 				getServerSocket().receive(packet);
 			} catch (IOException e) {
+				if(e instanceof SocketException) {
+					// Socket was closed, just return (no error)
+					return;
+				}
 				System.err.println("ERROR: Could not receive packet from a socket.");
 			}
 			Object o = null;
@@ -223,6 +227,10 @@ public class Server {
 			try {
 				getServerSocket().receive(packet);
 			} catch (IOException e) {
+				if (e instanceof SocketException) {
+					// Socket was closed, just return (no error)
+					return;
+				}
 				System.err.println("ERROR: Could not receive packet from a socket.");
 			}
 			Object o = null;
@@ -312,6 +320,7 @@ public class Server {
 	
 	public void shutdownServer() {
 		running = false;
+		getServerSocket().close();
 	}
 	
 	public synchronized boolean isRunning() {

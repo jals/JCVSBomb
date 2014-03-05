@@ -17,6 +17,7 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 import bomberman.Command.Operation;
 
@@ -33,6 +34,10 @@ public class Utility {
 					sendData.length, add, port);
 			socket.send(sendPacket);
 		} catch (IOException e) {
+			if(e instanceof SocketException) {
+				// Socket was closed, just return (no error)
+				return;
+			}
 			e.printStackTrace();
 		}
 
@@ -49,6 +54,10 @@ public class Utility {
 			socket.receive(receivePacket);
 			return deserialize(receiveData);
 		} catch (Exception e) {
+			if(e instanceof SocketException) {
+				// Socket was closed, just return (no error)
+				return null;
+			}
 			e.printStackTrace();
 		}
 		return null;
