@@ -45,6 +45,21 @@ public class Square implements Serializable {
 		objects = newObjects;
 	}
 	
+	
+	public PowerUp removePowerUp() {
+		PowerUp toReturn = null;
+		List<Object> newObjects = new ArrayList<Object>();
+		for (int x = 0; x < objects.size(); x++) {
+			if (!(objects.get(x) instanceof PowerUp)) {
+				newObjects.add(objects.get(x));
+			} else {
+				toReturn = (PowerUp) objects.get(x);
+			}
+		}
+		objects = newObjects;
+		return toReturn;
+	}
+	
 	public Player getPlayer(){
 		for (int x = 0; x < objects.size(); x++) {
 			if ((objects.get(x) instanceof Player)) {
@@ -82,8 +97,22 @@ public class Square implements Serializable {
 	 * Handy method to see if the player can come to this square
 	 * @return true if this square is a wall. False, otherwise.
 	 */
-	public boolean hasWall() {
-		return objects.contains(1);
+	public boolean canGo() {
+		for(Object object: objects) {
+			if ((object instanceof Box) || (object instanceof Wall)){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean hasPowerUp() {
+		for(Object object: objects) {
+			if (object instanceof PowerUp){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

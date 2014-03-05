@@ -112,7 +112,7 @@ public class Logger extends Thread {
 							} else {
 								grid+="|";
 							}
-						} else if (board[i][j].hasWall()) {
+						} else if (board[i][j].canGo()) {
 							// Wall
 							grid += "w";
 						} else if (board[i][j].numPlayers() > 0) {

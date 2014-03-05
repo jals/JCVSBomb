@@ -20,6 +20,8 @@ public class Player implements Serializable {
 	private int port;
 	private int identifier;
 	private int lastDirection = Model.DOWN;
+	@SuppressWarnings("unused")
+	private PowerUp powerUp;
 
 	public Player(String playerName, int identifier) {
 		this.playerName = playerName;
@@ -33,7 +35,11 @@ public class Player implements Serializable {
 	public Point getLocation() {
 		return location;
 	}
-
+	
+	public void addPowerUp(PowerUp powerUp) {
+		this.powerUp = powerUp;
+	}
+	
 	public void setLocation(Point location) {
 		if(this.location != null){
 			if(this.location.y > location.y){

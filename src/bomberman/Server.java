@@ -91,7 +91,7 @@ public class Server {
 		synchronized (gridLock.readLock()) {
 			Square interestedSquare = grid.getBoard()[x][y];
 			if (interestedSquare != null) {
-				return !interestedSquare.hasWall();
+				return interestedSquare.canGo();
 			}
 			return false;
 		}
@@ -113,7 +113,7 @@ public class Server {
 			boolean condition;
 			synchronized (gridLock.readLock()) {
 				condition = grid.getBoard()[x][y].numPlayers() == 0
-						&& !grid.getBoard()[x][y].hasWall();
+						&& !grid.getBoard()[x][y].canGo();
 			}
 			if (condition) {
 				isOkay = true;
@@ -145,6 +145,10 @@ public class Server {
 							&& p.getLocation().y == door.getLocation().y) {
 						door.setVisible(true);
 					}
+				}
+				PowerUp powerUp = grid.getBoard()[p.getLocation().x][p.getLocation().y].removePowerUp(); 
+				if( powerUp != null) {
+					p.addPowerUp(powerUp);
 				}
 			}
 			// Check if two players are at the same location.
@@ -329,6 +333,14 @@ public class Server {
 		}
 		return false;
 	}
+	
+	public void addBomb(int x, int y) {
+		synchronized(gridLock.writeLock()) {
+			// TODO Change the fuse time
+			// TODO Start a thread for a ticking bomb 
+			grid.getBoard()[x][y].addObject(new Bomb(new Point(x,y), 100));
+		}
+	}
 
 	protected DatagramSocket getServerSocket() {
 		return serverSocket;
@@ -428,8 +440,8 @@ class Worker extends Thread {
 			} else if (c.getOperation() == Command.Operation.LEAVE_GAME) {
 				done();
 				break;
-			} else {
-				// TODO: Drop Bomb
+			} else if (c.getOperation() == Command.Operation.DROP_BOMB){
+				server.addBomb(p.getLocation().x, p.getLocation().y);
 			}
 			server.refreshGrid();
 		}
