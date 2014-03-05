@@ -31,6 +31,7 @@ public class Server {
 	 // If we are testing, we put the players at specific locations
 	private boolean isTesting;
 	private int playerId = 1;
+	private boolean running = true;
 
 	public Server(int port, boolean testing) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
@@ -51,7 +52,6 @@ public class Server {
 		logger = new Logger();
 		logger.start();
 		isTesting = testing;
-		startServer(this);
 	}
 
 	public void removePlayer(Player p) {
@@ -184,9 +184,10 @@ public class Server {
 				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
 			}
 		}
+		server.startServer();
 	}
 	
-	private void startServer(Server server) {
+	public void startServer() {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,
 				receiveData.length);
@@ -194,7 +195,7 @@ public class Server {
 		boolean done = false;
 		while (!done) {
 			try {
-				server.getServerSocket().receive(packet);
+				getServerSocket().receive(packet);
 			} catch (IOException e) {
 				System.err.println("ERROR: Could not receive packet from a socket.");
 			}
@@ -210,7 +211,7 @@ public class Server {
 			logger.logCommand(c);
 
 			try {
-				done = server.addPlayer(packet, workers, c);
+				done = addPlayer(packet, workers, c);
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
@@ -218,9 +219,9 @@ public class Server {
 		for (Worker worker : workers) {
 			worker.start();
 		}
-		while (true) {
+		while (isRunning()) {
 			try {
-				server.getServerSocket().receive(packet);
+				getServerSocket().receive(packet);
 			} catch (IOException e) {
 				System.err.println("ERROR: Could not receive packet from a socket.");
 			}
@@ -236,12 +237,15 @@ public class Server {
 			logger.logCommand(c);
 
 			try {
-				done = server.addPlayer(packet, workers, c);
+				done = addPlayer(packet, workers, c);
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
-			server.removeLastPlayer();
+			removeLastPlayer();
 		}
+		
+		serverSocket.close();
+		return;
 	}
 
 	/**
@@ -294,7 +298,7 @@ public class Server {
 		return false;
 	}
 
-	public DatagramSocket getServerSocket() {
+	protected DatagramSocket getServerSocket() {
 		return serverSocket;
 	}
 
@@ -304,6 +308,14 @@ public class Server {
 
 	public static String getLogFile() {
 		return logger.getLogFile();
+	}
+	
+	public void shutdownServer() {
+		running = false;
+	}
+	
+	public synchronized boolean isRunning() {
+		return running;
 	}
 
 }
@@ -336,7 +348,7 @@ class Worker extends Thread {
 		//and then send a new grid to the client.
 		new Thread() {
 			public void run() {
-				while (true) {
+				while (server.isRunning()) {
 					synchronized (refreshed) {
 						try {
 							refreshed.wait();
@@ -352,6 +364,8 @@ class Worker extends Thread {
 
 					}
 				}
+				socket.close();
+				return;
 			}
 		}.start();
 	}
@@ -365,7 +379,7 @@ class Worker extends Thread {
 		Utility.sendMessage(socket, Command.Operation.START_GAME,
 				p.getAddress(), p.getPort()); 
 
-		while (true) {
+		while (server.isRunning()) {
 			Object o = Utility.receiveMessage(socket);
 			Command c = (Command) o;
 
@@ -389,7 +403,8 @@ class Worker extends Thread {
 			}
 			server.refreshGrid();
 		}
-		server.refreshGrid();
+		socket.close();
+		return;
 	}
 
 	/**
