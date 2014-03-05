@@ -8,15 +8,15 @@ import java.io.Serializable;
  * @author Jarred Linthorne
  *
  */
-public class PowerUp implements Serializable {
+public class Box implements Serializable {
 
-	private static final long serialVersionUID = 5359130147473094881L;
+	private static final long serialVersionUID = 2644898360748483411L;
 	private Point location;
 
 	/**
 	 * @param location : The location that the door is located at
 	 */
-	public PowerUp(Point location) {
+	public Box(Point location) {
 		this.location = location;
 	}
 
@@ -29,6 +29,6 @@ public class PowerUp implements Serializable {
 	}
 
 	public String toString() {
-		return "PowerUp";
+		return "Bomb";
 	}
 }

@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.io.Serializable;
 
 /**
- * This is the class representation of the door/the exit to the level
  * 
  * @author Jarred Linthorne
  *
@@ -17,7 +16,7 @@ public class Bomb implements Serializable {
 
 	/**
 	 * @param location : The location that the door is located at
-	 * @param isVisible : Whether or not the door is visible to the client
+	 * @param fuseTime : The length of time until the bomb should explode
 	 */
 	public Bomb(Point location, int fuseTime) {
 		this.location = location;
