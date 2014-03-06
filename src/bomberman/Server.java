@@ -113,7 +113,7 @@ public class Server {
 			boolean condition;
 			synchronized (gridLock.readLock()) {
 				condition = grid.getBoard()[x][y].numPlayers() == 0
-						&& !grid.getBoard()[x][y].canGo();
+						&& grid.getBoard()[x][y].canGo();
 			}
 			if (condition) {
 				isOkay = true;
