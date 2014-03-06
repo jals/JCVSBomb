@@ -140,7 +140,6 @@ public class TestDriver {
 		try {
 			reader = new BufferedReader(new FileReader(new File(logFile)));
 			String line = reader.readLine();
-			int i=0;
 			
 			while (line!=null) {
 				String[] split = line.split(",");
@@ -149,17 +148,13 @@ public class TestDriver {
 					String player = split[1].split("=")[1];
 					Command.Operation operation = Command.Operation.valueOf(split[2].split("=")[1]);
 					
-					Command command = commands.get(i);
-
-					if (!command.getPlayer().equals(player)) {
+					Command command = new Command(player, operation);
+					
+					if (commands.contains(command)) {
+						commands.remove(command);
+					} else {
 						return false;
 					}
-					
-					if (!command.getOperation().equals(operation)) {
-						return false;
-					}
-					
-					i++;
 				}
 				
 				line = reader.readLine();

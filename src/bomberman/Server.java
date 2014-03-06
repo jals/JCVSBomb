@@ -424,6 +424,10 @@ class Worker extends Thread {
 		while (server.isRunning()) {
 			Object o = Utility.receiveMessage(socket);
 			Command c = (Command) o;
+			
+			if (c == null) {
+				return;
+			}
 
 			// Log the command
 			server.getLogger().logCommand(c);
