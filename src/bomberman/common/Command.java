@@ -6,7 +6,7 @@
  * It has a player name, and the operation that the user inputted.
  * This forms the basis for our commincation protocol.
  */
-package bomberman;
+package bomberman.common;
 
 import java.io.Serializable;
 

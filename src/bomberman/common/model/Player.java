@@ -4,7 +4,7 @@
  * This is part of the model, and the server keeps track of a 
  * list of Player objects. It is very close to a C struct
  */
-package bomberman;
+package bomberman.common.model;
 
 import java.awt.Point;
 import java.io.Serializable;

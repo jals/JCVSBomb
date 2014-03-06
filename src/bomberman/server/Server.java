@@ -7,7 +7,7 @@
  * what is happening on grid.
  */
 
-package bomberman;
+package bomberman.server;
 
 import java.awt.Point;
 import java.io.IOException;
@@ -20,6 +20,16 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import bomberman.common.Command;
+import bomberman.common.Utility;
+import bomberman.common.Command.Operation;
+import bomberman.common.model.Bomb;
+import bomberman.common.model.Door;
+import bomberman.common.model.Model;
+import bomberman.common.model.Player;
+import bomberman.common.model.PowerUp;
+import bomberman.common.model.Square;
 
 public class Server {
 

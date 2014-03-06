@@ -3,7 +3,7 @@
  * Dated: Mar 3, 2014
  */
 
-package bomberman;
+package bomberman.client;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -12,6 +12,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Scanner;
 
+import bomberman.common.Command;
+import bomberman.common.Utility;
+import bomberman.common.Command.Operation;
+import bomberman.common.model.Square;
 import bomberman.gui.BombermanClient;
 
 /**

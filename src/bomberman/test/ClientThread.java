@@ -1,6 +1,6 @@
 package bomberman.test;
 
-import bomberman.Client;
+import bomberman.client.Client;
 
 /**
  * Runs an instance of the client in a separate thread

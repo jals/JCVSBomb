@@ -5,7 +5,7 @@
  * Handy methods used for all classes.
  */
 
-package bomberman;
+package bomberman.common;
 
 import java.awt.Point;
 import java.io.ByteArrayInputStream;
@@ -19,7 +19,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-import bomberman.Command.Operation;
+import bomberman.common.Command.Operation;
+import bomberman.common.model.Model;
 
 public class Utility {
 	/**

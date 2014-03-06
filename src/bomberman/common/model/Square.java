@@ -8,7 +8,7 @@
  * 2-D array.
  * TODO In the future, have an enum, instead of generic objects.
  */
-package bomberman;
+package bomberman.common.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

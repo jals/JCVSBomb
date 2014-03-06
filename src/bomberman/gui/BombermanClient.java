@@ -5,8 +5,8 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import bomberman.Model;
-import bomberman.Square;
+import bomberman.common.model.Model;
+import bomberman.common.model.Square;
 
 /**
  * This class instantiates the GUI. 

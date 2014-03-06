@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
 
-import bomberman.Command;
-import bomberman.Command.Operation;
-import bomberman.Logger;
+import bomberman.common.Command;
+import bomberman.common.Command.Operation;
+import bomberman.server.Logger;
 
 /**
  * Simulates client/server interaction by executing test cases.

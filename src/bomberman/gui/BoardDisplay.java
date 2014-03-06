@@ -11,11 +11,11 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
-import bomberman.Bomb;
-import bomberman.Door;
-import bomberman.Model;
-import bomberman.Player;
-import bomberman.Square;
+import bomberman.common.model.Bomb;
+import bomberman.common.model.Door;
+import bomberman.common.model.Model;
+import bomberman.common.model.Player;
+import bomberman.common.model.Square;
 
 /**
  * This class is used by the GUI to create the visuals. The size of the

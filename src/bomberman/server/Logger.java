@@ -1,4 +1,4 @@
-package bomberman;
+package bomberman.server;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -6,6 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import bomberman.common.Command;
+import bomberman.common.model.Model;
+import bomberman.common.model.Square;
 
 
 /**

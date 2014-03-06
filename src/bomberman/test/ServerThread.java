@@ -2,7 +2,7 @@ package bomberman.test;
 
 import java.net.SocketException;
 
-import bomberman.Server;
+import bomberman.server.Server;
 
 /**
  * Runs an instance of the Server in a separate thread Used for testing purposes

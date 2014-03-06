@@ -1,4 +1,4 @@
-package bomberman;
+package bomberman.common.model;
 
 import java.awt.Point;
 import java.io.IOException;
