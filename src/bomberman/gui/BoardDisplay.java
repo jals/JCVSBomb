@@ -8,8 +8,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
+import bomberman.Bomb;
 import bomberman.Door;
 import bomberman.Model;
 import bomberman.Player;
@@ -149,6 +151,7 @@ public class BoardDisplay extends JComponent {
 					}
 					Player p = model.getBoard()[i][j].getPlayer();
 					Door d = model.getBoard()[i][j].getDoor();
+					Bomb b = model.getBoard()[i][j].getBomb();
 					if(p != null){
 						if(p.getLastDirection() == Model.LEFT){
 							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
@@ -165,6 +168,9 @@ public class BoardDisplay extends JComponent {
 						} else {
 							g.drawString(value, xDisplacement, yDisplacement);
 						}
+					} else if (b != null) {
+					    ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/test2.gif"));
+					    g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else {
 						g.drawString(value, xDisplacement, yDisplacement);
 					}
