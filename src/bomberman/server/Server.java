@@ -23,7 +23,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import bomberman.common.Command;
 import bomberman.common.Utility;
-import bomberman.common.Command.Operation;
 import bomberman.common.model.Bomb;
 import bomberman.common.model.Door;
 import bomberman.common.model.Model;
@@ -45,12 +44,18 @@ public class Server {
 	private boolean running = true;
 	private ReadWriteLock gridLock;
 
-	public Server(int port, boolean testing) throws SocketException {
+	/**
+	 * Instantiates a Server object with the given map
+	 * @param port
+	 * @param testing
+	 * @param map
+	 * @throws SocketException
+	 */
+	public Server(int port, boolean testing, String map) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
-		// TODO The name of the file is hardcoded for testing. For next
-		// milestone, make it a command line argument
-		grid = new Model("src/bomberman/gui/defaultMap.txt", null);
+		grid = new Model(map, null);
 		serverSocket = new DatagramSocket(port);
+
 		if (!grid.hasDoor()) {
 			Point doorPoint = getFreePoint();
 			door = new Door(doorPoint, false);
@@ -60,13 +65,24 @@ public class Server {
 			grid.getBoard()[door.getLocation().x][door.getLocation().y]
 					.addObject(door); // if loaded from file
 		}
+
 		gridLock = new ReentrantReadWriteLock();
 		logger = new Logger();
 		logger.start();
 		isTesting = testing;
 	}
 
-	public void removePlayer(Player p) {
+	/**
+	 * Instantiates a Server object with the default map
+	 * @param port
+	 * @param testing
+	 * @throws SocketException
+	 */
+	public Server(int port, boolean testing) throws SocketException {
+		this(port, testing, "src/bomberman/gui/defaultMap.txt");
+	}
+
+	protected void removePlayer(Player p) {
 		listOfPlayers.remove(p);
 	}
 
@@ -74,7 +90,7 @@ public class Server {
 	 * Removes the lsat player from the list of players. It is required when a
 	 * player dies.
 	 */
-	public void removeLastPlayer() {
+	private void removeLastPlayer() {
 		listOfPlayers.remove(listOfPlayers.size() - 1);
 	}
 
@@ -84,7 +100,7 @@ public class Server {
 	 * 
 	 * @return the grid of Square of Objects
 	 */
-	public Square[][] getGrid() {
+	protected Square[][] getGrid() {
 		return grid.getBoard();
 	}
 
@@ -97,7 +113,7 @@ public class Server {
 	 *            : The y location of the point
 	 * @return: True if there isnt a wall at the given point
 	 */
-	public boolean canGo(int x, int y) {
+	protected boolean canGo(int x, int y) {
 		synchronized (gridLock.readLock()) {
 			Square interestedSquare = grid.getBoard()[x][y];
 			if (interestedSquare != null) {
@@ -113,7 +129,7 @@ public class Server {
 	 * 
 	 * @return: A point where a player can be placed.
 	 */
-	public Point getFreePoint() {
+	private Point getFreePoint() {
 		Point toReturn = null;
 		Random random = new Random();
 		boolean isOkay = false;
@@ -139,7 +155,7 @@ public class Server {
 	 * checks to see if players are at the same location or not. If that is the
 	 * case, then it kills them.
 	 */
-	public void refreshGrid() {
+	protected void refreshGrid() {
 		synchronized (gridLock.writeLock()) {
 			for (int x = 1; x < 11; x++) {
 				for (int y = 1; y < 11; y++) {
@@ -156,8 +172,9 @@ public class Server {
 						door.setVisible(true);
 					}
 				}
-				PowerUp powerUp = grid.getBoard()[p.getLocation().x][p.getLocation().y].removePowerUp(); 
-				if( powerUp != null) {
+				PowerUp powerUp = grid.getBoard()[p.getLocation().x][p
+						.getLocation().y].removePowerUp();
+				if (powerUp != null) {
 					p.addPowerUp(powerUp);
 				}
 			}
@@ -214,6 +231,9 @@ public class Server {
 		server.startServer();
 	}
 
+	/**
+	 * Starts up the server. 
+	 */
 	public void startServer() {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData,
@@ -300,7 +320,7 @@ public class Server {
 	 *            : What was the command that a client sent.
 	 * @return: True if it was a start_game call
 	 */
-	public boolean addPlayer(DatagramPacket packet, List<Worker> workers,
+	private boolean addPlayer(DatagramPacket packet, List<Worker> workers,
 			Command c) throws SocketException {
 		Player p = null;
 
@@ -317,7 +337,7 @@ public class Server {
 				p.setLocation(getFreePoint());
 			} else {
 				int numPlayers;
-				synchronized(gridLock.readLock()) {
+				synchronized (gridLock.readLock()) {
 					numPlayers = grid.getBoard()[1][1].numPlayers();
 				}
 				if (numPlayers == 0) {
@@ -343,12 +363,12 @@ public class Server {
 		}
 		return false;
 	}
-	
-	public void addBomb(int x, int y) {
-		synchronized(gridLock.writeLock()) {
+
+	protected void addBomb(int x, int y) {
+		synchronized (gridLock.writeLock()) {
 			// TODO Change the fuse time
-			// TODO Start a thread for a ticking bomb 
-			grid.getBoard()[x][y].addObject(new Bomb(new Point(x,y), 100));
+			// TODO Start a thread for a ticking bomb
+			grid.getBoard()[x][y].addObject(new Bomb(new Point(x, y), 100));
 		}
 	}
 
@@ -372,106 +392,4 @@ public class Server {
 	public synchronized boolean isRunning() {
 		return running;
 	}
-
-}
-
-/**
- * There is exactly one instance of Worker class for each player that requests
- * to join. Each instance has two threads, one for receiving commands, and one
- * for sending refreshes. For spectator classes, the first thread for receiving
- * messages is not started.
- * 
- * @author vinayakbansal
- * 
- */
-class Worker extends Thread {
-	Server server;
-	DatagramSocket socket;
-	Player p;
-
-	public Worker(final Server server, final Player p,
-			final DatagramSocket socket) {
-		this.p = p;
-		this.server = server;
-		this.socket = socket;
-		// just an ack saying you have joined the game
-		Utility.sendMessage(socket, "joined", p.getAddress(), p.getPort());
-		// Creating a separate thread to wait for a notify on the refresh
-		// object,
-		// and then send a new grid to the client.
-		new Thread() {
-			public void run() {
-				while (server.isRunning()) {
-					Utility.sendMessage(socket, server.getGrid(),
-							p.getAddress(), p.getPort());
-					if (!p.getIsAlive()) {
-						done();
-						break;
-					}
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}
-				socket.close();
-				return;
-			}
-		}.start();
-	}
-
-	/**
-	 * This method receives new messages from the client, processes them, and
-	 * then asks the server to update itself.
-	 */
-	public void run() {
-		// just an ack saying that the game has started.
-		Utility.sendMessage(socket, Command.Operation.START_GAME,
-				p.getAddress(), p.getPort());
-
-		while (server.isRunning()) {
-			Object o = Utility.receiveMessage(socket);
-			Command c = (Command) o;
-			
-			if (c == null) {
-				return;
-			}
-
-			// Log the command
-			server.getLogger().logCommand(c);
-
-			if (c.getOperation().isMove()) {
-				Point location = p.getLocation();
-				Point newLocation = Utility.getLocation(c.getOperation(),
-						location);
-				if (server.canGo(newLocation.x, newLocation.y)) {
-					p.setLocation(newLocation);
-				} else {
-					server.getLogger().logError(c, "Cannot move here");
-				}
-			} else if (c.getOperation() == Command.Operation.LEAVE_GAME) {
-				done();
-				break;
-			} else if (c.getOperation() == Command.Operation.DROP_BOMB){
-				server.addBomb(p.getLocation().x, p.getLocation().y);
-			}
-			server.refreshGrid();
-		}
-		socket.close();
-		return;
-	}
-
-	/**
-	 * The game is over. Tell the client that.
-	 */
-	private void done() {
-		server.removePlayer(p);
-		server.refreshGrid();
-		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME,
-				p.getAddress(), p.getPort());
-
-	}
-
 }

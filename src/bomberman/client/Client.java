@@ -14,7 +14,6 @@ import java.util.Scanner;
 
 import bomberman.common.Command;
 import bomberman.common.Utility;
-import bomberman.common.Command.Operation;
 import bomberman.common.model.Square;
 import bomberman.gui.BombermanClient;
 
@@ -104,7 +103,7 @@ public class Client {
 			// it.
 			while (running) {
 				try {
-					move(scanner.nextLine());
+					processCommand(scanner.nextLine());
 				} catch (Exception e) {
 					System.err.println("ERROR: Command failed.\n");
 
@@ -118,9 +117,9 @@ public class Client {
 	 * Moves the player in the grid taking the direction as a parameter. The
 	 * string must be one of the names defined in ::Command.Operation
 	 */
-	public void move(String direction) {
+	public void processCommand(String command) {
 		try {
-			Command.Operation operation = Command.Operation.valueOf(direction
+			Command.Operation operation = Command.Operation.valueOf(command
 					.toUpperCase());
 			// We send START_GAME and JOIN_GAME to the dedicated listening
 			// port of the server. All the other messages go to the specific
@@ -153,7 +152,7 @@ public class Client {
 	 */
 	private void joinGame() throws IOException {
 
-		move("join_game");
+		processCommand("join_game");
 		// Wait for an ack to know which port to finally communicate with.
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket receivePacket = new DatagramPacket(receiveData,
