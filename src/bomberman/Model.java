@@ -50,7 +50,7 @@ public class Model {
 					if (Integer.parseInt(input.substring(a, a + 1)) == 0) {
 						board[j][k].addObject(0);
 					} else if (Integer.parseInt(input.substring(a, a + 1)) == 1) {
-						board[j][k].addObject(1);
+						board[j][k].addObject(new Wall(new Point(j, k)));
 					} else if (Integer.parseInt(input.substring(a, a + 1)) == 2) {
 						door = new Door(new Point(j, k), false);
 						board[j][k].addObject(door);
