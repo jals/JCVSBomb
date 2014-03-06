@@ -47,7 +47,7 @@ public class Client {
 		this.listenPort = port;
 		started = Boolean.FALSE;
 	}
-	
+
 	/**
 	 * Main method for Client. Instantiates the client and moves it using a
 	 * scanner which reads in the commands one line at a time.
@@ -56,28 +56,30 @@ public class Client {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) {
-		if(args.length < 2){
-			System.out.println("Please specify two command line arguments. localhost, and port number.");
+		if (args.length < 2) {
+			System.out
+					.println("Please specify two command line arguments. localhost, and port number.");
 			return;
 		}
-		
+
 		System.out.println("Enter a player name: \n");
-		Scanner a = new Scanner(System.in);
+		Scanner scanner = new Scanner(System.in);
 		Client client = null;
-		
+
 		try {
-			client = new Client(sanitizeName(a.nextLine()), args[0], Integer.parseInt(args[1]));
+			client = new Client(sanitizeName(scanner.nextLine()), args[0],
+					Integer.parseInt(args[1]));
 		} catch (Exception e) {
-			System.err.println("ERROR: Client could not be created properly.\n");
-			a.close();
+			System.err
+					.println("ERROR: Client could not be created properly.\n");
+			scanner.close();
 			return;
 		}
-		
-		a.close();
-		client.startClient(false);
+
+		client.startClient(false, scanner);
 	}
-	
-	public void startClient(boolean testMode) {
+
+	public void startClient(boolean testMode, Scanner scanner) {
 		// Join a game
 		try {
 			joinGame();
@@ -88,28 +90,29 @@ public class Client {
 			}
 			e1.printStackTrace();
 		}
-		
+
 		if (!testMode) {
 			// Now start receiving commands from the command line
 			System.out.println("Enter player commands: \n");
-			Scanner a = new Scanner(System.in);
-			// TODO: We are aware that this thread should terminate once there is a 
-			// LEAVE_GAME received. But we are yet to find an elegant way to do it.
+			// TODO: We are aware that this thread should terminate once there
+			// is a
+			// LEAVE_GAME received. But we are yet to find an elegant way to do
+			// it.
 			while (running) {
 				try {
-					move(a.nextLine());
+					move(scanner.nextLine());
 				} catch (Exception e) {
 					System.err.println("ERROR: Command failed.\n");
-					
+
 				}
 			}
-			a.close();
+			scanner.close();
 		}
 	}
 
 	/**
-	 * Moves the player in the grid taking the direction as a parameter.
-	 * The string must be one of the names defined in ::Command.Operation
+	 * Moves the player in the grid taking the direction as a parameter. The
+	 * string must be one of the names defined in ::Command.Operation
 	 */
 	public void move(String direction) {
 		try {
@@ -140,7 +143,8 @@ public class Client {
 	/**
 	 * Handles the communication with the server that is necessary in order to
 	 * join a game. Creates a Thread to handle
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 * 
 	 */
 	private void joinGame() throws IOException {
@@ -201,13 +205,13 @@ public class Client {
 
 		return name;
 	}
-	
+
 	public void shutDown() {
 		running = false;
 		clientSocket.close();
 		bc.dispose();
 	}
-	
+
 	public synchronized boolean isRunning() {
 		return running;
 	}

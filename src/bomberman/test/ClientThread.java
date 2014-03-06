@@ -27,7 +27,7 @@ public class ClientThread extends Thread {
 	}
 	
 	public void run() {
-		client.startClient(true);
+		client.startClient(true, null); // no need to send a scanner
 		
 		while (client.isRunning()) {
 			

@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
 
-import bomberman.Client;
 import bomberman.Command;
 import bomberman.Command.Operation;
 import bomberman.Logger;

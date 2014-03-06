@@ -13,7 +13,6 @@ import bomberman.Server;
 class ServerThread extends Thread {
 
 	private Server server;
-	private boolean running;
 	
 	public ServerThread() {
 		try {
@@ -21,7 +20,6 @@ class ServerThread extends Thread {
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
-		running = true;
 	}
 
 	/**
@@ -41,7 +39,7 @@ class ServerThread extends Thread {
 	 * @return
 	 */
 	public String getLogFile() {
-		return server.getLogFile();
+		return Server.getLogFile();
 	}
 	
 	public void shutdown() {
