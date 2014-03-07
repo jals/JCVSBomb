@@ -278,7 +278,10 @@ public class Server {
 			}
 			
 			// Log the command
-			logger.logCommand(c,listOfPlayers.get(listOfPlayers.size()-1).getIdentifier());
+			Player player = getPlayer(c.getPlayer());
+			if (player != null) {
+				logger.logCommand(c, player.getIdentifier());
+			}
 		}
 		bombFactory.start();
 		for (Worker worker : workers) {
@@ -311,7 +314,10 @@ public class Server {
 			}
 			
 			// Log the command
-			logger.logCommand(c,listOfPlayers.get(listOfPlayers.size()-1).getIdentifier());
+			Player player = getPlayer(c.getPlayer());
+			if (player != null) {
+				logger.logCommand(c, player.getIdentifier());
+			}
 			
 			removeLastPlayer();
 		}
@@ -418,5 +424,14 @@ public class Server {
 
 	public synchronized boolean isRunning() {
 		return running;
+	}
+	
+	private Player getPlayer(String name) {
+		for(Player player : listOfPlayers) {
+			if (player.getName().equals(name)) {
+				return player;
+			}
+		}
+		return null;
 	}
 }

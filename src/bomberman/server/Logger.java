@@ -91,16 +91,6 @@ public class Logger extends Thread {
 	}
 	
 	/**
-	 * Log a command
-	 * 
-	 * @param command
-	 */
-	/*public void logCommand(Command command) {
-		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer()
-				+ "," + OPERATION + "=" + command.getOperation());
-	}*/
-
-	/**
 	 * Log a grid refresh
 	 * 
 	 */
