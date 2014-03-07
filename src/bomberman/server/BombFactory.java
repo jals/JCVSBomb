@@ -33,7 +33,6 @@ public class BombFactory extends Thread {
 				}
 			}
 			bombs = newBombs;
-
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {

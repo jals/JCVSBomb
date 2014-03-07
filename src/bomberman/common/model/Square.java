@@ -18,7 +18,7 @@ public class Square implements Serializable {
 
 	private static final long serialVersionUID = -1121507013822267342L;
 	List<Object> objects;
-
+	
 	public Square() {
 		objects = new ArrayList<Object>();
 	}
@@ -181,6 +181,25 @@ public class Square implements Serializable {
 			}
 		}
 		return false;
+	}
+	
+	public Explosion getExplosion(){
+		for (int x = 0; x < objects.size(); x++) {
+			if ((objects.get(x) instanceof Explosion)) {
+				return (Explosion) objects.get(x);
+			}
+		}
+		return null;
+	}
+
+	public void removeExplosion() {
+		List<Object> newObjects = new ArrayList<Object>();
+		for (int x = 0; x < objects.size(); x++) {
+			if (!(objects.get(x) instanceof Explosion)) {
+				newObjects.add(objects.get(x));
+			}
+		}
+		objects = newObjects;
 	}
 
 }

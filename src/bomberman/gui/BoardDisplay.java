@@ -13,6 +13,7 @@ import javax.swing.JComponent;
 
 import bomberman.common.model.Bomb;
 import bomberman.common.model.Door;
+import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.Square;
@@ -152,6 +153,7 @@ public class BoardDisplay extends JComponent {
 					Player p = model.getBoard()[i][j].getPlayer();
 					Door d = model.getBoard()[i][j].getDoor();
 					Bomb b = model.getBoard()[i][j].getBomb();
+					Explosion ex = model.getBoard()[i][j].getExplosion();
 					if(p != null){
 						if(p.getLastDirection() == Model.LEFT){
 							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
@@ -168,8 +170,31 @@ public class BoardDisplay extends JComponent {
 						} else {
 							g.drawString(value, xDisplacement, yDisplacement);
 						}
+					} else if (ex != null) {
+						 ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Explosion.gif"));
+						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						 if(model.getBoard()[i][j+1] != null){ //don't go out of bounds
+							 if(!model.getBoard()[i][j+1].hasWall()){ //don't blow up wall
+								 g.drawImage(imageIcon.getImage(), (j+1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							 }
+						 }
+						 if(model.getBoard()[i][j-1] != null){ //don't go out of bounds
+							 if(!model.getBoard()[i][j-1].hasWall()){ //don't blow up wall
+								 g.drawImage(imageIcon.getImage(), (j-1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							 }
+						 }
+						 if(model.getBoard()[i+1][j] != null){ //don't go out of bounds
+							 if(!model.getBoard()[i+1][j].hasWall()){ //don't blow up wall
+								 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, (i + 2) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+							 }
+						 }
+						 if(model.getBoard()[i-1][j] != null){ //don't go out of bounds
+							 if(!model.getBoard()[i-1][j].hasWall()){ //don't blow up wall
+								 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, i * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+							 }
+						 }
 					} else if (b != null) {
-					    ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/test2.gif"));
+					    ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Bomb.gif"));
 					    g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else {
 						g.drawString(value, xDisplacement, yDisplacement);

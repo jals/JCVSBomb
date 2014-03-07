@@ -25,6 +25,7 @@ import bomberman.common.Command;
 import bomberman.common.Utility;
 import bomberman.common.model.Bomb;
 import bomberman.common.model.Door;
+import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.PowerUp;
@@ -396,11 +397,19 @@ public class Server {
 	protected void bombExploded(int x, int y) {
 		synchronized (gridLock.writeLock()) {
 			grid.getBoard()[x][y].removeBomb();
+			grid.getBoard()[x][y].addObject(new Explosion(true, new Point(x, y)));
 			for (Player p: listOfPlayers) {
 				if (p.getLocation().distance(new Point(x,y)) <= 1) {
 					p.takeHit();
 				}
 			}
+			try {
+				//TODO Have a better way of removing the explosion after
+				Thread.sleep(1600);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			grid.getBoard()[x][y].removeExplosion();
 			// TODO Remove Walls if a bomb explodes.
 			prunePlayers();
 		}
