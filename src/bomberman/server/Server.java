@@ -43,6 +43,7 @@ public class Server {
 	private int playerId = 1;
 	private boolean running = true;
 	private ReadWriteLock gridLock;
+	private BombFactory bombFactory;
 
 	/**
 	 * Instantiates a Server object with the given map
@@ -67,6 +68,7 @@ public class Server {
 		}
 
 		gridLock = new ReentrantReadWriteLock();
+		bombFactory = new BombFactory(this);
 		logger = new Logger();
 		logger.start();
 		isTesting = testing;
@@ -95,13 +97,15 @@ public class Server {
 	}
 
 	/**
-	 * This method is not synchronized as this is being used only for reading
-	 * purposes.
 	 * 
 	 * @return the grid of Square of Objects
 	 */
 	protected Square[][] getGrid() {
 		return grid.getBoard();
+	}
+	
+	protected ReadWriteLock getLock() {
+		return gridLock;
 	}
 
 	/**
@@ -183,27 +187,34 @@ public class Server {
 			for (Player p : listOfPlayers) {
 				for (Player q : listOfPlayers) {
 					if (p != q && p.getLocation().equals(q.getLocation())) {
-						p.setIsAlive(false);
-						q.setIsAlive(false);
+						p.takeHit();
+						q.takeHit();
 					}
 				}
 			}
-			List<Player> newPlayers = new ArrayList<Player>();
-			for (Player p : listOfPlayers) {
-				if (p.getIsAlive()) {
-					newPlayers.add(p);
-				} else {
-					grid.getBoard()[p.getLocation().x][p.getLocation().y]
-							.removePlayers();
-				}
-			}
-			listOfPlayers = newPlayers;
+			prunePlayers();
 		}
 
 		logger.logRefresh();
 		synchronized (gridLock.readLock()) {
 			logger.logGrid(grid);
 		}
+	}
+
+	/**
+	 * 
+	 */
+	protected void prunePlayers() {
+		List<Player> newPlayers = new ArrayList<Player>();
+		for (Player p : listOfPlayers) {
+			if (p.getIsAlive()) {
+				newPlayers.add(p);
+			} else {
+				grid.getBoard()[p.getLocation().x][p.getLocation().y]
+						.removePlayers();
+			}
+		}
+		listOfPlayers = newPlayers;
 	}
 
 	public static void main(String[] args) {
@@ -269,6 +280,7 @@ public class Server {
 				System.err.println("ERROR: Couldn't add player.");
 			}
 		}
+		bombFactory.start();
 		for (Worker worker : workers) {
 			worker.start();
 		}
@@ -365,13 +377,27 @@ public class Server {
 	}
 
 	protected void addBomb(int x, int y) {
+		Random rand = new Random();
+		int time = rand.nextInt(3000) + 3000; //between 3 and 6 seconds
 		synchronized (gridLock.writeLock()) {
-			// TODO Change the fuse time
-			// TODO Start a thread for a ticking bomb
-			grid.getBoard()[x][y].addObject(new Bomb(new Point(x, y), 100));
+			Bomb b = new Bomb(new Point(x, y), time);
+			grid.getBoard()[x][y].addObject(b);
+			bombFactory.addBomb(b);
 		}
 	}
 
+	protected void bombExploded(int x, int y) {
+		synchronized (gridLock.writeLock()) {
+			grid.getBoard()[x][y].removeBomb();
+			for (Player p: listOfPlayers) {
+				if (p.getLocation().distance(new Point(x,y)) <= 1) {
+					p.takeHit();
+				}
+			}
+			// TODO Remove Walls if a bomb explodes.
+			prunePlayers();
+		}
+	}
 	protected DatagramSocket getServerSocket() {
 		return serverSocket;
 	}

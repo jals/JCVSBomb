@@ -20,23 +20,19 @@ public class Bomb implements Serializable {
 	 */
 	public Bomb(Point location, int fuseTime) {
 		this.location = location;
-		this.setFuseTime(fuseTime);
+		this.fuseTime = fuseTime;
 	}
 
 	public Point getLocation() {
 		return location;
 	}
 
-	public void setLocation(Point location) {
-		this.location = location;
-	}
-
 	public int getFuseTime() {
 		return fuseTime;
 	}
 
-	public void setFuseTime(int fuseTime) {
-		this.fuseTime = fuseTime;
+	public void decrementFuseTime(int time) {
+		fuseTime -= time;
 	}
 
 	public String toString() {

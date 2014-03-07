@@ -34,8 +34,10 @@ class Worker extends Thread {
 		new Thread() {
 			public void run() {
 				while (server.isRunning()) {
-					Utility.sendMessage(socket, server.getGrid(),
-							p.getAddress(), p.getPort());
+					synchronized (server.getLock().readLock()) {
+						Utility.sendMessage(socket, server.getGrid(),
+								p.getAddress(), p.getPort());
+					}
 					if (!p.getIsAlive()) {
 						done();
 						break;
@@ -43,7 +45,6 @@ class Worker extends Thread {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 

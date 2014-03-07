@@ -20,7 +20,6 @@ public class Player implements Serializable {
 	private int port;
 	private int identifier;
 	private int lastDirection = Model.DOWN;
-	@SuppressWarnings("unused")
 	private PowerUp powerUp;
 
 	public Player(String playerName, int identifier) {
@@ -34,6 +33,14 @@ public class Player implements Serializable {
 
 	public Point getLocation() {
 		return location;
+	}
+	
+	public void takeHit() {
+		if (powerUp != null) {
+			powerUp = null;
+		} else {
+			isAlive = false;
+		}
 	}
 	
 	public void addPowerUp(PowerUp powerUp) {

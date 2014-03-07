@@ -162,6 +162,17 @@ public class Square implements Serializable {
 		}
 		return null;
 	}
+	
+	public void removeBomb() {
+		List<Object> newObjects = new ArrayList<Object>();
+		for (int x = 0; x < objects.size(); x++) {
+			if (!(objects.get(x) instanceof Bomb)) {
+				newObjects.add(objects.get(x));
+			} else {
+			}
+		}
+		objects = newObjects;
+	}
 
 	public boolean hasWall() {
 		for (int x = 0; x < objects.size(); x++) {
