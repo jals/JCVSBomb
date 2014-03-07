@@ -201,5 +201,14 @@ public class Square implements Serializable {
 		}
 		objects = newObjects;
 	}
+	
+	public PowerUp getPowerUp(){
+		for (int x = 0; x < objects.size(); x++) {
+			if ((objects.get(x) instanceof PowerUp)) {
+				return (PowerUp) objects.get(x);
+			}
+		}
+		return null;
+	}
 
 }

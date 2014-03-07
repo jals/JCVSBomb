@@ -57,6 +57,7 @@ public class Server {
 		listOfPlayers = new ArrayList<Player>();
 		grid = new Model(map, null);
 		serverSocket = new DatagramSocket(port);
+		gridLock = new ReentrantReadWriteLock();
 
 		if (!grid.hasDoor()) {
 			Point doorPoint = getFreePoint();
@@ -68,7 +69,10 @@ public class Server {
 					.addObject(door); // if loaded from file
 		}
 
-		gridLock = new ReentrantReadWriteLock();
+		PowerUp p = new PowerUp(getFreePoint());
+		grid.getBoard()[p.getLocation().x][p.getLocation().y].addObject(p);
+		
+		
 		bombFactory = new BombFactory(this);
 		logger = new Logger();
 		logger.start();

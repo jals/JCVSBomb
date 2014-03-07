@@ -16,6 +16,7 @@ import bomberman.common.model.Door;
 import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
 import bomberman.common.model.Player;
+import bomberman.common.model.PowerUp;
 import bomberman.common.model.Square;
 
 /**
@@ -154,23 +155,8 @@ public class BoardDisplay extends JComponent {
 					Door d = model.getBoard()[i][j].getDoor();
 					Bomb b = model.getBoard()[i][j].getBomb();
 					Explosion ex = model.getBoard()[i][j].getExplosion();
-					if(p != null){
-						if(p.getLastDirection() == Model.LEFT){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else if(p.getLastDirection() == Model.RIGHT){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else if(p.getLastDirection() == Model.UP){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Upward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else {
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Downward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						}
-					} else if (d != null){
-						if (d.isVisible()){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/DoorHole.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else {
-							g.drawString(value, xDisplacement, yDisplacement);
-						}
-					} else if (ex != null) {
+					PowerUp pu = model.getBoard()[i][j].getPowerUp();
+					if (ex != null) {
 						 ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Explosion.gif"));
 						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						 if(model.getBoard()[i][j+1] != null){ //don't go out of bounds
@@ -193,9 +179,28 @@ public class BoardDisplay extends JComponent {
 								 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, i * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
 							 }
 						 }
+					} else if(p != null){
+						if(p.getLastDirection() == Model.LEFT){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else if(p.getLastDirection() == Model.RIGHT){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else if(p.getLastDirection() == Model.UP){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Upward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else {
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Downward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						}
+					} else if (d != null){
+						if (d.isVisible()){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/DoorHole.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else {
+							g.drawString(value, xDisplacement, yDisplacement);
+						}
 					} else if (b != null) {
 					    ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Bomb.gif"));
 					    g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+					} else if (pu != null){
+						 ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.gif"));
+						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else {
 						g.drawString(value, xDisplacement, yDisplacement);
 					}
