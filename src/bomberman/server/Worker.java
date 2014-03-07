@@ -73,7 +73,7 @@ class Worker extends Thread {
 			}
 
 			// Log the command
-			server.getLogger().logCommand(c);
+			server.getLogger().logCommand(c, p.getIdentifier());
 
 			if (c.getOperation().isMove()) {
 				Point location = p.getLocation();

@@ -271,14 +271,14 @@ public class Server {
 			}
 			Command c = (Command) o;
 
-			// Log the command
-			logger.logCommand(c);
-
 			try {
 				done = addPlayer(packet, workers, c);
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
+			
+			// Log the command
+			logger.logCommand(c,listOfPlayers.get(listOfPlayers.size()-1).getIdentifier());
 		}
 		bombFactory.start();
 		for (Worker worker : workers) {
@@ -304,14 +304,15 @@ public class Server {
 			}
 			Command c = (Command) o;
 
-			// Log the command
-			logger.logCommand(c);
-
 			try {
 				done = addPlayer(packet, workers, c);
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
+			
+			// Log the command
+			logger.logCommand(c,listOfPlayers.get(listOfPlayers.size()-1).getIdentifier());
+			
 			removeLastPlayer();
 		}
 

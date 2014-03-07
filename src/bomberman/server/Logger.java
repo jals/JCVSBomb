@@ -9,6 +9,7 @@ import java.util.Date;
 
 import bomberman.common.Command;
 import bomberman.common.model.Model;
+import bomberman.common.model.Player;
 import bomberman.common.model.Square;
 
 
@@ -30,6 +31,7 @@ public class Logger extends Thread {
 	public static final String BOARD_STATE = "BOARD_STATE";
 	public static final String REFRESH = "REFRESH";
 	public static final String ERROR = "ERROR";
+	public static final String ID = "ID";
 	
 	// A BufferedWriter for writing out to the log file
 	private static BufferedWriter log;
@@ -83,10 +85,20 @@ public class Logger extends Thread {
 	 * 
 	 * @param command
 	 */
-	public void logCommand(Command command) {
+	public void logCommand(Command command, int player) {
+		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer()
+				+ "," + OPERATION + "=" + command.getOperation() + "," + ID + "=" + player);
+	}
+	
+	/**
+	 * Log a command
+	 * 
+	 * @param command
+	 */
+	/*public void logCommand(Command command) {
 		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer()
 				+ "," + OPERATION + "=" + command.getOperation());
-	}
+	}*/
 
 	/**
 	 * Log a grid refresh
@@ -116,12 +128,13 @@ public class Logger extends Thread {
 							} else {
 								grid+="|";
 							}
-						} else if (board[i][j].canGo()) {
+						} else if (!board[i][j].canGo()) {
 							// Wall
 							grid += "w";
 						} else if (board[i][j].numPlayers() > 0) {
 							// Player
-							grid += "P";
+							Player player = board[i][j].getPlayer();
+							grid += player.getIdentifier();
 						} else if (board[i][j].hasDoor()) {
 							// Door
 							grid += "D";

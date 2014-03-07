@@ -26,10 +26,17 @@ public class Command implements Serializable {
 
 	private String player;
 	private Operation operation;
+	private int identifier;
 
 	public Command(String player, Operation operation) {
 		this.player = player;
 		this.operation = operation;
+	}
+	
+	public Command(String player, Operation operation, int identifier) {
+		this.player = player;
+		this.operation = operation;
+		this.identifier = identifier;
 	}
 
 	public String getPlayer() {
@@ -51,5 +58,9 @@ public class Command implements Serializable {
 		
 		Command command = (Command) object;
 		return command.getOperation().equals(getOperation()) && command.getPlayer().equals(getPlayer());
+	}
+
+	public int getIdentifier() {
+		return identifier;
 	}
 }
