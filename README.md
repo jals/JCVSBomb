@@ -1,6 +1,6 @@
 Bomberman
 ========
-By Vinayak Bansal, Jarred Linthorn, Sean Byron & Chris Siewecke
+By Vinayak Bansal, Jarred Linthorne, Sean Byron & Chris Siewecke
 
 1. Starting up the game
 -------------

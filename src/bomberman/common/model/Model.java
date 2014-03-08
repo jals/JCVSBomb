@@ -51,14 +51,21 @@ public class Model {
 			for (int j = 1; j < BOARD_SIZE - 1; j++) {
 				for (int k = 1; k < BOARD_SIZE - 1; k++) {
 					board[j][k] = new Square();
-					if (Integer.parseInt(input.substring(a, a + 1)) == 0) {
+					if (input.substring(a, a + 1).equals("0")) {
 						board[j][k].addObject(0);
-					} else if (Integer.parseInt(input.substring(a, a + 1)) == 1) {
+					} else if (input.substring(a, a + 1).equals("W")) {
 						board[j][k].addObject(new Wall(new Point(j, k)));
-					} else if (Integer.parseInt(input.substring(a, a + 1)) == 2) {
+					} else if (input.substring(a, a + 1).equals("D")) {
 						door = new Door(new Point(j, k), false);
 						board[j][k].addObject(door);
 						setHasDoor(true);
+					} else if (input.substring(a, a+1).equals("P")){
+						PowerUp p = new PowerUp(new Point(j, k));
+						board[j][k].addObject(p);
+					} else if (input.substring(a, a+1).equals("B")){
+						Box b = new Box(new Point(j, k), null, null);
+						board[j][k].addObject(b);
+						boxes.add(b);
 					}
 					a++;
 				}
