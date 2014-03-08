@@ -126,7 +126,7 @@ public class Client {
 					try {
 						Robot r = new Robot();
 						//Random key press to interrupt previous input. 
-						r.keyPress(KeyEvent.VK_INVERTED_EXCLAMATION_MARK);
+						r.keyPress(KeyEvent.VK_I);
 					} catch (AWTException e) {
 						System.err.println("The robot died :'(");
 					}

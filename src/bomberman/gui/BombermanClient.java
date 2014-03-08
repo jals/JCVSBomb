@@ -76,7 +76,7 @@ public class BombermanClient extends JFrame {
 	        		lastInput = Operation.START_GAME;
 	            } else if (keyCode == KeyEvent.VK_L) {
 	            	lastInput = Operation.LEAVE_GAME;
-	            } else if (keyCode == KeyEvent.VK_A){
+	            } else if (keyCode == KeyEvent.VK_I){
 	            	lastInput = null;
 	            }
 	        }
