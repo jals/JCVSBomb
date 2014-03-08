@@ -1,10 +1,13 @@
 package bomberman.gui;
 
 import java.awt.BorderLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import bomberman.common.Command.Operation;
 import bomberman.common.model.Model;
 import bomberman.common.model.Square;
 
@@ -19,13 +22,16 @@ public class BombermanClient extends JFrame {
 
 	private Model model;
 	private BoardDisplay board;
-
+	private Operation lastInput = null;
+	
 	/**
 	 * The constructor instantiates the GUI and adds all elements to it.
 	 * @param filename : The path to the grid to load from a file, empty is not loading from file
 	 * @param grid : The grid that should be used, null if not loading from grid
 	 */
 	public BombermanClient(String filename, Square[][] grid) {
+		addKeyListener(new keyListener());
+		
 		model = new Model(filename, grid);
 		board = new BoardDisplay(model);
 
@@ -41,6 +47,40 @@ public class BombermanClient extends JFrame {
 		pack();
 		setLocationRelativeTo(null); // Center it.
 	}
+	
+	public Operation getLastInput(){
+		return lastInput;
+	}
+	
+	public void setLastInput(Operation lastInput){
+		lastInput = null;
+	}
+	
+	 public class keyListener extends KeyAdapter {
+
+	        @Override
+	        public void keyPressed(KeyEvent event) {
+	        	
+	            int keyCode = event.getKeyCode();
+	            if (keyCode == KeyEvent.VK_LEFT) {
+            		lastInput = Operation.MOVE_LEFT; //attempting to buffer..
+	            } else if (keyCode == KeyEvent.VK_RIGHT) {
+            		lastInput = Operation.MOVE_RIGHT;
+	            } else if (keyCode == KeyEvent.VK_UP) {
+            		lastInput = Operation.MOVE_UP;
+	            } else if (keyCode == KeyEvent.VK_DOWN) {
+            		lastInput = Operation.MOVE_DOWN;
+	            } else if (keyCode == KeyEvent.VK_B) {
+            		lastInput = Operation.DROP_BOMB;	
+		        } else if (keyCode == KeyEvent.VK_S) {
+	        		lastInput = Operation.START_GAME;
+	            } else if (keyCode == KeyEvent.VK_L) {
+	            	lastInput = Operation.LEAVE_GAME;
+	            } else if (keyCode == KeyEvent.VK_A){
+	            	lastInput = null;
+	            }
+	        }
+	    }
 
 	public BombermanClient(Square[][] grid) {
 		this("", grid);

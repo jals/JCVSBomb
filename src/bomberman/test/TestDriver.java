@@ -170,7 +170,7 @@ public class TestDriver {
 					
 					// Send the command to the correct client
 					ClientThread clientThread = clients.get(split[1]);
-					clientThread.getClient().processCommand(split[2]);
+					clientThread.getClient().processCommand(Command.Operation.valueOf((split[2]).toUpperCase()));
 					
 					// Sleep for a time
 					Thread.sleep(500);

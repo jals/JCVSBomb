@@ -5,6 +5,9 @@
 
 package bomberman.client;
 
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -13,6 +16,7 @@ import java.net.SocketException;
 import java.util.Scanner;
 
 import bomberman.common.Command;
+import bomberman.common.Command.Operation;
 import bomberman.common.Utility;
 import bomberman.common.model.Square;
 import bomberman.gui.BombermanClient;
@@ -38,6 +42,8 @@ public class Client {
 	// The class required for GUI
 	private BombermanClient bc = null;
 	private boolean running = true;
+	private Operation lastOp;
+	private long lastTime;
 
 	public Client(String playerName, String host, int port) throws Exception {
 		this.playerName = playerName;
@@ -101,12 +107,29 @@ public class Client {
 			// is a
 			// LEAVE_GAME received. But we are yet to find an elegant way to do
 			// it.
+			Operation currentOperation = null;
 			while (running) {
-				try {
-					processCommand(scanner.nextLine());
-				} catch (Exception e) {
-					System.err.println("ERROR: Command failed.\n");
-
+				if(System.currentTimeMillis() > (lastTime + 500)){
+					lastOp = null;	//reset the last operation after half a second
+				}
+				
+				if(bc!=null){
+					currentOperation = bc.getLastInput();
+				}
+				
+				//Ensure that the last operation is not the same as the current one, 
+				//to avoid repeated inputs from same key press
+				if(currentOperation != null && lastOp != currentOperation){
+					processCommand(currentOperation);
+					lastOp = currentOperation;
+					lastTime = System.currentTimeMillis();
+					try {
+						Robot r = new Robot();
+						//Random key press to interrupt previous input. 
+						r.keyPress(KeyEvent.VK_INVERTED_EXCLAMATION_MARK);
+					} catch (AWTException e) {
+						System.err.println("The robot died :'(");
+					}
 				}
 			}
 			scanner.close();
@@ -117,10 +140,8 @@ public class Client {
 	 * Moves the player in the grid taking the direction as a parameter. The
 	 * string must be one of the names defined in ::Command.Operation
 	 */
-	public void processCommand(String command) {
+	public void processCommand(Operation operation) {
 		try {
-			Command.Operation operation = Command.Operation.valueOf(command
-					.toUpperCase());
 			// We send START_GAME and JOIN_GAME to the dedicated listening
 			// port of the server. All the other messages go to the specific
 			// socket for this client.
@@ -137,7 +158,6 @@ public class Client {
 					}
 				}
 			}
-
 		} catch (IllegalArgumentException e) {
 			System.out.println("Incorrect command entered. Please try again.");
 		}
@@ -152,7 +172,7 @@ public class Client {
 	 */
 	private void joinGame() throws IOException {
 
-		processCommand("join_game");
+		processCommand(Operation.JOIN_GAME);
 		// Wait for an ack to know which port to finally communicate with.
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket receivePacket = new DatagramPacket(receiveData,

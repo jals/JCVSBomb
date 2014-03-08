@@ -324,7 +324,7 @@ public class Server {
 				logger.logCommand(c, player.getIdentifier());
 			}
 			
-			removeLastPlayer();
+//			removeLastPlayer();//TODO Can someone confirm why this was here??
 		}
 
 		serverSocket.close();
@@ -407,13 +407,22 @@ public class Server {
 					p.takeHit();
 				}
 			}
-			try {
-				//TODO Have a better way of removing the explosion after
-				Thread.sleep(1600);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			grid.getBoard()[x][y].removeExplosion();
+			final Point p = new Point(x, y);
+			Thread explosion = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					grid.getBoard()[p.x][p.y].removeExplosion();
+				}
+
+			});
+			explosion.start();
+			
 			// TODO Remove Walls if a bomb explodes.
 			prunePlayers();
 		}
