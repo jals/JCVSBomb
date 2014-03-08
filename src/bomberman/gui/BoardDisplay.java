@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 import bomberman.common.model.Bomb;
+import bomberman.common.model.Box;
 import bomberman.common.model.Door;
 import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
@@ -156,6 +157,8 @@ public class BoardDisplay extends JComponent {
 					Bomb b = model.getBoard()[i][j].getBomb();
 					Explosion ex = model.getBoard()[i][j].getExplosion();
 					PowerUp pu = model.getBoard()[i][j].getPowerUp();
+					Box box = model.getBoard()[i][j].getBox();
+					
 					if (ex != null) {
 						 ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Explosion.gif"));
 						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
@@ -201,6 +204,8 @@ public class BoardDisplay extends JComponent {
 					} else if (pu != null){
 						 ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.gif"));
 						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+					} else if (box != null){
+						 g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Box.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else {
 						g.drawString(value, xDisplacement, yDisplacement);
 					}

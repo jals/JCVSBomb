@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -28,6 +30,7 @@ public class Model {
 	private int a = 0;
 	private boolean hasDoor;
 	private Door door;
+	private List<Box> boxes;
 
 	/**
 	 * 
@@ -35,6 +38,7 @@ public class Model {
 	 * @param grid : the grid, used to refresh the internal board
 	 */
 	public Model(String filename, Square[][] grid) {
+		boxes = new ArrayList<Box>();
 		board = new Square[BOARD_SIZE][BOARD_SIZE];
 		if (!filename.isEmpty()) {
 			try {
@@ -98,15 +102,25 @@ public class Model {
 		for (int i = 1; i < BOARD_SIZE - 1; i++) {
 			for (int j = 1; j < BOARD_SIZE - 1; j++) {
 				//increasing this random number factor makes more walls spawn
-				maze[i][j] = rand.nextInt(4); 
+				maze[i][j] = rand.nextInt(8); 
 				if (maze[i][j] == 0) {
+					maze[i][j] = 2;
+					emptyBlocks[i][j] = false;
+				} else if (maze[i][j] == 1) {
+					maze[i][j] = 1;
 					emptyBlocks[i][j] = true;
 				} else {
-					maze[i][j] = 1;
-					emptyBlocks[i][j] = false;
+					emptyBlocks[i][j] = true;
 				}
 				board[i][j] = new Square();
 				board[i][j].addObject(maze[i][j]);
+				if(maze[i][j] == 1){
+					Box b = new Box(new Point(i, j), null, null);
+					board[i][j].addObject(b);
+					boxes.add(b);
+				} else if(maze[i][j] == 2){
+					board[i][j].addObject(new Wall(new Point(i, j)));
+				}
 			}
 		}
 	}
@@ -163,25 +177,33 @@ public class Model {
 	private void adjustRight(int x, int y, int spaces) {
 		for (int i = y; i < y + spaces; i++) {
 			board[x][i + 1].removeLast();
-			board[x][i + 1].addObject(0);
+			if(!board[x][i + 1].hasBox()){
+				board[x][i + 1].addObject(0);
+			}
 		}
 	}
 	private void adjustLeft(int x, int y, int spaces) {
 		for (int i = y; i > y - spaces; i--) {
 			board[x][i - 1].removeLast();
-			board[x][i - 1].addObject(0);
+			if(!board[x][i - 1].hasBox()){
+				board[x][i - 1].addObject(0);
+			}
 		}
 	}
 	private void adjustUp(int x, int y, int spaces) {
 		for (int i = x; i > x - spaces; i--) {
 			board[i - 1][y].removeLast();
-			board[i - 1][y].addObject(0);
+			if(!board[i - 1][y].hasBox()){
+				board[i - 1][y].addObject(0);
+			}
 		}
 	}
 	private void adjustDown(int x, int y, int spaces) {
 		for (int i = x; i < x + spaces; i++) {
 			board[i + 1][y].removeLast();
-			board[i + 1][y].addObject(0);
+			if(!board[i + 1][y].hasBox()){
+				board[i + 1][y].addObject(0);
+			}
 		}
 	}
 
@@ -263,7 +285,7 @@ public class Model {
 	 */
 	private int closestRight(int x, int y) {
 		for (int i = y + 1; i < BOARD_SIZE - 1; i++) {
-			if ((Integer) board[x][i].getObjects().get(0) == 0) {
+			if ((Integer) board[x][i].getObjects().get(0) == 0 && board[x][i].getBox() != null) {
 				return i - y;
 			}
 		}
@@ -271,7 +293,7 @@ public class Model {
 	}
 	private int closestLeft(int x, int y) {
 		for (int i = y - 1; i > 0; i--) {
-			if ((Integer) board[x][i].getObjects().get(0) == 0) {
+			if ((Integer) board[x][i].getObjects().get(0) == 0 && board[x][i].getBox() != null) {
 				return Math.abs(i - y);
 			}
 		}
@@ -279,7 +301,7 @@ public class Model {
 	}
 	private int closestUp(int x, int y) {
 		for (int i = x - 1; i > 0; i--) {
-			if ((int) board[i][y].getObjects().get(0) == 0) {
+			if ((Integer) board[i][y].getObjects().get(0) == 0 && board[x][i].getBox() != null) {
 				return Math.abs(i - x);
 			}
 		}
@@ -287,7 +309,7 @@ public class Model {
 	}
 	private int closestDown(int x, int y) {
 		for (int i = x + 1; i < BOARD_SIZE - 1; i++) {
-			if ((Integer) board[i][y].getObjects().get(0) == 0) {
+			if ((Integer) board[i][y].getObjects().get(0) == 0 && board[x][i].getBox() != null) {
 				return i - x;
 			}
 		}
@@ -324,5 +346,25 @@ public class Model {
 
 	public void setDoor(Door door) {
 		this.door = door;
+	}
+
+	public List<Box> getBoxes() {
+		return boxes;
+	}
+	
+	public Box getFreeBox(){
+		Random r = new Random();
+		int i = r.nextInt(boxes.size() + 1);
+		if(boxes != null){
+			while(boxes.get(i).getDoor() != null || boxes.get(i).getPowerUp() != null){ //don't return a box that already contains a door or a powerup
+				i = r.nextInt(boxes.size() + 1);
+			}
+		}
+		
+		return boxes.get(i);
+	}
+
+	public void setBoxes(List<Box> boxes) {
+		this.boxes = boxes;
 	}
 }

@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import bomberman.common.Command;
 import bomberman.common.Utility;
 import bomberman.common.model.Bomb;
+import bomberman.common.model.Box;
 import bomberman.common.model.Door;
 import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
@@ -55,23 +56,29 @@ public class Server {
 	 */
 	public Server(int port, boolean testing, String map) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
+		/**Set the map variable to the empty string to see the box creation.
+			//TODO Read files in a new way to allow for boxes with things inside of them
+		**/
+		//map = "";
 		grid = new Model(map, null);
 		serverSocket = new DatagramSocket(port);
 		gridLock = new ReentrantReadWriteLock();
 
 		if (!grid.hasDoor()) {
-			Point doorPoint = getFreePoint();
-			door = new Door(doorPoint, false);
-			grid.getBoard()[doorPoint.x][doorPoint.y].addObject(door);
+			Box b = grid.getFreeBox();
+			door = new Door(new Point(b.getLocation().x, b.getLocation().y), false);
+			b.setDoor(door);
 		} else {
 			door = grid.getDoor();
 			grid.getBoard()[door.getLocation().x][door.getLocation().y]
 					.addObject(door); // if loaded from file
 		}
 
-		PowerUp p = new PowerUp(getFreePoint());
-		grid.getBoard()[p.getLocation().x][p.getLocation().y].addObject(p);
-		
+		if(map.isEmpty()){
+			Box b = grid.getFreeBox();
+			PowerUp p = new PowerUp(new Point(b.getLocation().x, b.getLocation().y));
+			b.setPowerUp(p);
+		}
 		
 		bombFactory = new BombFactory(this);
 		logger = new Logger();
@@ -407,6 +414,20 @@ public class Server {
 					p.takeHit();
 				}
 			}
+			
+			for(Box b: grid.getBoxes()){
+				if(b.getLocation().distance(new Point(x, y)) <=1 ){
+					if(b.getDoor() != null){
+						grid.getBoard()[b.getLocation().x][b.getLocation().y].addObject(b.getDoor());
+						b.setDoor(null);
+					} else if(b.getPowerUp() != null){
+						grid.getBoard()[b.getLocation().x][b.getLocation().y].addObject(b.getPowerUp());
+						b.setPowerUp(null);
+					}
+					
+					grid.getBoard()[b.getLocation().x][b.getLocation().y].removeBox();
+				}
+			}
 			final Point p = new Point(x, y);
 			Thread explosion = new Thread(new Runnable() {
 
@@ -423,7 +444,6 @@ public class Server {
 			});
 			explosion.start();
 			
-			// TODO Remove Walls if a bomb explodes.
 			prunePlayers();
 		}
 	}

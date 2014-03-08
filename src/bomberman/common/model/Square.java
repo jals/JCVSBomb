@@ -210,5 +210,33 @@ public class Square implements Serializable {
 		}
 		return null;
 	}
+	
+	public Boolean hasBox(){
+		for (int x = 0; x < objects.size(); x++) {
+			if (objects.get(x) instanceof Box) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Box getBox(){
+		for (int x = 0; x < objects.size(); x++) {
+			if ((objects.get(x) instanceof Box)) {
+				return (Box) objects.get(x);
+			}
+		}
+		return null;
+	}
+	
+	public void removeBox() {
+		List<Object> newObjects = new ArrayList<Object>();
+		for (int x = 0; x < objects.size(); x++) {
+			if (!(objects.get(x) instanceof Box)) {
+				newObjects.add(objects.get(x));
+			}
+		}
+		objects = newObjects;
+	}
 
 }
