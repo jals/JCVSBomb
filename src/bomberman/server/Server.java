@@ -276,7 +276,7 @@ public class Server {
 			Command c = (Command) o;
 
 			try {
-				done = addPlayer(packet, workers, c);
+				done = addPlayer(packet, workers, c, false);
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
@@ -312,7 +312,7 @@ public class Server {
 			Command c = (Command) o;
 
 			try {
-				done = addPlayer(packet, workers, c);
+				addPlayer(packet, workers, c, true);
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
@@ -340,10 +340,12 @@ public class Server {
 	 *            : List of players that are waiting to run.
 	 * @param c
 	 *            : What was the command that a client sent.
+	 * @param hasStarted
+	 * 			  : True if the game has started
 	 * @return: True if it was a start_game call
 	 */
 	private boolean addPlayer(DatagramPacket packet, List<Worker> workers,
-			Command c) throws SocketException {
+			Command c, boolean hasStarted) throws SocketException {
 		Player p = null;
 
 		// if JOIN_GAME is received add the player to the game
@@ -372,7 +374,9 @@ public class Server {
 			}
 			p.setAddress(packet.getAddress());
 			p.setPort(packet.getPort());
-			listOfPlayers.add(p);
+			if (!hasStarted) {
+				listOfPlayers.add(p);
+			}
 			refreshGrid();
 			// Create a fresh socket over which the client will now communicate
 			DatagramSocket socket = new DatagramSocket();
