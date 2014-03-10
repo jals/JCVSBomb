@@ -180,6 +180,9 @@ public class BoardDisplay extends JComponent {
 							 }
 						 }
 					} else if(p != null){
+						if(p.getName().equals("Enemy")){
+							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else 
 						if(p.getLastDirection() == Model.LEFT){
 							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						} else if(p.getLastDirection() == Model.RIGHT){

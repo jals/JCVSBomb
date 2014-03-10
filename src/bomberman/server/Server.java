@@ -172,18 +172,19 @@ public class Server {
 			}
 			// Open the door if the player is at the door.
 			for (Player p : listOfPlayers) {
-				grid.getBoard()[(int) p.getLocation().getX()][(int) p
-						.getLocation().getY()].addObject(p);
-				if (door != null) {
-					if (p.getLocation().x == door.getLocation().x
-							&& p.getLocation().y == door.getLocation().y) {
-						door.setVisible(true);
-					}
-				}
-				PowerUp powerUp = grid.getBoard()[p.getLocation().x][p
-						.getLocation().y].removePowerUp();
-				if (powerUp != null) {
-					p.addPowerUp(powerUp);
+				grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
+				if(!p.getName().equals("Enemy")){ //Don't do specific player actions for enemies
+      				if (door != null) {
+      					if (p.getLocation().x == door.getLocation().x
+      							&& p.getLocation().y == door.getLocation().y) {
+      						door.setVisible(true);
+      					}
+      				}
+      				PowerUp powerUp = grid.getBoard()[p.getLocation().x][p
+      						.getLocation().y].removePowerUp();
+      				if (powerUp != null) {
+      					p.addPowerUp(powerUp);
+      				}
 				}
 			}
 			// Check if two players are at the same location.
@@ -380,11 +381,16 @@ public class Server {
 	
 	private Player getNewPlayer(String name) {
 		Player toReturn;
-		toReturn = new Player(name, playerId);
-		playerId++;
-		if (playerId > 4) { // Only have 4 different colours for players
-			playerId = 1;
+		if(name.equals("Enemy")){
+			toReturn = new Player(name, 0);
+		} else {
+			toReturn = new Player(name, playerId);
+			playerId++;
+			if (playerId > 4) { // Only have 4 different colours for players
+				playerId = 1;
+			}
 		}
+		
 		toReturn.setIsAlive(true);
 		if (!isTesting) {
 			// Random location if we are not testing.
