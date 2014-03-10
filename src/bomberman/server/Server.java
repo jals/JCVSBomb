@@ -287,6 +287,15 @@ public class Server {
 				logger.logCommand(c, player.getIdentifier());
 			}
 		}
+		// TODO (Sean Byron): What to do with this while testing?
+		// TODO (Jarred Linthorne): Figure out a way to represent him differently
+		// TODO (Vinayak Bansal): If an enemy hits a player, the enemy dies too.
+		// Do we want this?
+		// TODO (Jarred Linthorne): The enemy can open doors, as of now
+		final Player enemy = getNewPlayer("Enemy");
+		listOfPlayers.add(enemy);
+		new Thread(new Enemy(this, enemy)).start();
+		
 		bombFactory.start();
 		for (Worker worker : workers) {
 			worker.start();
@@ -350,28 +359,7 @@ public class Server {
 
 		// if JOIN_GAME is received add the player to the game
 		if (c.getOperation() == Command.Operation.JOIN_GAME) {
-			p = new Player(c.getPlayer(), playerId);
-			playerId++;
-			if (playerId > 4) { // Only have 4 different colours for players
-				playerId = 1;
-			}
-			p.setIsAlive(true);
-			if (!isTesting) {
-				// Random location if we are not testing.
-				p.setLocation(getFreePoint());
-			} else {
-				int numPlayers;
-				synchronized (gridLock.readLock()) {
-					numPlayers = grid.getBoard()[1][1].numPlayers();
-				}
-				if (numPlayers == 0) {
-					p.setLocation(new Point(1, 1));
-				} else {
-					p.setLocation(new Point(Model.BOARD_SIZE - 2,
-							Model.BOARD_SIZE - 2));
-
-				}
-			}
+			p = getNewPlayer(c.getPlayer());
 			p.setAddress(packet.getAddress());
 			p.setPort(packet.getPort());
 			if (!hasStarted) {
@@ -388,6 +376,34 @@ public class Server {
 			return true;
 		}
 		return false;
+	}
+	
+	private Player getNewPlayer(String name) {
+		Player toReturn;
+		toReturn = new Player(name, playerId);
+		playerId++;
+		if (playerId > 4) { // Only have 4 different colours for players
+			playerId = 1;
+		}
+		toReturn.setIsAlive(true);
+		if (!isTesting) {
+			// Random location if we are not testing.
+			toReturn.setLocation(getFreePoint());
+		} else {
+			int numPlayers;
+			synchronized (gridLock.readLock()) {
+				numPlayers = grid.getBoard()[1][1].numPlayers();
+			}
+			if (numPlayers == 0) {
+				toReturn.setLocation(new Point(1, 1));
+			} else {
+				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2,
+						Model.BOARD_SIZE - 2));
+
+			}
+		}
+		return toReturn;
+		
 	}
 
 	protected void addBomb(int x, int y) {
