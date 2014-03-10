@@ -44,6 +44,7 @@ public class Client {
 	private boolean running = true;
 	private Operation lastOp;
 	private long lastTime;
+	private Object lock = new Object();
 
 	public Client(String playerName, String host, int port) throws Exception {
 		this.playerName = playerName;
@@ -113,8 +114,10 @@ public class Client {
 					lastOp = null;	//reset the last operation after half a second
 				}
 				
-				if(bc!=null){
-					currentOperation = bc.getLastInput();
+				synchronized (lock) {
+					if(bc!=null){
+						currentOperation = bc.getLastInput();
+					}
 				}
 				
 				//Ensure that the last operation is not the same as the current one, 
@@ -201,11 +204,13 @@ public class Client {
 							}
 						}
 					} else { // we need to refresh the grid.
-						if (bc == null) {
-							bc = new BombermanClient((Square[][]) grid);
-							bc.setVisible(true);
-						} else {
-							bc.refresh((Square[][]) grid);
+						synchronized (lock) {
+							if (bc == null) {
+								bc = new BombermanClient((Square[][]) grid);
+								bc.setVisible(true);
+							} else {
+								bc.refresh((Square[][]) grid);
+							}
 						}
 					}
 				}

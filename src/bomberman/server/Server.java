@@ -101,14 +101,6 @@ public class Server {
 	}
 
 	/**
-	 * Removes the lsat player from the list of players. It is required when a
-	 * player dies.
-	 */
-	private void removeLastPlayer() {
-		listOfPlayers.remove(listOfPlayers.size() - 1);
-	}
-
-	/**
 	 * 
 	 * @return the grid of Square of Objects
 	 */
@@ -331,7 +323,6 @@ public class Server {
 				logger.logCommand(c, player.getIdentifier());
 			}
 			
-//			removeLastPlayer();//TODO Can someone confirm why this was here??
 		}
 
 		serverSocket.close();
