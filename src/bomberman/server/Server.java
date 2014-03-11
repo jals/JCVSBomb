@@ -189,14 +189,18 @@ public class Server {
 			}
 			// Check if two players are at the same location.
 			// if yes, kill both of them
-			for (Player p : listOfPlayers) {
-				for (Player q : listOfPlayers) {
-					if (p != q && p.getLocation().equals(q.getLocation())) {
-						p.takeHit();
-						q.takeHit();
+			if(listOfPlayers.size() > 0){
+				for(int i = 0; i < listOfPlayers.size(); i++){
+					Player p = listOfPlayers.get(i);
+					for (Player q : listOfPlayers) {
+						if (p != q && p.getLocation().equals(q.getLocation())) {
+							p.takeHit();
+							q.takeHit();
+						}
 					}
 				}
 			}
+			
 			prunePlayers();
 		}
 

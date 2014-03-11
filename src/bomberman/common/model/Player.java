@@ -20,6 +20,7 @@ public class Player implements Serializable {
 	private int port;
 	private int identifier;
 	private int lastDirection = Model.DOWN;
+	private int health = 1;
 	private PowerUp powerUp;
 
 	public Player(String playerName, int identifier) {
@@ -36,15 +37,19 @@ public class Player implements Serializable {
 	}
 	
 	public void takeHit() {
-		if (powerUp != null) {
-			powerUp = null;
-		} else {
+		health--;
+		if (health <= 0){
 			isAlive = false;
 		}
 	}
 	
+	public int getHealth(){
+		return health;
+	}
+	
 	public void addPowerUp(PowerUp powerUp) {
-		this.powerUp = powerUp;
+		this.setPowerUp(powerUp);
+		health++;
 	}
 	
 	public void setLocation(Point location) {
@@ -100,6 +105,14 @@ public class Player implements Serializable {
 
 	public void setIdentifier(int identifier) {
 		this.identifier = identifier;
+	}
+
+	public PowerUp getPowerUp() {
+		return powerUp;
+	}
+
+	public void setPowerUp(PowerUp powerUp) {
+		this.powerUp = powerUp;
 	}
 
 }

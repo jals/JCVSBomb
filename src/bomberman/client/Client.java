@@ -103,7 +103,6 @@ public class Client {
 
 		if (!testMode) {
 			// Now start receiving commands from the command line
-			System.out.println("Enter player commands: \n");
 			// TODO: We are aware that this thread should terminate once there
 			// is a
 			// LEAVE_GAME received. But we are yet to find an elegant way to do

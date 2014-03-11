@@ -31,6 +31,7 @@ public class Model {
 	private boolean hasDoor;
 	private Door door;
 	private List<Box> boxes;
+	private ArrayList<Player> playerList;
 
 	/**
 	 * 
@@ -39,6 +40,7 @@ public class Model {
 	 */
 	public Model(String filename, Square[][] grid) {
 		boxes = new ArrayList<Box>();
+		playerList = new ArrayList<Player>();
 		board = new Square[BOARD_SIZE][BOARD_SIZE];
 		if (!filename.isEmpty()) {
 			try {
@@ -84,6 +86,16 @@ public class Model {
 	public void refreshGrid(Square[][] grid) {
 		if (grid != null) {
 			board = grid;
+		}
+		playerList.clear();
+		for (int j = 1; j < BOARD_SIZE - 1; j++) {
+			for (int k = 1; k < BOARD_SIZE - 1; k++) {
+				if(board[j][k].getPlayer() != null){
+					if(!board[j][k].getPlayer().getName().equals("Enemy")){
+						playerList.add(board[j][k].getPlayer());
+					}
+				}
+			}
 		}
 	}
 
@@ -373,5 +385,9 @@ public class Model {
 
 	public void setBoxes(List<Box> boxes) {
 		this.boxes = boxes;
+	}
+	
+	public ArrayList<Player> getPlayerList(){
+		return playerList;
 	}
 }

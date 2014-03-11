@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -33,7 +34,8 @@ public class BoardDisplay extends JComponent {
 	private static final long serialVersionUID = -83694624035879827L;
 	private static final int CELL_PIXELS = 75; // Size of each cell.
 	private static final int PUZZLE_SIZE = 12; // Number of rows/cols
-	private static final int BOARD_PIXELS = CELL_PIXELS * PUZZLE_SIZE;
+	private static final int X_BOARD_PIXELS = CELL_PIXELS * PUZZLE_SIZE;
+	private static final int Y_BOARD_PIXELS = CELL_PIXELS * (PUZZLE_SIZE + 5);
 	private static final int X_OFFSET = 18; // Fine tuning placement of text.
 	private static final int Y_OFFSET = 28; // Fine tuning placement of text.
 	private static final int X_PICTURE_OFFSET = 6; // Fine tuning placement of text.
@@ -49,7 +51,7 @@ public class BoardDisplay extends JComponent {
 	 * @param model
 	 */
 	public BoardDisplay(Model model) {
-		setPreferredSize(new Dimension(BOARD_PIXELS + 1, BOARD_PIXELS + 1));
+		setPreferredSize(new Dimension(Y_BOARD_PIXELS + 1, X_BOARD_PIXELS + 1));
 		setBackground(Color.WHITE);
 		this.model = model;
 	}
@@ -126,8 +128,8 @@ public class BoardDisplay extends JComponent {
 	private void drawGridLines(Graphics g) {
 		for (int i = 1; i <= PUZZLE_SIZE - 1; i++) {
 			int grid = i * CELL_PIXELS;
-			g.drawLine(grid, CELL_PIXELS, grid, BOARD_PIXELS - CELL_PIXELS);
-			g.drawLine(CELL_PIXELS, grid, BOARD_PIXELS - CELL_PIXELS, grid);
+			g.drawLine(grid, CELL_PIXELS, grid, X_BOARD_PIXELS - CELL_PIXELS);
+			g.drawLine(CELL_PIXELS, grid, X_BOARD_PIXELS - CELL_PIXELS, grid);
 		}
 	}
 
@@ -140,6 +142,32 @@ public class BoardDisplay extends JComponent {
 	 */
 	private void drawCellValues(Graphics g) throws IOException {
 		g.setFont(TEXT_FONT);
+		ImageIcon imageIcon = null;
+		
+		ArrayList<Player> playerList = model.getPlayerList();
+		Player[] players = new Player[playerList.size()]; //Create the array to avoid concurrent modification exceptions
+		players = playerList.toArray(players);
+		int gfds = 0;
+		if(playerList != null){
+			for(int qwer = 0; qwer < players.length; qwer++){
+				imageIcon = new ImageIcon(this.getClass().getResource("images/Downward" + players[qwer].getIdentifier() + ".png"));
+				g.drawImage(imageIcon.getImage(), 12 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (4 + gfds) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+				g.drawString(players[qwer].getName(), 13 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (4 + gfds) * CELL_PIXELS - Y_OFFSET);
+				int health = players[qwer].getHealth(); 
+				int asdf = 0;
+				int fdsa = 0;
+				while(health > 0){
+					imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.png"));
+					g.drawImage(imageIcon.getImage(), (15 + asdf) * CELL_PIXELS - fdsa, (4 + gfds) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+					health--;
+					asdf++;
+					fdsa = 20;
+				}
+				gfds++;
+			}
+			
+		}
+		
 		for (int i = 0; i < PUZZLE_SIZE; i++) {
 			int yDisplacement = (i + 1) * CELL_PIXELS - Y_OFFSET;
 			for (int j = 0; j < PUZZLE_SIZE; j++) {
@@ -157,7 +185,7 @@ public class BoardDisplay extends JComponent {
 					Box box = model.getBoard()[i][j].getBox();
 					
 					if (ex != null) {
-						 ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Explosion.gif"));
+						 imageIcon = new ImageIcon(this.getClass().getResource("images/Explosion.gif"));
 						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						 if(model.getBoard()[i][j+1] != null){ //don't go out of bounds
 							 if(!model.getBoard()[i][j+1].hasWall()){ //don't blow up wall
@@ -199,13 +227,13 @@ public class BoardDisplay extends JComponent {
 							g.drawString(value, xDisplacement, yDisplacement);
 						}
 					} else if (b != null) {
-					    ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Bomb.gif"));
+					    imageIcon = new ImageIcon(this.getClass().getResource("images/Bomb.gif"));
 					    g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else if (pu != null){
-						 ImageIcon imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.gif"));
-						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.gif"));
+						g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else if (box != null){
-						 g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Box.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Box.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else {
 						g.drawString(value, xDisplacement, yDisplacement);
 					}
