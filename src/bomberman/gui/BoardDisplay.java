@@ -147,23 +147,19 @@ public class BoardDisplay extends JComponent {
 		ArrayList<Player> playerList = model.getPlayerList();
 		Player[] players = new Player[playerList.size()]; //Create the array to avoid concurrent modification exceptions
 		players = playerList.toArray(players);
-		int gfds = 0;
 		if(playerList != null){
-			for(int qwer = 0; qwer < players.length; qwer++){
-				imageIcon = new ImageIcon(this.getClass().getResource("images/Downward" + players[qwer].getIdentifier() + ".png"));
-				g.drawImage(imageIcon.getImage(), 12 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (4 + gfds) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
-				g.drawString(players[qwer].getName(), 13 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (4 + gfds) * CELL_PIXELS - Y_OFFSET);
-				int health = players[qwer].getHealth(); 
-				int asdf = 0;
-				int fdsa = 0;
+			for(int k = 0; k < players.length; k++){
+				imageIcon = new ImageIcon(this.getClass().getResource("images/Downward" + players[k].getIdentifier() + ".png"));
+				g.drawImage(imageIcon.getImage(), 12 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (3 + players[k].getIdentifier()) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+				g.drawString(players[k].getName(), 13 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (3 + players[k].getIdentifier()) * CELL_PIXELS - Y_OFFSET);
+				int health = players[k].getHealth(); 
+				int heartSpacer = 0;
 				while(health > 0){
 					imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.png"));
-					g.drawImage(imageIcon.getImage(), (15 + asdf) * CELL_PIXELS - fdsa, (4 + gfds) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+					g.drawImage(imageIcon.getImage(), (15 + heartSpacer) * CELL_PIXELS - 20, (3 + players[k].getIdentifier()) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
 					health--;
-					asdf++;
-					fdsa = 20;
+					heartSpacer++;
 				}
-				gfds++;
 			}
 			
 		}
