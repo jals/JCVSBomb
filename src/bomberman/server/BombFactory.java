@@ -42,7 +42,7 @@ public class BombFactory extends Thread {
 		}
 	}
 	
-	public boolean isBombAt(Point point) {
+	public synchronized boolean isBombAt(Point point) {
 		for(Bomb bomb : bombs) {
 			if (bomb.getLocation().equals(point)) {
 				return true;

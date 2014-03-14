@@ -37,34 +37,31 @@ public class MoveUnitTests {
 		
 		// Give the threads some time to start
 		sleep(500);
-	}
-
-	@AfterClass
-	public static void tearDown() throws Exception {
-		serverThread.shutdown();
-		clientThread.shutdown();
-	}
-	
-	@Test
-	public void testStarted() {
+		
 		assertTrue(server.isRunning());
 		assertTrue(client.isRunning());
-	}
-
-	@Test
-	public void testJoinGame() {
+		
+		// Join the game
+		System.out.println("Joining game...");
 		client.processCommand(Operation.JOIN_GAME);
 		Player player = server.getPlayer(PLAYER_NAME);
 		assertTrue(player != null);
 		assertTrue(player.getName().equals(PLAYER_NAME));
-	}
-	
-	@Test
-	public void testStartGame() throws InterruptedException {
+		
+		// Start the game
+		System.out.println("Starting game...");
 		client.processCommand(Operation.START_GAME);
-		sleep(100);
+		sleep(200);
 		assertTrue(server.isRunning());
 		assertTrue(server.isGameStarted());
+	}
+	
+	@AfterClass
+	public static void tearDown() throws Exception {
+		serverThread.shutdown();
+		clientThread.shutdown();
+		// Give the threads some time to stop
+		sleep(500);
 	}
 	
 	@Test
@@ -72,7 +69,7 @@ public class MoveUnitTests {
 		// Test moving down
 		Point initial = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.MOVE_DOWN);
-		sleep(100);
+		sleep(200);
 		Point end = server.getPlayerLocation(PLAYER_NAME);
 		assertTrue(initial.y == end.y);
 		assertTrue(end.x == (initial.x+1));
@@ -80,7 +77,7 @@ public class MoveUnitTests {
 		// Test moving up
 		initial = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.MOVE_UP);
-		sleep(100);
+		sleep(200);
 		end = server.getPlayerLocation(PLAYER_NAME);
 		assertTrue(initial.y == end.y);
 		assertTrue(end.x == (initial.x-1));
@@ -88,7 +85,7 @@ public class MoveUnitTests {
 		// Test moving right
 		initial = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.MOVE_RIGHT);
-		sleep(100);
+		sleep(200);
 		end = server.getPlayerLocation(PLAYER_NAME);
 		assertTrue((initial.y+1) == end.y);
 		assertTrue(end.x == initial.x);
@@ -96,20 +93,18 @@ public class MoveUnitTests {
 		// Test moving left
 		initial = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.MOVE_LEFT);
-		sleep(100);
+		sleep(200);
 		end = server.getPlayerLocation(PLAYER_NAME);
 		assertTrue((initial.y-1) == end.y);
 		assertTrue(end.x == initial.x);
-	}
-	
-	@Test
-	public void testMoveIntoWall() {
-		Point initial = server.getPlayerLocation(PLAYER_NAME);
+		
+		// Test moving repeatedly up into the wall
+		initial = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.MOVE_UP);
 		client.processCommand(Operation.MOVE_UP);
 		client.processCommand(Operation.MOVE_UP);
-		sleep(100);
-		Point end = server.getPlayerLocation(PLAYER_NAME);
+		sleep(200);
+		end = server.getPlayerLocation(PLAYER_NAME);
 		assertTrue(initial.y == end.y);
 		assertTrue(end.x == initial.x);
 	}

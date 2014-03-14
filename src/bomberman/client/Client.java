@@ -208,7 +208,9 @@ public class Client {
 								bc = new BombermanClient((Square[][]) grid);
 								bc.setVisible(true);
 							} else {
-								bc.refresh((Square[][]) grid);
+								if (grid instanceof Square[][]) {
+									bc.refresh((Square[][]) grid);
+								}
 							}
 						}
 					}
