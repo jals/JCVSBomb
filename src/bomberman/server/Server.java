@@ -44,6 +44,7 @@ public class Server {
 	private boolean isTesting;
 	private int playerId = 1;
 	private boolean running = true;
+	private boolean gameStarted = false;
 	private ReadWriteLock gridLock;
 	private BombFactory bombFactory;
 
@@ -216,7 +217,7 @@ public class Server {
 	protected void prunePlayers() {
 		List<Player> newPlayers = new ArrayList<Player>();
 		for (Player p : listOfPlayers) {
-			if (p.getIsAlive()) {
+			if (p.isAlive()) {
 				newPlayers.add(p);
 			} else {
 				grid.getBoard()[p.getLocation().x][p.getLocation().y]
@@ -259,8 +260,7 @@ public class Server {
 		DatagramPacket packet = new DatagramPacket(receiveData,
 				receiveData.length);
 		List<Worker> workers = new LinkedList<Worker>();
-		boolean done = false;
-		while (!done) {
+		while (!gameStarted) {
 			try {
 				getServerSocket().receive(packet);
 			} catch (IOException e) {
@@ -281,7 +281,7 @@ public class Server {
 			Command c = (Command) o;
 
 			try {
-				done = addPlayer(packet, workers, c, false);
+				gameStarted = addPlayer(packet, workers, c, false);
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
@@ -489,12 +489,28 @@ public class Server {
 		return running;
 	}
 	
-	private Player getPlayer(String name) {
+	public boolean isGameStarted() {
+		return gameStarted;
+	}
+	
+	public Point getPlayerLocation(String name) {
+		Player player = getPlayer(name);
+		if (player == null) {
+			return null;
+		}
+		return player.getLocation();
+	}
+	
+	public Player getPlayer(String name) {
 		for(Player player : listOfPlayers) {
 			if (player.getName().equals(name)) {
 				return player;
 			}
 		}
 		return null;
+	}
+
+	public BombFactory getBombFactory() {
+		return bombFactory;
 	}
 }

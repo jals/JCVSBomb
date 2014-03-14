@@ -38,7 +38,7 @@ class Worker extends Thread {
 						Utility.sendMessage(socket, server.getGrid(),
 								p.getAddress(), p.getPort());
 					}
-					if (!p.getIsAlive()) {
+					if (!p.isAlive()) {
 						done();
 						break;
 					}

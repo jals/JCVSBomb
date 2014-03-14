@@ -10,7 +10,7 @@ import bomberman.server.Server;
  * @author spbyron
  * 
  */
-class ServerThread extends Thread {
+public class ServerThread extends Thread {
 
 	private Server server;
 	
@@ -44,6 +44,10 @@ class ServerThread extends Thread {
 	
 	public void shutdown() {
 		server.shutdownServer();
+	}
+
+	public Server getServer() {
+		return server;
 	}
 
 }

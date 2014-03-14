@@ -1,5 +1,6 @@
 package bomberman.server;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,15 @@ public class BombFactory extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public boolean isBombAt(Point point) {
+		for(Bomb bomb : bombs) {
+			if (bomb.getLocation().equals(point)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
