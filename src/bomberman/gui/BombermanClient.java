@@ -49,7 +49,9 @@ public class BombermanClient extends JFrame {
 	}
 	
 	public Operation getLastInput(){
-		return lastInput;
+		Operation op = lastInput;
+		lastInput = null;
+		return op;
 	}
 	
 	public void setLastInput(Operation lastInput){

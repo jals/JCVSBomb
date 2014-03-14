@@ -5,9 +5,6 @@
 
 package bomberman.client;
 
-import java.awt.AWTException;
-import java.awt.Robot;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -102,11 +99,6 @@ public class Client {
 		}
 
 		if (!testMode) {
-			// Now start receiving commands from the command line
-			// TODO: We are aware that this thread should terminate once there
-			// is a
-			// LEAVE_GAME received. But we are yet to find an elegant way to do
-			// it.
 			Operation currentOperation = null;
 			while (running) {
 				if(System.currentTimeMillis() > (lastTime + 500)){
@@ -125,13 +117,6 @@ public class Client {
 					processCommand(currentOperation);
 					lastOp = currentOperation;
 					lastTime = System.currentTimeMillis();
-					try {
-						Robot r = new Robot();
-						//Random key press to interrupt previous input. 
-						r.keyPress(KeyEvent.VK_I);
-					} catch (AWTException e) {
-						System.err.println("The robot died :'(");
-					}
 				}
 			}
 			scanner.close();
