@@ -15,8 +15,12 @@ public class ServerThread extends Thread {
 	private Server server;
 	
 	public ServerThread() {
+		this(9876);
+	}
+	
+	public ServerThread(int port) {
 		try {
-			server = new Server(9876, true);
+			server = new Server(port, true);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}

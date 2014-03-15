@@ -38,7 +38,7 @@ public class Client {
 	private Boolean started;
 	// The class required for GUI
 	private BombermanClient bc = null;
-	private boolean running = true;
+	private Boolean running = true;
 	private Operation lastOp;
 	private long lastTime;
 	private Object lock = new Object();
@@ -52,7 +52,7 @@ public class Client {
 		this.port = port;
 		listenIp = InetAddress.getByName(host);
 		this.listenPort = port;
-		started = Boolean.FALSE;
+		started = false;
 	}
 
 	/**
@@ -64,8 +64,7 @@ public class Client {
 	 */
 	public static void main(String[] args) {
 		if (args.length < 2) {
-			System.out
-					.println("Please specify two command line arguments. localhost, and port number.");
+			System.out.println("Please specify two command line arguments. localhost, and port number.");
 			return;
 		}
 
@@ -74,11 +73,9 @@ public class Client {
 		Client client = null;
 
 		try {
-			client = new Client(sanitizeName(scanner.nextLine()), args[0],
-					Integer.parseInt(args[1]));
+			client = new Client(sanitizeName(scanner.nextLine()), args[0], Integer.parseInt(args[1]));
 		} catch (Exception e) {
-			System.err
-					.println("ERROR: Client could not be created properly.\n");
+			System.err.println("ERROR: Client could not be created properly.\n");
 			scanner.close();
 			return;
 		}
@@ -100,7 +97,7 @@ public class Client {
 
 		if (!testMode) {
 			Operation currentOperation = null;
-			while (running) {
+			while (isRunning()) {
 				if(System.currentTimeMillis() > (lastTime + 500)){
 					lastOp = null;	//reset the last operation after half a second
 				}
@@ -132,17 +129,12 @@ public class Client {
 			// We send START_GAME and JOIN_GAME to the dedicated listening
 			// port of the server. All the other messages go to the specific
 			// socket for this client.
-			if (operation == Command.Operation.START_GAME
-					|| operation == Command.Operation.JOIN_GAME) {
-				Utility.sendMessage(clientSocket, new Command(playerName,
-						operation), listenIp, listenPort);
+			if (operation == Command.Operation.START_GAME || operation == Command.Operation.JOIN_GAME) {
+				Utility.sendMessage(clientSocket, new Command(playerName, operation), listenIp, listenPort);
 			} else {
-				synchronized (started) {
-					// Don't send messages until the game is started.
-					if (started) {
-						Utility.sendMessage(clientSocket, new Command(
-								playerName, operation), ip, port);
-					}
+				// Don't send messages until the game is started.
+				if (isStarted()) {
+					Utility.sendMessage(clientSocket, new Command(playerName, operation), ip, port);
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -162,8 +154,7 @@ public class Client {
 		processCommand(Operation.JOIN_GAME);
 		// Wait for an ack to know which port to finally communicate with.
 		byte[] receiveData = new byte[1024 * 100];
-		DatagramPacket receivePacket = new DatagramPacket(receiveData,
-				receiveData.length);
+		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 		clientSocket.receive(receivePacket);
 		ip = receivePacket.getAddress();
 		port = receivePacket.getPort();
@@ -173,18 +164,15 @@ public class Client {
 
 			@Override
 			public void run() {
-
-				boolean done = false;
-				while (!done) { // Iterate until LEAVE_GAME is received.
+				while (isRunning()) { // Iterate until LEAVE_GAME is received.
 					Object grid = Utility.receiveMessage(clientSocket);
 					if (grid instanceof Command.Operation) {
 						Command.Operation c = (Command.Operation) grid;
 						if (c == Command.Operation.LEAVE_GAME) {
 							shutDown();
-							done = true;
 						} else {
-							synchronized (started) {
-								started = Boolean.TRUE;
+							if (!isStarted()) {
+								setStarted(true);
 							}
 						}
 					} else { // we need to refresh the grid.
@@ -203,6 +191,7 @@ public class Client {
 			}
 
 		});
+		
 		listen.start();
 
 	}
@@ -221,13 +210,33 @@ public class Client {
 	}
 
 	public void shutDown() {
-		running = false;
+		setRunning(false);
 		clientSocket.close();
 		bc.dispose();
 	}
 
-	public synchronized boolean isRunning() {
-		return running;
+	public boolean isRunning() {
+		synchronized(running) {
+			return running;
+		}
+	}
+	
+	private void setRunning(boolean val) {
+		synchronized(running) {
+			running = val;
+		}
+	}
+	
+	private synchronized Boolean isStarted() {
+		synchronized (started) {
+			return started;
+		}
+	}
+	
+	private void setStarted(boolean val) {
+		synchronized (started) {
+			started = val;
+		}
 	}
 
 }

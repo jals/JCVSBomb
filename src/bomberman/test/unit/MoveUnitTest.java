@@ -3,31 +3,38 @@ package bomberman.test.unit;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Point;
+import java.util.Random;
 
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import bomberman.client.Client;
 import bomberman.common.Command.Operation;
 import bomberman.common.model.Player;
+import bomberman.server.BombFactory;
 import bomberman.server.Server;
 import bomberman.test.ClientThread;
 import bomberman.test.ServerThread;
 
-public class MoveUnitTests {
+public class MoveUnitTest {
 	
-	static ServerThread serverThread;
-	static ClientThread clientThread;
-	static Client client;
-	static Server server;
+	ServerThread serverThread;
+	ClientThread clientThread;
+	Client client;
+	Server server;
 	
 	private static String PLAYER_NAME = "test";
 
-	@BeforeClass
-	public static void setUp() throws Exception {
-		serverThread = new ServerThread();
-		clientThread = new ClientThread(PLAYER_NAME);
+	@Before
+	public void setUp() throws Exception {
+		Random rand = new Random();
+		int  port = rand.nextInt(500) + 9500;
+		
+		serverThread = new ServerThread(port);
+		clientThread = new ClientThread(PLAYER_NAME, port);
 		
 		serverThread.start();
 		clientThread.start();
@@ -39,33 +46,40 @@ public class MoveUnitTests {
 		sleep(500);
 		
 		assertTrue(server.isRunning());
+		System.out.println("Server is running");
 		assertTrue(client.isRunning());
+		System.out.println("Client is running");
 		
 		// Join the game
-		System.out.println("Joining game...");
 		client.processCommand(Operation.JOIN_GAME);
+		sleep(200);
 		Player player = server.getPlayer(PLAYER_NAME);
 		assertTrue(player != null);
 		assertTrue(player.getName().equals(PLAYER_NAME));
+		System.out.println("Client joined Game");
 		
 		// Start the game
-		System.out.println("Starting game...");
 		client.processCommand(Operation.START_GAME);
 		sleep(200);
-		assertTrue(server.isRunning());
 		assertTrue(server.isGameStarted());
+		System.out.println("Game started");
 	}
 	
-	@AfterClass
-	public static void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
+		System.out.println("Shutting down server");
 		serverThread.shutdown();
+		System.out.println("Shutting down client");
 		clientThread.shutdown();
-		// Give the threads some time to stop
-		sleep(500);
+		serverThread.join();
+		clientThread.join();
+		System.out.println("Shut down successfully");
 	}
 	
 	@Test
 	public void testMove() {
+		System.out.println("Testing move operations");
+		
 		// Test moving down
 		Point initial = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.MOVE_DOWN);
@@ -113,6 +127,7 @@ public class MoveUnitTests {
 		try {
 			Thread.sleep(i);
 		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 	

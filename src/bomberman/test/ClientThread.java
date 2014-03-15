@@ -19,8 +19,12 @@ public class ClientThread extends Thread {
 	 * @param player
 	 */
 	public ClientThread(String player) {
+		this(player, 9876);
+	}
+	
+	public ClientThread(String player, int port) {
 		try {
-			client = new Client(player, "127.0.0.1", 9876);
+			client = new Client(player, "127.0.0.1", port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
