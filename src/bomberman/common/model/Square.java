@@ -18,7 +18,7 @@ public class Square implements Serializable {
 
 	private static final long serialVersionUID = -1121507013822267342L;
 	List<Object> objects;
-	
+
 	public Square() {
 		objects = new ArrayList<Object>();
 	}
@@ -32,8 +32,8 @@ public class Square implements Serializable {
 	}
 
 	/**
-	 * Removes any players that are in this square.
-	 * Makes it easy when refreshing the grid.
+	 * Removes any players that are in this square. Makes it easy when
+	 * refreshing the grid.
 	 */
 	public void removePlayers() {
 		List<Object> newObjects = new ArrayList<Object>();
@@ -44,8 +44,7 @@ public class Square implements Serializable {
 		}
 		objects = newObjects;
 	}
-	
-	
+
 	public PowerUp removePowerUp() {
 		PowerUp toReturn = null;
 		List<Object> newObjects = new ArrayList<Object>();
@@ -59,8 +58,8 @@ public class Square implements Serializable {
 		objects = newObjects;
 		return toReturn;
 	}
-	
-	public Player getPlayer(){
+
+	public Player getPlayer() {
 		for (int x = 0; x < objects.size(); x++) {
 			if ((objects.get(x) instanceof Player)) {
 				return (Player) objects.get(x);
@@ -83,7 +82,7 @@ public class Square implements Serializable {
 					return o.toString() + "";
 				} else {
 					// TODO change to empty string to fully hide door
-					return "D"; 
+					return "D";
 				}
 			} else if (o instanceof Player) {
 				return ((Player) o).getName();
@@ -95,20 +94,21 @@ public class Square implements Serializable {
 
 	/**
 	 * Handy method to see if the player can come to this square
+	 * 
 	 * @return true if this square is a wall. False, otherwise.
 	 */
 	public boolean canGo() {
-		for(Object object: objects) {
-			if ((object instanceof Box) || (object instanceof Wall)){
+		for (Object object : objects) {
+			if ((object instanceof Box) || (object instanceof Wall)) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	public boolean hasPowerUp() {
-		for(Object object: objects) {
-			if (object instanceof PowerUp){
+		for (Object object : objects) {
+			if (object instanceof PowerUp) {
 				return true;
 			}
 		}
@@ -137,8 +137,8 @@ public class Square implements Serializable {
 		}
 		return false;
 	}
-	
-	public Door getDoor(){
+
+	public Door getDoor() {
 		for (int x = 0; x < objects.size(); x++) {
 			if (objects.get(x) instanceof Door) {
 				return (Door) objects.get(x);
@@ -146,15 +146,16 @@ public class Square implements Serializable {
 		}
 		return null;
 	}
+
 	/**
-	 * This is to undo the addObject method
-	 * This is required with fixing the grid.
+	 * This is to undo the addObject method This is required with fixing the
+	 * grid.
 	 */
 	public void removeLast() {
 		objects.remove(objects.size() - 1);
 	}
-	
-	public Bomb getBomb(){
+
+	public Bomb getBomb() {
 		for (int x = 0; x < objects.size(); x++) {
 			if ((objects.get(x) instanceof Bomb)) {
 				return (Bomb) objects.get(x);
@@ -162,7 +163,7 @@ public class Square implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public void removeBomb() {
 		List<Object> newObjects = new ArrayList<Object>();
 		for (int x = 0; x < objects.size(); x++) {
@@ -182,8 +183,8 @@ public class Square implements Serializable {
 		}
 		return false;
 	}
-	
-	public Explosion getExplosion(){
+
+	public Explosion getExplosion() {
 		for (int x = 0; x < objects.size(); x++) {
 			if ((objects.get(x) instanceof Explosion)) {
 				return (Explosion) objects.get(x);
@@ -201,8 +202,8 @@ public class Square implements Serializable {
 		}
 		objects = newObjects;
 	}
-	
-	public PowerUp getPowerUp(){
+
+	public PowerUp getPowerUp() {
 		for (int x = 0; x < objects.size(); x++) {
 			if ((objects.get(x) instanceof PowerUp)) {
 				return (PowerUp) objects.get(x);
@@ -210,8 +211,8 @@ public class Square implements Serializable {
 		}
 		return null;
 	}
-	
-	public Boolean hasBox(){
+
+	public Boolean hasBox() {
 		for (int x = 0; x < objects.size(); x++) {
 			if (objects.get(x) instanceof Box) {
 				return true;
@@ -219,8 +220,8 @@ public class Square implements Serializable {
 		}
 		return false;
 	}
-	
-	public Box getBox(){
+
+	public Box getBox() {
 		for (int x = 0; x < objects.size(); x++) {
 			if ((objects.get(x) instanceof Box)) {
 				return (Box) objects.get(x);
@@ -228,7 +229,7 @@ public class Square implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public void removeBox() {
 		List<Object> newObjects = new ArrayList<Object>();
 		for (int x = 0; x < objects.size(); x++) {

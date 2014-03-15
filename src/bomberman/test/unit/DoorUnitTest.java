@@ -6,16 +6,13 @@ import static org.junit.Assert.assertTrue;
 import java.awt.Point;
 import java.util.Random;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import bomberman.client.Client;
 import bomberman.common.Command.Operation;
 import bomberman.common.model.Player;
-import bomberman.server.BombFactory;
 import bomberman.server.Server;
 import bomberman.test.ClientThread;
 import bomberman.test.ServerThread;

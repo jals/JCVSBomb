@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * 
  * @author Jarred Linthorne
- *
+ * 
  */
 public class Wall implements Serializable {
 
@@ -14,7 +14,8 @@ public class Wall implements Serializable {
 	private Point location;
 
 	/**
-	 * @param location : The location that the door is located at
+	 * @param location
+	 *            : The location that the door is located at
 	 */
 	public Wall(Point location) {
 		this.location = location;

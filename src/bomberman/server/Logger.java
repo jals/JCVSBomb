@@ -12,19 +12,18 @@ import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.Square;
 
-
 /**
- * Thread for logging Commands as they are processed by the server
- * Also logs any errors (e.g. trying to move into a wall), and logs
- * the game state everytime the server sends out a refresh of the board
+ * Thread for logging Commands as they are processed by the server Also logs any
+ * errors (e.g. trying to move into a wall), and logs the game state everytime
+ * the server sends out a refresh of the board
  * 
  * @author spbyron
- *
+ * 
  */
 
 public class Logger extends Thread {
 
-	// String constants. Are writted in the log file
+	// String constants. Are written in the log file
 	public static final String PLAYER = "PLAYER";
 	public static final String COMMAND = "COMMAND";
 	public static final String OPERATION = "OPERATION";
@@ -32,7 +31,7 @@ public class Logger extends Thread {
 	public static final String REFRESH = "REFRESH";
 	public static final String ERROR = "ERROR";
 	public static final String ID = "ID";
-	
+
 	// A BufferedWriter for writing out to the log file
 	private static BufferedWriter log;
 	// The full path to the log file
@@ -86,10 +85,9 @@ public class Logger extends Thread {
 	 * @param command
 	 */
 	public void logCommand(Command command, int player) {
-		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer()
-				+ "," + OPERATION + "=" + command.getOperation() + "," + ID + "=" + player);
+		writeStringToLog(COMMAND + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation() + "," + ID + "=" + player);
 	}
-	
+
 	/**
 	 * Log a grid refresh
 	 * 
@@ -113,10 +111,10 @@ public class Logger extends Thread {
 					for (int j = 0; j < Model.BOARD_SIZE; j++) {
 						if (board[i][j] == null) {
 							// Border
-							if (i==0 || i==11) {
-								grid+="-";
+							if (i == 0 || i == 11) {
+								grid += "-";
 							} else {
-								grid+="|";
+								grid += "|";
 							}
 						} else if (!board[i][j].canGo()) {
 							// Wall
@@ -133,14 +131,14 @@ public class Logger extends Thread {
 							grid += " ";
 						}
 					}
-					
+
 					// Make it look all pretty
-					if (i>9) {
+					if (i > 9) {
 						log.write(BOARD_STATE + ",Row" + i + "," + grid);
 					} else {
 						log.write(BOARD_STATE + ",Row " + i + "," + grid);
 					}
-					
+
 					log.newLine();
 					grid = new String();
 				}
@@ -158,8 +156,7 @@ public class Logger extends Thread {
 	 * @param error
 	 */
 	public void logError(Command command, String error) {
-		writeStringToLog(ERROR + "," + PLAYER + "=" + command.getPlayer() + ","
-				+ OPERATION + "=" + command.getOperation() + "," + error);
+		writeStringToLog(ERROR + "," + PLAYER + "=" + command.getPlayer() + "," + OPERATION + "=" + command.getOperation() + "," + error);
 	}
 
 	/**

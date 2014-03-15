@@ -47,8 +47,8 @@ public class Client {
 	public Client(String playerName, String host, int port, boolean showGui) throws Exception {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
-		// Next two lines will be overwritten when the client has joined
-		// the game
+		// Next two lines will be overwritten when the client has joined the
+		// game
 		ip = InetAddress.getByName(host);
 		this.port = port;
 		listenIp = InetAddress.getByName(host);
@@ -101,19 +101,21 @@ public class Client {
 		if (!testMode) {
 			Operation currentOperation = null;
 			while (isRunning()) {
-				if(System.currentTimeMillis() > (lastTime + 500)){
-					lastOp = null;	//reset the last operation after half a second
+				if (System.currentTimeMillis() > (lastTime + 500)) {
+					lastOp = null; // reset the last operation after half a
+									// second
 				}
-				
+
 				synchronized (lock) {
-					if(bc!=null){
+					if (bc != null) {
 						currentOperation = bc.getLastInput();
 					}
 				}
-				
-				//Ensure that the last operation is not the same as the current one, 
-				//to avoid repeated inputs from same key press
-				if(currentOperation != null && lastOp != currentOperation){
+
+				// Ensure that the last operation is not the same as the current
+				// one,
+				// to avoid repeated inputs from same key press
+				if (currentOperation != null && lastOp != currentOperation) {
 					processCommand(currentOperation);
 					lastOp = currentOperation;
 					lastTime = System.currentTimeMillis();
@@ -195,7 +197,7 @@ public class Client {
 			}
 
 		});
-		
+
 		listen.start();
 
 	}
@@ -216,30 +218,30 @@ public class Client {
 	public void shutDown() {
 		setRunning(false);
 		clientSocket.close();
-		
+
 		if (showGui) {
 			bc.dispose();
 		}
 	}
 
 	public boolean isRunning() {
-		synchronized(running) {
+		synchronized (running) {
 			return running;
 		}
 	}
-	
+
 	private void setRunning(boolean val) {
-		synchronized(running) {
+		synchronized (running) {
 			running = val;
 		}
 	}
-	
+
 	private synchronized Boolean isStarted() {
 		synchronized (started) {
 			return started;
 		}
 	}
-	
+
 	private void setStarted(boolean val) {
 		synchronized (started) {
 			started = val;

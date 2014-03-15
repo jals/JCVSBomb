@@ -6,9 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.awt.Point;
 import java.util.Random;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -104,6 +102,8 @@ public class BombUnitTest {
 		sleep(200);
 		assertTrue(factory.isBombAt(position));
 		
+		int startHealth = player.getHealth();
+		
 		// Wait for the bomb to explode
 		System.out.println("Waiting for bomb to explode...");
 		sleep(6200); // Bomb has max fuse of 6 seconds
@@ -114,7 +114,7 @@ public class BombUnitTest {
 		
 		player = server.getPlayer(PLAYER_NAME);
 		if (player != null) {
-			assertTrue(player.getHealth() == 0);
+			assertTrue(player.getHealth() == (startHealth-1));
 		}
 	}
 

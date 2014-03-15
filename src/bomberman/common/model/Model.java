@@ -11,14 +11,18 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * This class creates the grid. If nothing is specified, the grid is created randomly.
- * This can be created from a file, where 0 represents a blank space, 1 represents an inner wall, and 2 represents a door.
+ * This class creates the grid. If nothing is specified, the grid is created
+ * randomly. This can be created from a file, where 0 represents a blank space,
+ * 1 represents an inner wall, and 2 represents a door.
+ * 
  * @author Jarred Linthorne
- *
+ * 
  */
 public class Model {
-	public static final int BOARD_SIZE = 12;	//The size of the grid, including outer boundary
-	public static final int RIGHT = 1;	//These values are used when finding the closest spaces
+	// The size of the grid, including outer boundary
+	public static final int BOARD_SIZE = 12;
+	// These values are used when finding the closest spaces
+	public static final int RIGHT = 1;
 	public static final int LEFT = 2;
 	public static final int UP = 3;
 	public static final int DOWN = 4;
@@ -35,8 +39,10 @@ public class Model {
 
 	/**
 	 * 
-	 * @param filename : The path to the file to load the the grid from
-	 * @param grid : the grid, used to refresh the internal board
+	 * @param filename
+	 *            : The path to the file to load the the grid from
+	 * @param grid
+	 *            : the grid, used to refresh the internal board
 	 */
 	public Model(String filename, Square[][] grid) {
 		boxes = new ArrayList<Box>();
@@ -44,8 +50,7 @@ public class Model {
 		board = new Square[BOARD_SIZE][BOARD_SIZE];
 		if (!filename.isEmpty()) {
 			try {
-				input = readFile(filename, Charset.defaultCharset())
-						.replaceAll("\\s+", "");
+				input = readFile(filename, Charset.defaultCharset()).replaceAll("\\s+", "");
 			} catch (IOException e) {
 				System.err.println("ERROR: File could not be found/read.");
 				return;
@@ -61,10 +66,10 @@ public class Model {
 						door = new Door(new Point(j, k), false);
 						board[j][k].addObject(door);
 						setHasDoor(true);
-					} else if (input.substring(a, a+1).equals("P")){
+					} else if (input.substring(a, a + 1).equals("P")) {
 						PowerUp p = new PowerUp(new Point(j, k));
 						board[j][k].addObject(p);
-					} else if (input.substring(a, a+1).equals("B")){
+					} else if (input.substring(a, a + 1).equals("B")) {
 						Box b = new Box(new Point(j, k), null, null);
 						board[j][k].addObject(b);
 						boxes.add(b);
@@ -81,6 +86,7 @@ public class Model {
 
 	/**
 	 * Refresh the grid, setting the internal board to the passed grid
+	 * 
 	 * @param grid
 	 */
 	public void refreshGrid(Square[][] grid) {
@@ -90,8 +96,8 @@ public class Model {
 		playerList.clear();
 		for (int j = 1; j < BOARD_SIZE - 1; j++) {
 			for (int k = 1; k < BOARD_SIZE - 1; k++) {
-				if(board[j][k].getPlayer() != null){
-					if(!board[j][k].getPlayer().getName().equals("Enemy")){
+				if (board[j][k].getPlayer() != null) {
+					if (!board[j][k].getPlayer().getName().equals("Enemy")) {
 						playerList.add(board[j][k].getPlayer());
 					}
 				}
@@ -100,8 +106,9 @@ public class Model {
 	}
 
 	/**
-	 * This method is used to read a file from a file path and return the string 
+	 * This method is used to read a file from a file path and return the string
 	 * representation of the contents.
+	 * 
 	 * @param path
 	 * @param encoding
 	 * @throws IOException
@@ -112,16 +119,16 @@ public class Model {
 	}
 
 	/**
-	 * Make the maze randomly, filling in the grid with 0's and 1's.
-	 * Add the objects to the board while creating them.
+	 * Make the maze randomly, filling in the grid with 0's and 1's. Add the
+	 * objects to the board while creating them.
 	 */
 	private void makeMaze() {
 		int[][] maze = new int[BOARD_SIZE][BOARD_SIZE];
 		emptyBlocks = new Boolean[BOARD_SIZE][BOARD_SIZE];
 		for (int i = 1; i < BOARD_SIZE - 1; i++) {
 			for (int j = 1; j < BOARD_SIZE - 1; j++) {
-				//increasing this random number factor makes more walls spawn
-				maze[i][j] = rand.nextInt(8); 
+				// increasing this random number factor makes more walls spawn
+				maze[i][j] = rand.nextInt(8);
 				if (maze[i][j] == 0) {
 					maze[i][j] = 2;
 					emptyBlocks[i][j] = false;
@@ -133,11 +140,11 @@ public class Model {
 				}
 				board[i][j] = new Square();
 				board[i][j].addObject(maze[i][j]);
-				if(maze[i][j] == 1){
+				if (maze[i][j] == 1) {
 					Box b = new Box(new Point(i, j), null, null);
 					board[i][j].addObject(b);
 					boxes.add(b);
-				} else if(maze[i][j] == 2){
+				} else if (maze[i][j] == 2) {
 					board[i][j].addObject(new Wall(new Point(i, j)));
 				}
 			}
@@ -146,11 +153,12 @@ public class Model {
 
 	/**
 	 * This method is used to create paths between the randomly generated areas.
-	 * The algorithm looks for the closest block in each of the four directions(up, down, right, left)
-	 * and returns that value. It then looks for the next closest block in the other 
-	 * three directions. If both of these values are 1, then the square is already
-	 * connected to two blocks, otherwise, those blocks should be changed to be 
-	 * open space instead of a wall.
+	 * The algorithm looks for the closest block in each of the four
+	 * directions(up, down, right, left) and returns that value. It then looks
+	 * for the next closest block in the other three directions. If both of
+	 * these values are 1, then the square is already connected to two blocks,
+	 * otherwise, those blocks should be changed to be open space instead of a
+	 * wall.
 	 */
 	private void fixMaze() {
 		for (int i = 1; i < BOARD_SIZE - 1; i++) {
@@ -187,8 +195,9 @@ public class Model {
 	}
 
 	/**
-	 * These 4 methods are used to remove the blocks specified,
-	 * given the x or y position and number of spaces the closest block is.
+	 * These 4 methods are used to remove the blocks specified, given the x or y
+	 * position and number of spaces the closest block is.
+	 * 
 	 * @param x
 	 * @param y
 	 * @param spaces
@@ -196,40 +205,44 @@ public class Model {
 	private void adjustRight(int x, int y, int spaces) {
 		for (int i = y; i < y + spaces; i++) {
 			board[x][i + 1].removeLast();
-			if(!board[x][i + 1].hasBox()){
+			if (!board[x][i + 1].hasBox()) {
 				board[x][i + 1].addObject(0);
 			}
 		}
 	}
+
 	private void adjustLeft(int x, int y, int spaces) {
 		for (int i = y; i > y - spaces; i--) {
 			board[x][i - 1].removeLast();
-			if(!board[x][i - 1].hasBox()){
+			if (!board[x][i - 1].hasBox()) {
 				board[x][i - 1].addObject(0);
 			}
 		}
 	}
+
 	private void adjustUp(int x, int y, int spaces) {
 		for (int i = x; i > x - spaces; i--) {
 			board[i - 1][y].removeLast();
-			if(!board[i - 1][y].hasBox()){
+			if (!board[i - 1][y].hasBox()) {
 				board[i - 1][y].addObject(0);
 			}
 		}
 	}
+
 	private void adjustDown(int x, int y, int spaces) {
 		for (int i = x; i < x + spaces; i++) {
 			board[i + 1][y].removeLast();
-			if(!board[i + 1][y].hasBox()){
+			if (!board[i + 1][y].hasBox()) {
 				board[i + 1][y].addObject(0);
 			}
 		}
 	}
 
 	/**
-	 * This method returns the closest point in the form of a Point.
-	 * Where, Point.x = the closest value as the number of spaces between them,
-	 * 	and,  Point.y = the direction as an integer, ex. RIGHT
+	 * This method returns the closest point in the form of a Point. Where,
+	 * Point.x = the closest value as the number of spaces between them, and,
+	 * Point.y = the direction as an integer, ex. RIGHT
+	 * 
 	 * @param x
 	 * @param y
 	 * @param p
@@ -241,12 +254,13 @@ public class Model {
 		int up;
 		int down;
 		if (p != null) {
-			//This is the case when the method is called for the second time
+			// This is the case when the method is called for the second time
 			if (p.y != RIGHT) {
 				right = closestRight(x, y);
 			} else {
-				// default as highest value to ensure same point doesn't get chosen as closest twice
-				right = BOARD_SIZE; 
+				// default as highest value to ensure same point doesn't get
+				// chosen as closest twice
+				right = BOARD_SIZE;
 			}
 			if (p.y != LEFT) {
 				left = closestLeft(x, y);
@@ -264,14 +278,15 @@ public class Model {
 				down = BOARD_SIZE;
 			}
 		} else {
-			//This is the case when the method is called for the first time
+			// This is the case when the method is called for the first time
 			right = closestRight(x, y);
 			left = closestLeft(x, y);
 			up = closestUp(x, y);
 			down = closestDown(x, y);
 		}
 
-		//check for the lowest value, and return it as a point with the direction
+		// check for the lowest value, and return it as a point with the
+		// direction
 		if (right <= left && right <= up && right <= down) {
 			Point q = new Point();
 			q.x = right;
@@ -293,11 +308,12 @@ public class Model {
 			q.y = DOWN;
 			return q;
 		}
-		return null;	//this should never happen.
+		return null; // this should never happen.
 	}
 
 	/**
 	 * Find the closest space from the given square to the next open square
+	 * 
 	 * @param x
 	 * @param y
 	 * @return
@@ -308,8 +324,10 @@ public class Model {
 				return i - y;
 			}
 		}
-		return BOARD_SIZE; // return the largest value if no empty square is found
+		return BOARD_SIZE; // return the largest value if no empty square is
+							// found
 	}
+
 	private int closestLeft(int x, int y) {
 		for (int i = y - 1; i > 0; i--) {
 			if ((Integer) board[x][i].getObjects().get(0) == 0 && board[x][i].getBox() != null) {
@@ -318,6 +336,7 @@ public class Model {
 		}
 		return BOARD_SIZE;
 	}
+
 	private int closestUp(int x, int y) {
 		for (int i = x - 1; i > 0; i--) {
 			if ((Integer) board[i][y].getObjects().get(0) == 0 && board[x][i].getBox() != null) {
@@ -326,6 +345,7 @@ public class Model {
 		}
 		return BOARD_SIZE;
 	}
+
 	private int closestDown(int x, int y) {
 		for (int i = x + 1; i < BOARD_SIZE - 1; i++) {
 			if ((Integer) board[i][y].getObjects().get(0) == 0 && board[x][i].getBox() != null) {
@@ -370,24 +390,25 @@ public class Model {
 	public List<Box> getBoxes() {
 		return boxes;
 	}
-	
-	public Box getFreeBox(){
+
+	public Box getFreeBox() {
 		Random r = new Random();
 		int i = r.nextInt(boxes.size() + 1);
-		if(boxes != null){
-			while(boxes.get(i).getDoor() != null || boxes.get(i).getPowerUp() != null){ //don't return a box that already contains a door or a powerup
+		if (boxes != null) {
+			// don't return a box that already contains a door or a powerup
+			while (boxes.get(i).getDoor() != null || boxes.get(i).getPowerUp() != null) {
 				i = r.nextInt(boxes.size() + 1);
 			}
 		}
-		
+
 		return boxes.get(i);
 	}
 
 	public void setBoxes(List<Box> boxes) {
 		this.boxes = boxes;
 	}
-	
-	public ArrayList<Player> getPlayerList(){
+
+	public ArrayList<Player> getPlayerList() {
 		return playerList;
 	}
 }

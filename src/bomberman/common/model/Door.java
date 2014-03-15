@@ -7,7 +7,7 @@ import java.io.Serializable;
  * This is the class representation of the door/the exit to the level
  * 
  * @author Jarred Linthorne
- *
+ * 
  */
 public class Door implements Serializable {
 
@@ -16,8 +16,10 @@ public class Door implements Serializable {
 	private boolean isVisible;
 
 	/**
-	 * @param location : The location that the door is located at
-	 * @param isVisible : Whether or not the door is visible to the client
+	 * @param location
+	 *            The location that the door is located at
+	 * @param isVisible
+	 *            Whether or not the door is visible to the client
 	 */
 	public Door(Point location, boolean isVisible) {
 		this.location = location;

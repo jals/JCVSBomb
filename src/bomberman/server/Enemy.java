@@ -15,7 +15,7 @@ import bomberman.common.model.Player;
 public class Enemy implements Runnable {
 	Player p;
 	Server s;
-	
+
 	public Enemy(Server s, Player p) {
 		this.s = s;
 		this.p = p;

@@ -32,7 +32,7 @@ public class Command implements Serializable {
 		this.player = player;
 		this.operation = operation;
 	}
-	
+
 	public Command(String player, Operation operation, int identifier) {
 		this.player = player;
 		this.operation = operation;
@@ -50,12 +50,12 @@ public class Command implements Serializable {
 	public String toString() {
 		return player + ":" + operation;
 	}
-	
+
 	public boolean equals(Object object) {
 		if (!(object instanceof Command)) {
 			return false;
 		}
-		
+
 		Command command = (Command) object;
 		return command.getOperation().equals(getOperation()) && command.getPlayer().equals(getPlayer());
 	}

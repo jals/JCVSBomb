@@ -21,8 +21,7 @@ class Worker extends Thread {
 	DatagramSocket socket;
 	Player p;
 
-	public Worker(final Server server, final Player p,
-			final DatagramSocket socket) {
+	public Worker(final Server server, final Player p, final DatagramSocket socket) {
 		this.p = p;
 		this.server = server;
 		this.socket = socket;
@@ -35,8 +34,7 @@ class Worker extends Thread {
 			public void run() {
 				while (server.isRunning()) {
 					synchronized (server.getLock().readLock()) {
-						Utility.sendMessage(socket, server.getGrid(),
-								p.getAddress(), p.getPort());
+						Utility.sendMessage(socket, server.getGrid(), p.getAddress(), p.getPort());
 					}
 					if (!p.isAlive()) {
 						done();
@@ -61,8 +59,7 @@ class Worker extends Thread {
 	 */
 	public void run() {
 		// just an ack saying that the game has started.
-		Utility.sendMessage(socket, Command.Operation.START_GAME,
-				p.getAddress(), p.getPort());
+		Utility.sendMessage(socket, Command.Operation.START_GAME, p.getAddress(), p.getPort());
 
 		while (server.isRunning()) {
 			Object o = Utility.receiveMessage(socket);
@@ -77,8 +74,7 @@ class Worker extends Thread {
 
 			if (c.getOperation().isMove()) {
 				Point location = p.getLocation();
-				Point newLocation = Utility.getLocation(c.getOperation(),
-						location);
+				Point newLocation = Utility.getLocation(c.getOperation(), location);
 				if (server.canGo(newLocation.x, newLocation.y)) {
 					p.setLocation(newLocation);
 				} else {
@@ -102,8 +98,7 @@ class Worker extends Thread {
 	private void done() {
 		server.removePlayer(p);
 		server.refreshGrid();
-		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME,
-				p.getAddress(), p.getPort());
+		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME, p.getAddress(), p.getPort());
 
 	}
 

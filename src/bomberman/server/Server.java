@@ -51,6 +51,7 @@ public class Server {
 
 	/**
 	 * Instantiates a Server object with the given map
+	 * 
 	 * @param port
 	 * @param testing
 	 * @param map
@@ -58,10 +59,11 @@ public class Server {
 	 */
 	public Server(int port, boolean testing, String map, boolean enemies) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
-		/**Set the map variable to the empty string to see the box creation.
-			//TODO Read files in a new way to allow for boxes with things inside of them
-		**/
-		//map = "";
+		/**
+		 * Set the map variable to the empty string to see the box creation.
+		 * //TODO Read files in a new way to allow for boxes with things inside
+		 * of them
+		 **/
 		grid = new Model(map, null);
 		serverSocket = new DatagramSocket(port);
 		gridLock = new ReentrantReadWriteLock();
@@ -72,16 +74,18 @@ public class Server {
 			b.setDoor(door);
 		} else {
 			door = grid.getDoor();
-			grid.getBoard()[door.getLocation().x][door.getLocation().y]
-					.addObject(door); // if loaded from file
+			grid.getBoard()[door.getLocation().x][door.getLocation().y].addObject(door); // if
+																							// loaded
+																							// from
+																							// file
 		}
 
-		if(map.isEmpty()){
+		if (map.isEmpty()) {
 			Box b = grid.getFreeBox();
 			PowerUp p = new PowerUp(new Point(b.getLocation().x, b.getLocation().y));
 			b.setPowerUp(p);
 		}
-		
+
 		bombFactory = new BombFactory(this);
 		logger = new Logger();
 		logger.start();
@@ -91,6 +95,7 @@ public class Server {
 
 	/**
 	 * Instantiates a Server object with the default map
+	 * 
 	 * @param port
 	 * @param testing
 	 * @throws SocketException
@@ -110,7 +115,7 @@ public class Server {
 	protected Square[][] getGrid() {
 		return grid.getBoard();
 	}
-	
+
 	protected ReadWriteLock getLock() {
 		return gridLock;
 	}
@@ -149,8 +154,7 @@ public class Server {
 			int y = random.nextInt(Model.BOARD_SIZE - 2) + 1;
 			boolean condition;
 			synchronized (gridLock.readLock()) {
-				condition = grid.getBoard()[x][y].numPlayers() == 0
-						&& grid.getBoard()[x][y].canGo();
+				condition = grid.getBoard()[x][y].numPlayers() == 0 && grid.getBoard()[x][y].canGo();
 			}
 			if (condition) {
 				isOkay = true;
@@ -176,24 +180,23 @@ public class Server {
 			// Open the door if the player is at the door.
 			for (Player p : listOfPlayers) {
 				grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
-				if(!p.getName().equals("Enemy")){ //Don't do specific player actions for enemies
-      				if (door != null) {
-      					if (p.getLocation().x == door.getLocation().x
-      							&& p.getLocation().y == door.getLocation().y) {
-      						door.setVisible(true);
-      					}
-      				}
-      				PowerUp powerUp = grid.getBoard()[p.getLocation().x][p
-      						.getLocation().y].removePowerUp();
-      				if (powerUp != null) {
-      					p.addPowerUp(powerUp);
-      				}
+				if (!p.getName().equals("Enemy")) { // Don't do specific player
+													// actions for enemies
+					if (door != null) {
+						if (p.getLocation().x == door.getLocation().x && p.getLocation().y == door.getLocation().y) {
+							door.setVisible(true);
+						}
+					}
+					PowerUp powerUp = grid.getBoard()[p.getLocation().x][p.getLocation().y].removePowerUp();
+					if (powerUp != null) {
+						p.addPowerUp(powerUp);
+					}
 				}
 			}
 			// Check if two players are at the same location.
 			// if yes, kill both of them
-			if(listOfPlayers.size() > 0){
-				for(int i = 0; i < listOfPlayers.size(); i++){
+			if (listOfPlayers.size() > 0) {
+				for (int i = 0; i < listOfPlayers.size(); i++) {
 					Player p = listOfPlayers.get(i);
 					for (Player q : listOfPlayers) {
 						if (p != q && p.getLocation().equals(q.getLocation())) {
@@ -203,7 +206,7 @@ public class Server {
 					}
 				}
 			}
-			
+
 			prunePlayers();
 		}
 
@@ -222,8 +225,7 @@ public class Server {
 			if (p.isAlive()) {
 				newPlayers.add(p);
 			} else {
-				grid.getBoard()[p.getLocation().x][p.getLocation().y]
-						.removePlayers();
+				grid.getBoard()[p.getLocation().x][p.getLocation().y].removePlayers();
 			}
 		}
 		listOfPlayers = newPlayers;
@@ -232,35 +234,31 @@ public class Server {
 	public static void main(String[] args) {
 		Server server = null;
 		if (args.length < 2) {
-			System.out
-					.println("Please specify two command line arguments. 0/1 for not testing/testing, and port number.");
+			System.out.println("Please specify two command line arguments. 0/1 for not testing/testing, and port number.");
 			return;
 		}
 		if (Integer.parseInt(args[0]) == 0) {
 			try {
 				server = new Server(Integer.parseInt(args[1]), false, true);
 			} catch (Exception e) {
-				System.err
-						.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
+				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
 			}
 		} else {
 			try {
 				server = new Server(Integer.parseInt(args[1]), true, true);
 			} catch (Exception e) {
-				System.err
-						.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
+				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
 			}
 		}
 		server.startServer();
 	}
 
 	/**
-	 * Starts up the server. 
+	 * Starts up the server.
 	 */
 	public void startServer() {
 		byte[] receiveData = new byte[1024 * 100];
-		DatagramPacket packet = new DatagramPacket(receiveData,
-				receiveData.length);
+		DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
 		List<Worker> workers = new LinkedList<Worker>();
 		while (!gameStarted) {
 			try {
@@ -270,15 +268,13 @@ public class Server {
 					// Socket was closed, just return (no error)
 					return;
 				}
-				System.err
-						.println("ERROR: Could not receive packet from a socket.");
+				System.err.println("ERROR: Could not receive packet from a socket.");
 			}
 			Object o = null;
 			try {
 				o = Utility.deserialize(packet.getData());
 			} catch (Exception e) {
-				System.err
-						.println("ERROR: Could not deserialize the packet data.");
+				System.err.println("ERROR: Could not deserialize the packet data.");
 			}
 			Command c = (Command) o;
 
@@ -287,25 +283,28 @@ public class Server {
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
-			
+
 			// Log the command
 			Player player = getPlayer(c.getPlayer());
 			if (player != null) {
 				logger.logCommand(c, player.getIdentifier());
 			}
 		}
-		// TODO (Sean Byron): What to do with this while testing?
-		// TODO (Jarred Linthorne): Figure out a way to represent him differently
+		// TODO (Sean Byron): What to do with this while testing? 
+		//		I opted for adding a flag to remove enemies, that way
+		//		they don't interfere with testing
+		// TODO (Jarred Linthorne): Figure out a way to represent him
+		// differently
 		// TODO (Vinayak Bansal): If an enemy hits a player, the enemy dies too.
 		// Do we want this?
 		// TODO (Jarred Linthorne): The enemy can open doors, as of now
-		
+
 		if (enemies) {
 			final Player enemy = getNewPlayer("Enemy");
 			listOfPlayers.add(enemy);
 			new Thread(new Enemy(this, enemy)).start();
 		}
-		
+
 		bombFactory.start();
 		for (Worker worker : workers) {
 			worker.start();
@@ -318,15 +317,13 @@ public class Server {
 					// Socket was closed, just return (no error)
 					return;
 				}
-				System.err
-						.println("ERROR: Could not receive packet from a socket.");
+				System.err.println("ERROR: Could not receive packet from a socket.");
 			}
 			Object o = null;
 			try {
 				o = Utility.deserialize(packet.getData());
 			} catch (Exception e) {
-				System.err
-						.println("ERROR: Could not deserialize the packet data.");
+				System.err.println("ERROR: Could not deserialize the packet data.");
 			}
 			Command c = (Command) o;
 
@@ -335,13 +332,13 @@ public class Server {
 			} catch (SocketException e) {
 				System.err.println("ERROR: Couldn't add player.");
 			}
-			
+
 			// Log the command
 			Player player = getPlayer(c.getPlayer());
 			if (player != null) {
 				logger.logCommand(c, player.getIdentifier());
 			}
-			
+
 		}
 
 		serverSocket.close();
@@ -360,11 +357,10 @@ public class Server {
 	 * @param c
 	 *            : What was the command that a client sent.
 	 * @param hasStarted
-	 * 			  : True if the game has started
+	 *            : True if the game has started
 	 * @return: True if it was a start_game call
 	 */
-	private boolean addPlayer(DatagramPacket packet, List<Worker> workers,
-			Command c, boolean hasStarted) throws SocketException {
+	private boolean addPlayer(DatagramPacket packet, List<Worker> workers, Command c, boolean hasStarted) throws SocketException {
 		Player p = null;
 
 		// if JOIN_GAME is received add the player to the game
@@ -387,10 +383,10 @@ public class Server {
 		}
 		return false;
 	}
-	
+
 	private Player getNewPlayer(String name) {
 		Player toReturn;
-		if(name.equals("Enemy")){
+		if (name.equals("Enemy")) {
 			toReturn = new Player(name, 0);
 		} else {
 			toReturn = new Player(name, playerId);
@@ -399,7 +395,7 @@ public class Server {
 				playerId = 1;
 			}
 		}
-		
+
 		toReturn.setIsAlive(true);
 		if (!isTesting) {
 			// Random location if we are not testing.
@@ -412,18 +408,17 @@ public class Server {
 			if (numPlayers == 0) {
 				toReturn.setLocation(new Point(1, 1));
 			} else {
-				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2,
-						Model.BOARD_SIZE - 2));
+				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2, Model.BOARD_SIZE - 2));
 
 			}
 		}
 		return toReturn;
-		
+
 	}
 
 	protected void addBomb(int x, int y) {
 		Random rand = new Random();
-		int time = rand.nextInt(3000) + 3000; //between 3 and 6 seconds
+		int time = rand.nextInt(3000) + 3000; // between 3 and 6 seconds
 		synchronized (gridLock.writeLock()) {
 			Bomb b = new Bomb(new Point(x, y), time);
 			grid.getBoard()[x][y].addObject(b);
@@ -435,22 +430,22 @@ public class Server {
 		synchronized (gridLock.writeLock()) {
 			grid.getBoard()[x][y].removeBomb();
 			grid.getBoard()[x][y].addObject(new Explosion(true, new Point(x, y)));
-			for (Player p: listOfPlayers) {
-				if (p.getLocation().distance(new Point(x,y)) <= 1) {
+			for (Player p : listOfPlayers) {
+				if (p.getLocation().distance(new Point(x, y)) <= 1) {
 					p.takeHit();
 				}
 			}
-			
-			for(Box b: grid.getBoxes()){
-				if(b.getLocation().distance(new Point(x, y)) <=1 ){
-					if(b.getDoor() != null){
+
+			for (Box b : grid.getBoxes()) {
+				if (b.getLocation().distance(new Point(x, y)) <= 1) {
+					if (b.getDoor() != null) {
 						grid.getBoard()[b.getLocation().x][b.getLocation().y].addObject(b.getDoor());
 						b.setDoor(null);
-					} else if(b.getPowerUp() != null){
+					} else if (b.getPowerUp() != null) {
 						grid.getBoard()[b.getLocation().x][b.getLocation().y].addObject(b.getPowerUp());
 						b.setPowerUp(null);
 					}
-					
+
 					grid.getBoard()[b.getLocation().x][b.getLocation().y].removeBox();
 				}
 			}
@@ -469,10 +464,11 @@ public class Server {
 
 			});
 			explosion.start();
-			
+
 			prunePlayers();
 		}
 	}
+
 	protected DatagramSocket getServerSocket() {
 		return serverSocket;
 	}
@@ -493,11 +489,11 @@ public class Server {
 	public synchronized boolean isRunning() {
 		return running;
 	}
-	
+
 	public boolean isGameStarted() {
 		return gameStarted;
 	}
-	
+
 	public Point getPlayerLocation(String name) {
 		Player player = getPlayer(name);
 		if (player == null) {
@@ -505,9 +501,9 @@ public class Server {
 		}
 		return player.getLocation();
 	}
-	
+
 	public Player getPlayer(String name) {
-		for(Player player : listOfPlayers) {
+		for (Player player : listOfPlayers) {
 			if (player.getName().equals(name)) {
 				return player;
 			}
@@ -518,7 +514,7 @@ public class Server {
 	public BombFactory getBombFactory() {
 		return bombFactory;
 	}
-	
+
 	public Door getDoor() {
 		return door;
 	}

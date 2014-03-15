@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * 
  * @author Jarred Linthorne
- *
+ * 
  */
 public class PowerUp implements Serializable {
 
@@ -14,7 +14,8 @@ public class PowerUp implements Serializable {
 	private Point location;
 
 	/**
-	 * @param location : The location that the door is located at
+	 * @param location
+	 *            The location that the door is located at
 	 */
 	public PowerUp(Point location) {
 		this.location = location;

@@ -13,11 +13,11 @@ import bomberman.server.Server;
 public class ServerThread extends Thread {
 
 	private Server server;
-	
+
 	public ServerThread() {
 		this(9876, false);
 	}
-	
+
 	public ServerThread(int port, boolean enemies) {
 		try {
 			server = new Server(port, true, enemies);
@@ -31,10 +31,10 @@ public class ServerThread extends Thread {
 	 */
 	public void run() {
 		server.startServer();
-		
-		while(server.isRunning()) {
+
+		while (server.isRunning()) {
 		}
-		
+
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class ServerThread extends Thread {
 	public String getLogFile() {
 		return Server.getLogFile();
 	}
-	
+
 	public void shutdown() {
 		server.shutdownServer();
 	}
