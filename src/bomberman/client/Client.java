@@ -42,8 +42,9 @@ public class Client {
 	private Operation lastOp;
 	private long lastTime;
 	private Object lock = new Object();
+	private boolean showGui;
 
-	public Client(String playerName, String host, int port) throws Exception {
+	public Client(String playerName, String host, int port, boolean showGui) throws Exception {
 		this.playerName = playerName;
 		clientSocket = new DatagramSocket();
 		// Next two lines will be overwritten when the client has joined
@@ -53,6 +54,7 @@ public class Client {
 		listenIp = InetAddress.getByName(host);
 		this.listenPort = port;
 		started = false;
+		this.showGui = showGui;
 	}
 
 	/**
@@ -73,17 +75,18 @@ public class Client {
 		Client client = null;
 
 		try {
-			client = new Client(sanitizeName(scanner.nextLine()), args[0], Integer.parseInt(args[1]));
+			client = new Client(sanitizeName(scanner.nextLine()), args[0], Integer.parseInt(args[1]), true);
 		} catch (Exception e) {
 			System.err.println("ERROR: Client could not be created properly.\n");
 			scanner.close();
 			return;
 		}
 
-		client.startClient(false, scanner);
+		scanner.close();
+		client.startClient(false);
 	}
 
-	public void startClient(boolean testMode, Scanner scanner) {
+	public void startClient(boolean testMode) {
 		// Join a game
 		try {
 			joinGame();
@@ -116,7 +119,6 @@ public class Client {
 					lastTime = System.currentTimeMillis();
 				}
 			}
-			scanner.close();
 		}
 	}
 
@@ -176,13 +178,15 @@ public class Client {
 							}
 						}
 					} else { // we need to refresh the grid.
-						synchronized (lock) {
-							if (bc == null) {
-								bc = new BombermanClient((Square[][]) grid);
-								bc.setVisible(true);
-							} else {
-								if (grid instanceof Square[][]) {
-									bc.refresh((Square[][]) grid);
+						if (showGui) {
+							synchronized (lock) {
+								if (bc == null) {
+									bc = new BombermanClient((Square[][]) grid);
+									bc.setVisible(true);
+								} else {
+									if (grid instanceof Square[][]) {
+										bc.refresh((Square[][]) grid);
+									}
 								}
 							}
 						}
@@ -212,7 +216,10 @@ public class Client {
 	public void shutDown() {
 		setRunning(false);
 		clientSocket.close();
-		bc.dispose();
+		
+		if (showGui) {
+			bc.dispose();
+		}
 	}
 
 	public boolean isRunning() {

@@ -24,14 +24,14 @@ public class ClientThread extends Thread {
 	
 	public ClientThread(String player, int port) {
 		try {
-			client = new Client(player, "127.0.0.1", port);
+			client = new Client(player, "127.0.0.1", port, false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public void run() {
-		client.startClient(true, null); // no need to send a scanner
+		client.startClient(true);
 		
 		while (client.isRunning()) {
 			

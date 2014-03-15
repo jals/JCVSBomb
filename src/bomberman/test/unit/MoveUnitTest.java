@@ -21,15 +21,15 @@ import bomberman.test.ServerThread;
 
 public class MoveUnitTest {
 	
-	ServerThread serverThread;
-	ClientThread clientThread;
-	Client client;
-	Server server;
+	static ServerThread serverThread;
+	static ClientThread clientThread;
+	static Client client;
+	static Server server;
 	
 	private static String PLAYER_NAME = "test";
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void setUp() throws Exception {
 		Random rand = new Random();
 		int  port = rand.nextInt(500) + 9500;
 		
@@ -65,8 +65,8 @@ public class MoveUnitTest {
 		System.out.println("Game started");
 	}
 	
-	@After
-	public void tearDown() throws Exception {
+	@AfterClass
+	public static void tearDown() throws Exception {
 		System.out.println("Shutting down server");
 		serverThread.shutdown();
 		System.out.println("Shutting down client");

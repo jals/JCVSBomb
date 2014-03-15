@@ -1,5 +1,6 @@
 package bomberman.test.unit;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Point;
@@ -21,15 +22,15 @@ import bomberman.test.ServerThread;
 
 public class BombUnitTest {
 	
-	ServerThread serverThread;
-	ClientThread clientThread;
-	Client client;
-	Server server;
+	static ServerThread serverThread;
+	static ClientThread clientThread;
+	static Client client;
+	static Server server;
 	
 	private static String PLAYER_NAME = "test";
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void setUp() throws Exception {
 		Random rand = new Random();
 		int  port = rand.nextInt(500) + 9500;
 		
@@ -65,12 +66,15 @@ public class BombUnitTest {
 		System.out.println("Game started");
 	}
 	
-	@After
-	public void tearDown() throws Exception {
+	@AfterClass
+	public static void tearDown() throws Exception {
 		System.out.println("Shutting down server");
 		serverThread.shutdown();
+		server.shutdownServer();
 		System.out.println("Shutting down client");
 		clientThread.shutdown();
+		client.shutDown();
+		
 		serverThread.join();
 		clientThread.join();
 		System.out.println("Shut down successfully");
@@ -80,6 +84,8 @@ public class BombUnitTest {
 	public void testDropBomb() {
 		System.out.println("Testing dropping bombs");
 		BombFactory factory = server.getBombFactory();
+		
+		// Drop a bomb
 		Point position = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.DROP_BOMB);
 		sleep(200);
@@ -103,11 +109,16 @@ public class BombUnitTest {
 		
 		// Wait for the bomb to explode
 		System.out.println("Waiting for bomb to explode...");
-		sleep(6200);
+		sleep(6200); // Bomb has max fuse of 6 seconds
 		System.out.println("Done waiting.");
 		
+		// Make sure the bomb exploded
+		assertFalse(factory.isBombAt(position));
+		
 		player = server.getPlayer(PLAYER_NAME);
-		assertTrue(player == null);
+		if (player != null) {
+			assertTrue(player.getHealth() == 0);
+		}
 	}
 
 	private static void sleep(int i) {
