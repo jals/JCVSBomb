@@ -3,6 +3,7 @@ package bomberman.test.unit;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.awt.Point;
 import java.util.Random;
 
 import org.junit.AfterClass;
@@ -13,11 +14,12 @@ import bomberman.client.Client;
 import bomberman.common.Command.Operation;
 import bomberman.common.model.Player;
 import bomberman.common.model.Square;
+import bomberman.server.BombFactory;
 import bomberman.server.Server;
 import bomberman.test.ClientThread;
 import bomberman.test.ServerThread;
 
-public class HealthUnitTest {
+public class BoxUnitTest {
 	
 	static ServerThread serverThread;
 	static ClientThread clientThread;
@@ -75,24 +77,61 @@ public class HealthUnitTest {
 	}
 	
 	@Test
-	public void testFindHealth() {
+	public void testExplodeBoxGetHealth() {
 		Player player = server.getPlayer(PLAYER_NAME);
 		int startHealth = player.getHealth();
 		
-		Square square = server.getSquare(10,5);
+		BombFactory factory = server.getBombFactory();
+		Square square = server.getSquare(3, 3);
+		assertTrue(square.hasBox());
+		
+		System.out.println("Moving to the box");
+		
+		// Move down 2 times
+		client.processCommand(Operation.MOVE_DOWN);
+		sleep(200);
+		client.processCommand(Operation.MOVE_DOWN);
+		sleep(200);
+		
+		// Move right 1
+		client.processCommand(Operation.MOVE_RIGHT);
+		sleep(200);
+		
+		System.out.println("Blowing up the box");
+		
+		// Drop a bomb
+		client.processCommand(Operation.DROP_BOMB);
+		sleep(200);
+		
+		Point bombLocation = server.getPlayerLocation(PLAYER_NAME);
+		
+		// Make sure the bomb is there
+		assertTrue(factory.isBombAt(bombLocation));
+		
+		// Move out of the way
+		client.processCommand(Operation.MOVE_LEFT);
+		sleep(200);
+		client.processCommand(Operation.MOVE_UP);
+		sleep(200);
+		
+		// Wait for the bomb to explode
+		System.out.println("Waiting for bomb to explode...");
+		sleep(6200); // Bomb has max fuse of 6 seconds
+		System.out.println("Done waiting.");
+		
+		// Box should have blown up leaving a power up
+		assertFalse(square.hasBox());
 		assertTrue(square.hasPowerUp());
 		
-		// Move down 9 times
-		for (int i=0; i<9; i++) {
-			client.processCommand(Operation.MOVE_DOWN);
-			sleep(200);
-		}
+		System.out.println("Moving to get the power up");
 		
-		// Move right 4 times
-		for (int i=0; i<4; i++) {
-			client.processCommand(Operation.MOVE_RIGHT);
-			sleep(200);
-		}
+		// Move to get the power up
+		client.processCommand(Operation.MOVE_DOWN);
+		sleep(200);
+		client.processCommand(Operation.MOVE_RIGHT);
+		sleep(200);
+		client.processCommand(Operation.MOVE_RIGHT);
+		sleep(200);
 		
 		assertTrue(player.getHealth() == (startHealth + 1));
 		assertFalse(square.hasPowerUp());

@@ -507,4 +507,8 @@ public class Server {
 	public Door getDoor() {
 		return door;
 	}
+	
+	public Square getSquare(int x, int y) {
+		return grid.getBoard()[x][y];
+	}
 }
