@@ -101,7 +101,7 @@ public class Client {
 		if (!testMode) {
 			Operation currentOperation = null;
 			while (isRunning()) {
-				if (System.currentTimeMillis() > (lastTime + 500)) {
+				if (System.currentTimeMillis() > (lastTime + 250)) {
 					lastOp = null; // reset the last operation after half a
 									// second
 				}

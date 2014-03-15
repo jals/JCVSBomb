@@ -73,6 +73,17 @@ public class Model {
 						Box b = new Box(new Point(j, k), null, null);
 						board[j][k].addObject(b);
 						boxes.add(b);
+					} else if (input.substring(a, a+1).equals("E")){ //Door in a box
+						door = new Door(new Point(j, k), false);
+						setHasDoor(true);
+						Box b = new Box(new Point(j, k), door, null);
+						board[j][k].addObject(b);
+						boxes.add(b);
+					} else if (input.substring(a, a+1).equals("Q")){ //Powerup in a box
+						PowerUp p = new PowerUp(new Point(j, k));
+						Box b = new Box(new Point(j, k), null, p);
+						board[j][k].addObject(b);
+						boxes.add(b);
 					}
 					a++;
 				}

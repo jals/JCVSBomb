@@ -111,7 +111,7 @@ public class Logger extends Thread {
 					for (int j = 0; j < Model.BOARD_SIZE; j++) {
 						if (board[i][j] == null) {
 							// Border
-							if (i == 0 || i == 11) {
+							if (i == 0 || i == Model.BOARD_SIZE - 1) {
 								grid += "-";
 							} else {
 								grid += "|";

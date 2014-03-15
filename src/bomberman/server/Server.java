@@ -61,8 +61,6 @@ public class Server {
 		listOfPlayers = new ArrayList<Player>();
 		/**
 		 * Set the map variable to the empty string to see the box creation.
-		 * //TODO Read files in a new way to allow for boxes with things inside
-		 * of them
 		 **/
 		grid = new Model(map, null);
 		serverSocket = new DatagramSocket(port);
@@ -74,10 +72,6 @@ public class Server {
 			b.setDoor(door);
 		} else {
 			door = grid.getDoor();
-			grid.getBoard()[door.getLocation().x][door.getLocation().y].addObject(door); // if
-																							// loaded
-																							// from
-																							// file
 		}
 
 		if (map.isEmpty()) {
@@ -172,8 +166,8 @@ public class Server {
 	 */
 	protected void refreshGrid() {
 		synchronized (gridLock.writeLock()) {
-			for (int x = 1; x < 11; x++) {
-				for (int y = 1; y < 11; y++) {
+			for (int x = 1; x < Model.BOARD_SIZE - 1; x++) {
+				for (int y = 1; y < Model.BOARD_SIZE - 1; y++) {
 					grid.getBoard()[x][y].removePlayers();
 				}
 			}
@@ -293,11 +287,6 @@ public class Server {
 		// TODO (Sean Byron): What to do with this while testing? 
 		//		I opted for adding a flag to remove enemies, that way
 		//		they don't interfere with testing
-		// TODO (Jarred Linthorne): Figure out a way to represent him
-		// differently
-		// TODO (Vinayak Bansal): If an enemy hits a player, the enemy dies too.
-		// Do we want this?
-		// TODO (Jarred Linthorne): The enemy can open doors, as of now
 
 		if (enemies) {
 			final Player enemy = getNewPlayer("Enemy");
