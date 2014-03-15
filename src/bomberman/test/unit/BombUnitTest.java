@@ -112,7 +112,6 @@ public class BombUnitTest {
 		// Make sure the bomb exploded
 		assertFalse(factory.isBombAt(position));
 		
-		player = server.getPlayer(PLAYER_NAME);
 		if (player != null) {
 			assertTrue(player.getHealth() == (startHealth-1));
 		}
