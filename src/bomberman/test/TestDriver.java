@@ -65,15 +65,23 @@ public class TestDriver {
 		String input = console.nextLine();
 
 		while (!input.equals("exit")) {
-
 			if (input.equals("all")) {
 				runAll(files);
+			} else if (input.equals("exit")) {
+				break;
 			} else {
-				int numEntered = Integer.parseInt(input);
-				if (numEntered < files.length) {
+				int numEntered = -1;
+				
+				try {
+					numEntered = Integer.parseInt(input);
+				} catch (Exception e) {
+					// Do nothing
+				}
+				
+				if (numEntered < files.length && numEntered > -1) {
 					executeTestCase(files[numEntered]);
 				} else {
-					System.out.println("Invalid number entered. Please enter a number between 0 and " + (files.length - 1));
+					System.out.println("\nInvalid number entered. Please enter a number between 0 and " + (files.length - 1));
 				}
 
 				for (int i = 0; i < files.length; i++) {
@@ -106,6 +114,7 @@ public class TestDriver {
 	 * @param file
 	 */
 	private static void executeTestCase(File file) {
+		System.out.println("Executing test case " + file.getName());
 		String logFile = runTest(file);
 
 		if (!verifyServerLog(logFile)) {
@@ -247,7 +256,8 @@ public class TestDriver {
 					if (commands.contains(command)) {
 						commands.remove(command);
 					} else {
-						return false;
+						System.out.println("ERROR: Command not received by the server: " + command);
+						ret = false;
 					}
 				} else if (split[0].equals(Logger.BOARD_STATE)) {
 					String[][] state = new String[12][12];
@@ -265,7 +275,8 @@ public class TestDriver {
 					} else {
 						boolean check = checkMoveCommands(commandsFromLog, prevBoardState, state);
 						if (!check) {
-							return false;
+							System.out.println("ERROR: The following commands were not interpreted properly: " + commandsFromLog);
+							ret = false;
 						}
 						prevBoardState = state;
 						commandsFromLog = new ArrayList<Command>();
@@ -354,6 +365,7 @@ public class TestDriver {
 				if (finalPosition != null) {
 					// Make sure the two positions are the same
 					if (!finalPosition.equals(playerPosition)) {
+						System.out.println("ERROR: Player not in the expected position");
 						ret = false;
 					}
 				}
