@@ -15,12 +15,12 @@ public class ServerThread extends Thread {
 	private Server server;
 	
 	public ServerThread() {
-		this(9876);
+		this(9876, false);
 	}
 	
-	public ServerThread(int port) {
+	public ServerThread(int port, boolean enemies) {
 		try {
-			server = new Server(port, true);
+			server = new Server(port, true, enemies);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}

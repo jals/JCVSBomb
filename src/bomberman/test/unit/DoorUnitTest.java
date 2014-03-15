@@ -1,5 +1,6 @@
 package bomberman.test.unit;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Point;
@@ -19,7 +20,7 @@ import bomberman.server.Server;
 import bomberman.test.ClientThread;
 import bomberman.test.ServerThread;
 
-public class MoveUnitTest {
+public class DoorUnitTest {
 	
 	static ServerThread serverThread;
 	static ClientThread clientThread;
@@ -77,50 +78,23 @@ public class MoveUnitTest {
 	}
 	
 	@Test
-	public void testMove() {
-		System.out.println("Testing move operations");
+	public void testFindDoor() {
+		assertFalse(server.getDoor().isVisible());
 		
-		// Test moving down
-		Point initial = server.getPlayerLocation(PLAYER_NAME);
-		client.processCommand(Operation.MOVE_DOWN);
-		sleep(200);
-		Point end = server.getPlayerLocation(PLAYER_NAME);
-		assertTrue(initial.y == end.y);
-		assertTrue(end.x == (initial.x+1));
-
-		// Test moving up
-		initial = server.getPlayerLocation(PLAYER_NAME);
-		client.processCommand(Operation.MOVE_UP);
-		sleep(200);
-		end = server.getPlayerLocation(PLAYER_NAME);
-		assertTrue(initial.y == end.y);
-		assertTrue(end.x == (initial.x-1));
-
-		// Test moving right
-		initial = server.getPlayerLocation(PLAYER_NAME);
+		// Move right 4 times to the door
 		client.processCommand(Operation.MOVE_RIGHT);
 		sleep(200);
-		end = server.getPlayerLocation(PLAYER_NAME);
-		assertTrue((initial.y+1) == end.y);
-		assertTrue(end.x == initial.x);
-
-		// Test moving left
-		initial = server.getPlayerLocation(PLAYER_NAME);
-		client.processCommand(Operation.MOVE_LEFT);
+		client.processCommand(Operation.MOVE_RIGHT);
 		sleep(200);
-		end = server.getPlayerLocation(PLAYER_NAME);
-		assertTrue((initial.y-1) == end.y);
-		assertTrue(end.x == initial.x);
+		client.processCommand(Operation.MOVE_RIGHT);
+		sleep(200);
+		client.processCommand(Operation.MOVE_RIGHT);
+		sleep(200);
 		
-		// Test moving repeatedly up into the wall
-		initial = server.getPlayerLocation(PLAYER_NAME);
-		client.processCommand(Operation.MOVE_UP);
-		client.processCommand(Operation.MOVE_UP);
-		client.processCommand(Operation.MOVE_UP);
-		sleep(200);
-		end = server.getPlayerLocation(PLAYER_NAME);
-		assertTrue(initial.y == end.y);
-		assertTrue(end.x == initial.x);
+		assertTrue(server.getDoor().isVisible());
+		
+		Point location = server.getPlayerLocation(PLAYER_NAME);
+		assertTrue(server.getDoor().getLocation().equals(location));
 	}
 
 	private static void sleep(int i) {

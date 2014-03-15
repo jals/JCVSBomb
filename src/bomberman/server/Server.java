@@ -47,6 +47,7 @@ public class Server {
 	private boolean gameStarted = false;
 	private ReadWriteLock gridLock;
 	private BombFactory bombFactory;
+	private boolean enemies;
 
 	/**
 	 * Instantiates a Server object with the given map
@@ -55,7 +56,7 @@ public class Server {
 	 * @param map
 	 * @throws SocketException
 	 */
-	public Server(int port, boolean testing, String map) throws SocketException {
+	public Server(int port, boolean testing, String map, boolean enemies) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
 		/**Set the map variable to the empty string to see the box creation.
 			//TODO Read files in a new way to allow for boxes with things inside of them
@@ -85,6 +86,7 @@ public class Server {
 		logger = new Logger();
 		logger.start();
 		isTesting = testing;
+		this.enemies = enemies;
 	}
 
 	/**
@@ -93,8 +95,8 @@ public class Server {
 	 * @param testing
 	 * @throws SocketException
 	 */
-	public Server(int port, boolean testing) throws SocketException {
-		this(port, testing, "src/bomberman/gui/defaultMap.txt");
+	public Server(int port, boolean testing, boolean enemies) throws SocketException {
+		this(port, testing, "src/bomberman/gui/defaultMap.txt", enemies);
 	}
 
 	protected void removePlayer(Player p) {
@@ -236,14 +238,14 @@ public class Server {
 		}
 		if (Integer.parseInt(args[0]) == 0) {
 			try {
-				server = new Server(Integer.parseInt(args[1]), false);
+				server = new Server(Integer.parseInt(args[1]), false, true);
 			} catch (Exception e) {
 				System.err
 						.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
 			}
 		} else {
 			try {
-				server = new Server(Integer.parseInt(args[1]), true);
+				server = new Server(Integer.parseInt(args[1]), true, true);
 			} catch (Exception e) {
 				System.err
 						.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
@@ -297,9 +299,12 @@ public class Server {
 		// TODO (Vinayak Bansal): If an enemy hits a player, the enemy dies too.
 		// Do we want this?
 		// TODO (Jarred Linthorne): The enemy can open doors, as of now
-		final Player enemy = getNewPlayer("Enemy");
-		listOfPlayers.add(enemy);
-		new Thread(new Enemy(this, enemy)).start();
+		
+		if (enemies) {
+			final Player enemy = getNewPlayer("Enemy");
+			listOfPlayers.add(enemy);
+			new Thread(new Enemy(this, enemy)).start();
+		}
 		
 		bombFactory.start();
 		for (Worker worker : workers) {
@@ -512,5 +517,9 @@ public class Server {
 
 	public BombFactory getBombFactory() {
 		return bombFactory;
+	}
+	
+	public Door getDoor() {
+		return door;
 	}
 }

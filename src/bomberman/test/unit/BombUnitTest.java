@@ -34,8 +34,8 @@ public class BombUnitTest {
 		Random rand = new Random();
 		int  port = rand.nextInt(500) + 9500;
 		
-		serverThread = new ServerThread(port);
-		clientThread = new ClientThread(PLAYER_NAME, port);
+		serverThread = new ServerThread(port, false);
+		clientThread = new ClientThread(PLAYER_NAME, port, false);
 		
 		serverThread.start();
 		clientThread.start();
@@ -70,11 +70,8 @@ public class BombUnitTest {
 	public static void tearDown() throws Exception {
 		System.out.println("Shutting down server");
 		serverThread.shutdown();
-		server.shutdownServer();
 		System.out.println("Shutting down client");
 		clientThread.shutdown();
-		client.shutDown();
-		
 		serverThread.join();
 		clientThread.join();
 		System.out.println("Shut down successfully");
