@@ -149,6 +149,11 @@ public class BoardDisplay extends JComponent {
 		players = playerList.toArray(players);
 		if(playerList != null){
 			for(int k = 0; k < players.length; k++){
+				String hasWon = "";
+				if (players[k].hasWon()){
+					hasWon = "Won";
+				}
+				g.drawString(hasWon, 11 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (3 + players[k].getIdentifier()) * CELL_PIXELS - Y_OFFSET);
 				imageIcon = new ImageIcon(this.getClass().getResource("images/Downward" + players[k].getIdentifier() + ".png"));
 				g.drawImage(imageIcon.getImage(), 12 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (3 + players[k].getIdentifier()) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
 				g.drawString(players[k].getName(), 13 * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (3 + players[k].getIdentifier()) * CELL_PIXELS - Y_OFFSET);
@@ -206,8 +211,7 @@ public class BoardDisplay extends JComponent {
 					} else if(p != null){
 						if(p.getName().equals("Enemy")){
 							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else 
-						if(p.getLastDirection() == Model.LEFT){
+						} else if(p.getLastDirection() == Model.LEFT){
 							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						} else if(p.getLastDirection() == Model.RIGHT){
 							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);

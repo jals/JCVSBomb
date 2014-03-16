@@ -179,6 +179,7 @@ public class Server {
 					if (door != null) {
 						if (p.getLocation().x == door.getLocation().x && p.getLocation().y == door.getLocation().y) {
 							door.setVisible(true);
+							p.setWon(true);
 						}
 					}
 					PowerUp powerUp = grid.getBoard()[p.getLocation().x][p.getLocation().y].removePowerUp();

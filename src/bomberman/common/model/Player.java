@@ -22,6 +22,7 @@ public class Player implements Serializable {
 	private int lastDirection = Model.DOWN;
 	private int health = 1;
 	private PowerUp powerUp;
+	private boolean hasWon = false;
 
 	public Player(String playerName, int identifier) {
 		this.playerName = playerName;
@@ -113,6 +114,14 @@ public class Player implements Serializable {
 
 	public void setPowerUp(PowerUp powerUp) {
 		this.powerUp = powerUp;
+	}
+
+	public boolean hasWon() {
+		return hasWon;
+	}
+
+	public void setWon(boolean hasWon) {
+		this.hasWon = hasWon;
 	}
 
 }
