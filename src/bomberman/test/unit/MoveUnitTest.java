@@ -48,8 +48,6 @@ public class MoveUnitTest {
 		System.out.println("Client is running");
 
 		// Join the game
-		client.processCommand(Operation.JOIN_GAME);
-		sleep(200);
 		Player player = server.getPlayer(PLAYER_NAME);
 		assertTrue(player != null);
 		assertTrue(player.getName().equals(PLAYER_NAME));
@@ -80,7 +78,7 @@ public class MoveUnitTest {
 		// Test moving down
 		Point initial = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.MOVE_DOWN);
-		sleep(200);
+		sleep(500);
 		Point end = server.getPlayerLocation(PLAYER_NAME);
 		assertTrue(initial.y == end.y);
 		assertTrue(end.x == (initial.x + 1));

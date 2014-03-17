@@ -13,18 +13,17 @@ import org.junit.Test;
 import bomberman.client.Client;
 import bomberman.common.Command.Operation;
 import bomberman.common.model.Player;
-import bomberman.common.model.Square;
 import bomberman.server.BombFactory;
 import bomberman.server.Server;
 import bomberman.test.ClientThread;
 import bomberman.test.ServerThread;
 
-public class BoxUnitTest {
+public class PlayerDeadUnitTest {
 	
 	static ServerThread serverThread;
 	static ClientThread clientThread;
-	static Client client;
-	static Server server;
+	public static Client client;
+	public static Server server;
 	
 	private static String PLAYER_NAME = "test";
 
@@ -44,7 +43,7 @@ public class BoxUnitTest {
 		
 		// Give the threads some time to start
 		sleep(500);
-		
+				
 		assertTrue(server.isRunning());
 		System.out.println("Server is running");
 		assertTrue(client.isRunning());
@@ -75,64 +74,37 @@ public class BoxUnitTest {
 	}
 	
 	@Test
-	public void testExplodeBoxGetHealth() {
-		Player player = server.getPlayer(PLAYER_NAME);
-		int startHealth = player.getHealth();
-		
+	public void testDropBomb() {
+		System.out.println("Testing dropping bombs");
 		BombFactory factory = server.getBombFactory();
-		Square square = server.getSquare(3, 3);
-		assertTrue(square.hasBox());
+		Player player = server.getPlayer(PLAYER_NAME);
 		
-		System.out.println("Moving to the box");
-		
-		// Move down 2 times
-		client.processCommand(Operation.MOVE_DOWN);
-		sleep(200);
-		client.processCommand(Operation.MOVE_DOWN);
-		sleep(200);
-		
-		// Move right 1
-		client.processCommand(Operation.MOVE_RIGHT);
-		sleep(200);
-		
-		System.out.println("Blowing up the box");
-		
-		// Drop a bomb
+		// Drop another bomb, but dont move out of the way
+		Point position = server.getPlayerLocation(PLAYER_NAME);
 		client.processCommand(Operation.DROP_BOMB);
 		sleep(200);
+		assertTrue(factory.isBombAt(position));
 		
-		Point bombLocation = server.getPlayerLocation(PLAYER_NAME);
-		
-		// Make sure the bomb is there
-		assertTrue(factory.isBombAt(bombLocation));
-		
-		// Move out of the way
-		client.processCommand(Operation.MOVE_LEFT);
-		sleep(200);
-		client.processCommand(Operation.MOVE_UP);
-		sleep(200);
+		int startHealth = player.getHealth();
 		
 		// Wait for the bomb to explode
 		System.out.println("Waiting for bomb to explode...");
-		sleep(8000); // Bomb has max fuse of 6 seconds
+		sleep(7000); // Bomb has max fuse of 6 seconds
 		System.out.println("Done waiting.");
 		
-		// Box should have blown up leaving a power up
-		assertFalse(square.hasBox());
-		assertTrue(square.hasPowerUp());
+		// Make sure the bomb exploded
+		assertFalse(factory.isBombAt(position));
 		
-		System.out.println("Moving to get the power up");
+		if (player != null) {
+			assertTrue(player.getHealth() == (startHealth-1));
+		}
 		
-		// Move to get the power up
-		client.processCommand(Operation.MOVE_DOWN);
-		sleep(200);
+		sleep(2000);
+		
+		// Try sending a move command
 		client.processCommand(Operation.MOVE_RIGHT);
-		sleep(200);
-		client.processCommand(Operation.MOVE_RIGHT);
-		sleep(200);
-		
-		assertTrue(player.getHealth() == (startHealth + 1));
-		assertFalse(square.hasPowerUp());
+		Point newPos = server.getPlayerLocation(PLAYER_NAME);
+		assertTrue(newPos == null);
 	}
 
 	private static void sleep(int i) {

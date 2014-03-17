@@ -51,8 +51,6 @@ public class BombDetonation {
 		System.out.println("Client is running");
 		
 		// Join the game
-		client.processCommand(Operation.JOIN_GAME);
-		sleep(200);
 		Player player = server.getPlayer(PLAYER_NAME);
 		assertTrue(player != null);
 		assertTrue(player.getName().equals(PLAYER_NAME));
