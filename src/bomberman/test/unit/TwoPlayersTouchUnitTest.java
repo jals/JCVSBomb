@@ -2,7 +2,6 @@ package bomberman.test.unit;
 
 import static org.junit.Assert.assertTrue;
 
-import java.awt.Point;
 import java.util.Random;
 
 import org.junit.AfterClass;
@@ -35,7 +34,6 @@ public class TwoPlayersTouchUnitTest {
 
 		serverThread = new ServerThread(port, false);
 		clientThread1 = new ClientThread(PLAYER1_NAME, port, false);
-		sleep(500);
 		clientThread2 = new ClientThread(PLAYER2_NAME, port, false);
 
 		serverThread.start();
@@ -88,21 +86,24 @@ public class TwoPlayersTouchUnitTest {
 
 	@Test
 	public void testMove() {
-		int health = server.getPlayer(PLAYER2_NAME).getHealth();
-
 		// Move player 1 down 9 times and player 2 left 9 times
 		for (int i=0; i<9; i++) {
 			client2.processCommand(Operation.MOVE_LEFT);
 			sleep(200);
 			client1.processCommand(Operation.MOVE_DOWN);
 			sleep(200);
+			client2.processCommand(Operation.MOVE_DOWN);
+			sleep(200);
+			client1.processCommand(Operation.MOVE_LEFT);
+			sleep(200);
 		}
+		
+		sleep(500);
 		
 		Player player1 = server.getPlayer(PLAYER1_NAME);
 		Player player2 = server.getPlayer(PLAYER2_NAME);
 		
-		assertTrue(player1 == null);
-		assertTrue(player2 == null);
+		assertTrue(player1 == null || player2 == null);	//Ensure one of the players has died
 	}
 
 	private static void sleep(int i) {

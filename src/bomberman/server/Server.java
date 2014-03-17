@@ -193,7 +193,8 @@ public class Server {
 			if (listOfPlayers.size() > 0) {
 				for (int i = 0; i < listOfPlayers.size(); i++) {
 					Player p = listOfPlayers.get(i);
-					for (Player q : listOfPlayers) {
+					for (int j = i; j < listOfPlayers.size(); j++) {
+						Player q = listOfPlayers.get(j);
 						if (p != q && p.getLocation().equals(q.getLocation())) {
 							p.takeHit();
 							q.takeHit();
