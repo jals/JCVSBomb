@@ -65,3 +65,4 @@ The second testing method is Unit Tests. There is a suite of JUnit Tests that te
 * MoveUnitTest.java - Tests the basic moving of the player around the board. Makes sure the player cannot walk through walls.
 * PlayerDeadUnitTest.java - Adds one player, drops a bomb, and tests that the player cannot send commands after they are dead.
 * BombDetonation.java - Tests that the bomb doesn't explode before it should have.
+* TwoPlayersTouchUnitTest.java - Creates two players, and moves them to the same location. After touching they both should be dead.
