@@ -84,7 +84,7 @@ class Worker extends Thread {
 				done();
 				break;
 			} else if (c.getOperation() == Command.Operation.DROP_BOMB) {
-				server.addBomb(p.getLocation().x, p.getLocation().y);
+				server.addBomb(p.getLocation().x, p.getLocation().y, p.getPowerUp());
 			}
 			server.refreshGrid();
 		}

@@ -30,6 +30,7 @@ import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.PowerUp;
+import bomberman.common.model.PowerUp.Powers;
 import bomberman.common.model.Square;
 
 public class Server {
@@ -76,7 +77,7 @@ public class Server {
 
 		if (map.isEmpty()) {
 			Box b = grid.getFreeBox();
-			PowerUp p = new PowerUp(new Point(b.getLocation().x, b.getLocation().y));
+			PowerUp p = new PowerUp(new Point(b.getLocation().x, b.getLocation().y), Powers.HEALTH_UP);
 			b.setPowerUp(p);
 		}
 
@@ -407,11 +408,16 @@ public class Server {
 
 	}
 
-	protected void addBomb(int x, int y) {
+	protected void addBomb(int x, int y, PowerUp p) {
 		Random rand = new Random();
 		int time = rand.nextInt(3000) + 3000; // between 3 and 6 seconds
 		synchronized (gridLock.writeLock()) {
-			Bomb b = new Bomb(new Point(x, y), time);
+			Bomb b = null;
+			if(p!= null && p.getPower().equals(Powers.BOMB_INCREASED_RADIUS)){
+				b = new Bomb(new Point(x, y), time, 2);
+			} else {
+				b = new Bomb(new Point(x, y), time, 1);
+			}
 			grid.getBoard()[x][y].addObject(b);
 			bombFactory.addBomb(b);
 		}
@@ -419,11 +425,15 @@ public class Server {
 
 	protected void bombExploded(int x, int y) {
 		synchronized (gridLock.writeLock()) {
+			Bomb bomb = grid.getBoard()[x][y].getBomb();
 			grid.getBoard()[x][y].removeBomb();
-			grid.getBoard()[x][y].addObject(new Explosion(true, new Point(x, y)));
+			grid.getBoard()[x][y].addObject(new Explosion(true, new Point(x, y), bomb));
 			for (Player p : listOfPlayers) {
-				if (p.getLocation().distance(new Point(x, y)) <= 1) {
+				if (p.getLocation().distance(new Point(x, y)) <= bomb.getRadius()) {
 					p.takeHit();
+					if(p.getName().equals("Enemy") && !p.isAlive()){
+						grid.getBoard()[x][y].addObject(new PowerUp(new Point(x, y), Powers.BOMB_INCREASED_RADIUS));
+					}
 				}
 			}
 

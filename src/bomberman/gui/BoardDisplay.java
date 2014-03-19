@@ -20,6 +20,7 @@ import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.PowerUp;
 import bomberman.common.model.Square;
+import bomberman.common.model.PowerUp.Powers;
 
 /**
  * This class is used by the GUI to create the visuals. The size of the
@@ -208,6 +209,48 @@ public class BoardDisplay extends JComponent {
 								 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, i * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
 							 }
 						 }
+						 if(ex.getBomb().getRadius() == 2){ //Explosions for superbomb
+							 if(j+2 < Model.BOARD_SIZE && model.getBoard()[i][j+2] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i][j+2].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), (j+2) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+							 if(j-2 > 0 && model.getBoard()[i][j-2] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i][j-2].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), (j-2) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+							 if(i+2 < Model.BOARD_SIZE && model.getBoard()[i+2][j] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i+2][j].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, (i + 3) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+							 if(i-2 > 0 && model.getBoard()[i-2][j] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i-2][j].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, (i - 1) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+							 if(model.getBoard()[i+1][j+1] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i+1][j+1].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), (j+1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (i + 2) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+							 if(model.getBoard()[i-1][j-1] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i-1][j-1].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), (j-1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, i * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+							 if(model.getBoard()[i+1][j-1] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i+1][j-1].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), (j-1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, (i + 2) * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+							 if(model.getBoard()[i-1][j+1] != null){ //don't go out of bounds
+								 if(!model.getBoard()[i-1][j+1].hasWall()){ //don't blow up wall
+									 g.drawImage(imageIcon.getImage(), (j+1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, i * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+								 }
+							 }
+						 }
 					} else if(p != null){
 						if(p.getName().equals("Enemy")){
 							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
@@ -227,11 +270,20 @@ public class BoardDisplay extends JComponent {
 							g.drawString(value, xDisplacement, yDisplacement);
 						}
 					} else if (b != null) {
-					    imageIcon = new ImageIcon(this.getClass().getResource("images/Bomb.gif"));
-					    g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-					} else if (pu != null){
-						imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.gif"));
+						if(b.getRadius() == 2){
+							imageIcon = new ImageIcon(this.getClass().getResource("images/SuperBomb.gif"));
+						} else {
+							imageIcon = new ImageIcon(this.getClass().getResource("images/Bomb.gif"));
+						}
 						g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+					} else if (pu != null){
+						if(pu.getPower().equals(Powers.HEALTH_UP)){
+							imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.gif"));
+							g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else {
+							imageIcon = new ImageIcon(this.getClass().getResource("images/SuperBomb.png"));
+							g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						}
 					} else if (box != null){
 						g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Box.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 					} else {

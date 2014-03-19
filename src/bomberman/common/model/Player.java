@@ -10,6 +10,8 @@ import java.awt.Point;
 import java.io.Serializable;
 import java.net.InetAddress;
 
+import bomberman.common.model.PowerUp.Powers;
+
 public class Player implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -50,7 +52,9 @@ public class Player implements Serializable {
 	
 	public void addPowerUp(PowerUp powerUp) {
 		this.setPowerUp(powerUp);
-		health++;
+		if(powerUp.getPower().equals(Powers.HEALTH_UP)){
+			health++;
+		}
 	}
 	
 	public void setLocation(Point location) {

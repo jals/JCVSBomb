@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import bomberman.common.model.PowerUp.Powers;
+
 /**
  * This class creates the grid. If nothing is specified, the grid is created
  * randomly. This can be created from a file, where 0 represents a blank space,
@@ -67,7 +69,7 @@ public class Model {
 						board[j][k].addObject(door);
 						setHasDoor(true);
 					} else if (input.substring(a, a + 1).equals("P")) {
-						PowerUp p = new PowerUp(new Point(j, k));
+						PowerUp p = new PowerUp(new Point(j, k), Powers.HEALTH_UP);
 						board[j][k].addObject(p);
 					} else if (input.substring(a, a + 1).equals("B")) {
 						Box b = new Box(new Point(j, k), null, null);
@@ -80,7 +82,7 @@ public class Model {
 						board[j][k].addObject(b);
 						boxes.add(b);
 					} else if (input.substring(a, a+1).equals("Q")){ //Powerup in a box
-						PowerUp p = new PowerUp(new Point(j, k));
+						PowerUp p = new PowerUp(new Point(j, k), Powers.HEALTH_UP);
 						Box b = new Box(new Point(j, k), null, p);
 						board[j][k].addObject(b);
 						boxes.add(b);
