@@ -40,7 +40,9 @@ public class Client {
 	private BombermanClient bc = null;
 	private Boolean running = true;
 	private Operation lastOp;
+	private boolean lastBomb;
 	private long lastTime;
+	private long lastBombTime;
 	private Object lock = new Object();
 	private boolean showGui;
 
@@ -101,9 +103,12 @@ public class Client {
 		if (!testMode) {
 			Operation currentOperation = null;
 			while (isRunning()) {
-				if (System.currentTimeMillis() > (lastTime + 250)) {
+				if (lastOp != Operation.DROP_BOMB && System.currentTimeMillis() > (lastTime + 250)) {
 					lastOp = null; // reset the last operation after half a
 									// second
+				} 
+				if (lastBomb && System.currentTimeMillis() > (lastBombTime + 500)){
+					lastBomb = false;
 				}
 
 				synchronized (lock) {
@@ -116,9 +121,18 @@ public class Client {
 				// one,
 				// to avoid repeated inputs from same key press
 				if (currentOperation != null && lastOp != currentOperation) {
-					processCommand(currentOperation);
+					if (currentOperation != Operation.DROP_BOMB){
+						processCommand(currentOperation);
+					} else if (!lastBomb){
+						processCommand(currentOperation);
+					}
+					
 					lastOp = currentOperation;
 					lastTime = System.currentTimeMillis();
+					if(lastOp == Operation.DROP_BOMB){
+						lastBomb = true;
+						lastBombTime = System.currentTimeMillis();
+					}
 				}
 			}
 		}
