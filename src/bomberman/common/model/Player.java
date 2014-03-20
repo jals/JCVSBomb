@@ -9,6 +9,7 @@ package bomberman.common.model;
 import java.awt.Point;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 import bomberman.common.model.PowerUp.Powers;
 
@@ -23,10 +24,11 @@ public class Player implements Serializable {
 	private int identifier;
 	private int lastDirection = Model.DOWN;
 	private int health = 1;
-	private PowerUp powerUp;
+	private ArrayList<PowerUp> powerUps;
 	private boolean hasWon = false;
 
 	public Player(String playerName, int identifier) {
+		powerUps = new ArrayList<PowerUp>();
 		this.playerName = playerName;
 		this.setIdentifier(identifier);
 	}
@@ -51,7 +53,7 @@ public class Player implements Serializable {
 	}
 	
 	public void addPowerUp(PowerUp powerUp) {
-		this.setPowerUp(powerUp);
+		powerUps.add(powerUp);
 		if(powerUp.getPower().equals(Powers.HEALTH_UP)){
 			health++;
 		}
@@ -112,12 +114,12 @@ public class Player implements Serializable {
 		this.identifier = identifier;
 	}
 
-	public PowerUp getPowerUp() {
-		return powerUp;
+	public ArrayList<PowerUp> getPowerUps() {
+		return powerUps;
 	}
 
-	public void setPowerUp(PowerUp powerUp) {
-		this.powerUp = powerUp;
+	public void setPowerUp(ArrayList<PowerUp> powerUps) {
+		this.powerUps = powerUps;
 	}
 
 	public boolean hasWon() {

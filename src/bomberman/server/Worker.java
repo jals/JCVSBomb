@@ -2,10 +2,13 @@ package bomberman.server;
 
 import java.awt.Point;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
 
 import bomberman.common.Command;
 import bomberman.common.Utility;
 import bomberman.common.model.Player;
+import bomberman.common.model.PowerUp;
+import bomberman.common.model.PowerUp.Powers;
 
 /**
  * There is exactly one instance of Worker class for each player that requests
@@ -84,7 +87,15 @@ class Worker extends Thread {
 				done();
 				break;
 			} else if (c.getOperation() == Command.Operation.DROP_BOMB) {
-				server.addBomb(p.getLocation().x, p.getLocation().y, p.getPowerUp());
+				ArrayList<PowerUp> powerups = p.getPowerUps();
+				PowerUp powerup = null;
+				for(PowerUp power: powerups){
+					if(power.getPower().equals(Powers.BOMB_INCREASED_RADIUS)){
+						powerup = power;
+					}
+				}
+				
+				server.addBomb(p.getLocation().x, p.getLocation().y, powerup);
 			}
 			server.refreshGrid();
 		}

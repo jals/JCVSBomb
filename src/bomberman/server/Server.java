@@ -431,14 +431,18 @@ public class Server {
 			for (Player p : listOfPlayers) {
 				if (p.getLocation().distance(new Point(x, y)) <= bomb.getRadius()) {
 					p.takeHit();
-					if(p.getName().equals("Enemy") && !p.isAlive()){
-						grid.getBoard()[x][y].addObject(new PowerUp(new Point(x, y), Powers.BOMB_INCREASED_RADIUS));
+					if(!p.isAlive()){
+						if(p.getName().equals("Enemy")){
+							grid.getBoard()[p.getLocation().x][p.getLocation().y].addObject(new PowerUp(new Point(p.getLocation().x, p.getLocation().y), Powers.BOMB_INCREASED_RADIUS));
+						} else {
+							grid.getBoard()[p.getLocation().x][p.getLocation().y].addObject(new PowerUp(new Point(p.getLocation().x, p.getLocation().y), Powers.HEALTH_UP));
+						}
 					}
 				}
 			}
 
 			for (Box b : grid.getBoxes()) {
-				if (b.getLocation().distance(new Point(x, y)) <= 1) {
+				if (b.getLocation().distance(new Point(x, y)) <= bomb.getRadius()) {
 					if (b.getDoor() != null) {
 						grid.getBoard()[b.getLocation().x][b.getLocation().y].addObject(b.getDoor());
 						b.setDoor(null);
