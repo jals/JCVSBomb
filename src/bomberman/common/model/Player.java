@@ -26,6 +26,7 @@ public class Player implements Serializable {
 	private int health = 1;
 	private ArrayList<PowerUp> powerUps;
 	private boolean hasWon = false;
+	private boolean isInvincible = false;
 
 	public Player(String playerName, int identifier) {
 		powerUps = new ArrayList<PowerUp>();
@@ -128,6 +129,31 @@ public class Player implements Serializable {
 
 	public void setWon(boolean hasWon) {
 		this.hasWon = hasWon;
+	}
+
+	public boolean isInvincible() {
+		return isInvincible;
+	}
+	
+	public void setInvincible(boolean isInvincible){
+		this.isInvincible = isInvincible;
+	}
+
+	public void setInvincible(final long millis) {
+		setInvincible(true);
+		Thread invincible = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(millis);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				setInvincible(false);
+			}
+
+		});
+		invincible.start();
 	}
 
 }

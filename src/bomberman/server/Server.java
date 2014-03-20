@@ -197,8 +197,14 @@ public class Server {
 					for (int j = i; j < listOfPlayers.size(); j++) {
 						Player q = listOfPlayers.get(j);
 						if (p != q && p.getLocation().equals(q.getLocation())) {
-							p.takeHit();
-							q.takeHit();
+							if(!p.isInvincible()){
+								p.takeHit();
+								p.setInvincible(2000);
+							}
+							if(!q.isInvincible()){
+								q.takeHit();
+								q.setInvincible(2000);
+							}
 						}
 					}
 				}
@@ -430,7 +436,10 @@ public class Server {
 			grid.getBoard()[x][y].addObject(new Explosion(true, new Point(x, y), bomb));
 			for (Player p : listOfPlayers) {
 				if (p.getLocation().distance(new Point(x, y)) <= bomb.getRadius()) {
-					p.takeHit();
+					if(!p.isInvincible()){
+						p.takeHit();
+						p.setInvincible(2000);
+					}
 					if(!p.isAlive()){
 						if(p.getName().equals("Enemy")){
 							grid.getBoard()[p.getLocation().x][p.getLocation().y].addObject(new PowerUp(new Point(p.getLocation().x, p.getLocation().y), Powers.BOMB_INCREASED_RADIUS));
