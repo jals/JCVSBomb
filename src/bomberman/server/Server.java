@@ -161,7 +161,7 @@ public class Server {
 
 	/**
 	 * This is an important method that updates the grid. It changes the model,
-	 * so it must be synchronized. It updates the location of the players. Then
+	 * so it must be synchronised. It updates the location of the players. Then
 	 * checks to see if players are at the same location or not. If that is the
 	 * case, then it kills them.
 	 */
@@ -175,10 +175,10 @@ public class Server {
 			// Open the door if the player is at the door.
 			for (Player p : listOfPlayers) {
 				grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
-				if (!p.getName().equals("Enemy")) { // Don't do specific player
-													// actions for enemies
+				if (!p.getName().equals("Enemy")) { // Don't do specific player actions for enemies
 					if (door != null) {
-						if (p.getLocation().x == door.getLocation().x && p.getLocation().y == door.getLocation().y) {
+						if (p.getLocation().x == door.getLocation().x
+								&& p.getLocation().y == door.getLocation().y) {
 							door.setVisible(true);
 							p.setWon(true);
 						}
@@ -235,25 +235,33 @@ public class Server {
 	}
 
 	public static void main(String[] args) {
-		Server server = null;
 		if (args.length < 2) {
-			System.out.println("Please specify two command line arguments. 0/1 for not testing/testing, and port number.");
+			System.out.println("Please specify at least two command line arguments.");
+			System.out.println("The first one must be 0/1 for not testing/testing.");
+			System.out.println("This should be followed by at least one port number.");
+			System.out.print("The number of port numbers that you specify is the number of");
+			System.out.println(" separate games that will be started simultaneously.");
 			return;
 		}
-		if (Integer.parseInt(args[0]) == 0) {
-			try {
-				server = new Server(Integer.parseInt(args[1]), false, true);
-			} catch (Exception e) {
-				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
-			}
-		} else {
-			try {
-				server = new Server(Integer.parseInt(args[1]), true, true);
-			} catch (Exception e) {
-				System.err.println("ERROR: The server could not be initialized properly! Have you specified a socket?");
-			}
+		boolean testing = Integer.parseInt(args[0]) == 0;
+		for (int x = 1; x < args.length; x++) {
+			startNewServerThread(Integer.parseInt(args[x]), testing);
 		}
-		server.startServer();
+
+	}
+
+	private static void startNewServerThread(final int port,
+			final boolean testing) {
+		new Thread() {
+			public void run() {
+				try {
+					new Server(port, testing, true).startServer();
+				} catch (SocketException e) {
+					System.err.println("ERROR: The server could not be initialized properly!");
+					System.err.println("Have you specified a socket?");
+				}
+			}
+		}.start();
 	}
 
 	/**
@@ -293,9 +301,6 @@ public class Server {
 				logger.logCommand(c, player.getIdentifier());
 			}
 		}
-		// TODO (Sean Byron): What to do with this while testing? 
-		//		I opted for adding a flag to remove enemies, that way
-		//		they don't interfere with testing
 
 		if (enemies) {
 			final Player enemy = getNewPlayer("Enemy");
@@ -358,7 +363,8 @@ public class Server {
 	 *            : True if the game has started
 	 * @return: True if it was a start_game call
 	 */
-	private boolean addPlayer(DatagramPacket packet, List<Worker> workers, Command c, boolean hasStarted) throws SocketException {
+	private boolean addPlayer(DatagramPacket packet, List<Worker> workers,
+			Command c, boolean hasStarted) throws SocketException {
 		Player p = null;
 
 		// if JOIN_GAME is received add the player to the game
@@ -440,11 +446,19 @@ public class Server {
 						p.takeHit();
 						p.setInvincible(2000);
 					}
-					if(!p.isAlive()){
-						if(p.getName().equals("Enemy")){
-							grid.getBoard()[p.getLocation().x][p.getLocation().y].addObject(new PowerUp(new Point(p.getLocation().x, p.getLocation().y), Powers.BOMB_INCREASED_RADIUS));
+					if (!p.isAlive()) {
+						if (p.getName().equals("Enemy")) {
+							grid.getBoard()[p.getLocation().x][p.getLocation().y]
+									.addObject(new PowerUp(
+											new Point(p.getLocation().x, p
+													.getLocation().y),
+											Powers.BOMB_INCREASED_RADIUS));
 						} else {
-							grid.getBoard()[p.getLocation().x][p.getLocation().y].addObject(new PowerUp(new Point(p.getLocation().x, p.getLocation().y), Powers.HEALTH_UP));
+							grid.getBoard()[p.getLocation().x][p.getLocation().y]
+									.addObject(new PowerUp(
+											new Point(p.getLocation().x, p
+													.getLocation().y),
+											Powers.HEALTH_UP));
 						}
 					}
 				}
