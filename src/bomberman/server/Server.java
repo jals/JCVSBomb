@@ -32,6 +32,7 @@ import bomberman.common.model.Player;
 import bomberman.common.model.PowerUp;
 import bomberman.common.model.PowerUp.Powers;
 import bomberman.common.model.Square;
+import bomberman.log.ServerLogger;
 
 public class Server {
 
@@ -39,7 +40,7 @@ public class Server {
 	private List<Player> listOfPlayers;
 	private Model grid;
 	private DatagramSocket serverSocket; // dedicated listening socket
-	private static Logger logger;
+	private ServerLogger logger;
 	private Door door; // where is the door?
 	// If we are testing, we put the players at specific locations
 	private boolean isTesting;
@@ -82,7 +83,7 @@ public class Server {
 		}
 
 		bombFactory = new BombFactory(this);
-		logger = new Logger();
+		logger = new ServerLogger();
 		logger.start();
 		isTesting = testing;
 		this.enemies = enemies;
@@ -501,11 +502,11 @@ public class Server {
 		return serverSocket;
 	}
 
-	protected Logger getLogger() {
+	protected ServerLogger getLogger() {
 		return logger;
 	}
 
-	public static String getLogFile() {
+	public String getLogFile() {
 		return logger.getLogFile();
 	}
 

@@ -13,7 +13,7 @@ import java.util.Set;
 
 import bomberman.common.Command;
 import bomberman.common.Command.Operation;
-import bomberman.server.Logger;
+import bomberman.log.ServerLogger;
 
 /**
  * Simulates client/server interaction by executing test cases.
@@ -154,7 +154,7 @@ public class TestDriver {
 				String[] split = line.split(",");
 
 				// Create a new client
-				if (split[0].equals(Logger.PLAYER)) {
+				if (split[0].equals(ServerLogger.PLAYER)) {
 					System.out.println("Adding new player: " + split[1]);
 
 					ClientThread clientThread = new ClientThread(split[1]);
@@ -171,7 +171,7 @@ public class TestDriver {
 				}
 
 				// Process the command
-				if (split[0].equals(Logger.COMMAND)) {
+				if (split[0].equals(ServerLogger.COMMAND)) {
 					System.out.println("Executing command: " + split[2] + " (" + split[1] + ")");
 
 					// Add the command into the array list to track what has
@@ -206,6 +206,13 @@ public class TestDriver {
 		// Shutdown all the clients
 		Set<String> players = clients.keySet();
 		for (String s : players) {
+			
+			// Compute the latencies
+			System.out.println("Client " + s + " latencies: ");
+			File log = new File(clients.get(s).getLogFile());
+			ClientLatencyAnalyser.computeLatencies(log);
+			
+			// Shutdown the client
 			clients.get(s).shutdown();
 
 			// Wait for the client to shutdown
@@ -249,7 +256,7 @@ public class TestDriver {
 			while (line != null) {
 				String[] split = line.split(",");
 
-				if (split[0].equals(Logger.COMMAND)) {
+				if (split[0].equals(ServerLogger.COMMAND)) {
 					Command command = parseCommand(split);
 					commandsFromLog.add(command);
 
@@ -259,7 +266,7 @@ public class TestDriver {
 						System.out.println("ERROR: Command not received by the server: " + command);
 						ret = false;
 					}
-				} else if (split[0].equals(Logger.BOARD_STATE)) {
+				} else if (split[0].equals(ServerLogger.BOARD_STATE)) {
 					String[][] state = new String[12][12];
 					state[0] = split;
 
@@ -382,7 +389,7 @@ public class TestDriver {
 	 * @return
 	 */
 	private static Command parseCommand(String[] split) {
-		if (split[0].equals(Logger.COMMAND)) {
+		if (split[0].equals(ServerLogger.COMMAND)) {
 			int id = Integer.parseInt(split[3].split("=")[1]);
 			String player = split[1].split("=")[1];
 			Command.Operation operation = Command.Operation.valueOf(split[2].split("=")[1]);

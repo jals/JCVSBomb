@@ -43,7 +43,7 @@ public class ServerThread extends Thread {
 	 * @return
 	 */
 	public String getLogFile() {
-		return Server.getLogFile();
+		return server.getLogFile();
 	}
 
 	public void shutdown() {

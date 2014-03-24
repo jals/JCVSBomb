@@ -50,4 +50,8 @@ public class ClientThread extends Thread {
 		client.shutDown();
 	}
 	
+	public String getLogFile() {
+		return client.getLogFile();
+	}
+	
 }

@@ -27,6 +27,7 @@ public class Command implements Serializable {
 	private String player;
 	private Operation operation;
 	private int identifier;
+	private long sentTime;
 
 	public Command(String player, Operation operation) {
 		this.player = player;
@@ -37,6 +38,12 @@ public class Command implements Serializable {
 		this.player = player;
 		this.operation = operation;
 		this.identifier = identifier;
+	}
+	
+	public Command(String player, Operation operation, long time) {
+		this.player = player;
+		this.operation = operation;
+		this.sentTime = time;
 	}
 
 	public String getPlayer() {
@@ -62,5 +69,13 @@ public class Command implements Serializable {
 
 	public int getIdentifier() {
 		return identifier;
+	}
+
+	public long getSentTime() {
+		return sentTime;
+	}
+
+	public void setSentTime(long sentTime) {
+		this.sentTime = sentTime;
 	}
 }

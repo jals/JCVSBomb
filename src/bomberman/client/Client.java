@@ -10,6 +10,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 import bomberman.common.Command;
@@ -17,6 +19,7 @@ import bomberman.common.Command.Operation;
 import bomberman.common.Utility;
 import bomberman.common.model.Square;
 import bomberman.gui.BombermanClient;
+import bomberman.log.ClientLogger;
 
 /**
  * 
@@ -45,6 +48,10 @@ public class Client {
 	private long lastBombTime;
 	private Object lock = new Object();
 	private boolean showGui;
+	
+	private ClientLogger logger;
+	private Command lastCommand = null;
+	private boolean refreshSinceLastCommand = true;
 
 	public Client(String playerName, String host, int port, boolean showGui) throws Exception {
 		this.playerName = playerName;
@@ -57,6 +64,10 @@ public class Client {
 		this.listenPort = port;
 		started = false;
 		this.showGui = showGui;
+		
+		SimpleDateFormat formatter = new SimpleDateFormat();
+		formatter.applyPattern("yyyy-MM-dd-HH-mm-ss");
+		logger = new ClientLogger("logs/bomberman-client-" + formatter.format(new Date()) + ".log");
 	}
 
 	/**
@@ -89,6 +100,8 @@ public class Client {
 	}
 
 	public void startClient(boolean testMode) {
+		logger.start();
+		
 		// Join a game
 		try {
 			joinGame();
@@ -147,12 +160,22 @@ public class Client {
 			// We send START_GAME and JOIN_GAME to the dedicated listening
 			// port of the server. All the other messages go to the specific
 			// socket for this client.
+			Command command = new Command(playerName, operation, System.currentTimeMillis());
+			
 			if (operation == Command.Operation.START_GAME || operation == Command.Operation.JOIN_GAME) {
-				Utility.sendMessage(clientSocket, new Command(playerName, operation), listenIp, listenPort);
+				Utility.sendMessage(clientSocket, command, listenIp, listenPort);
+				if (refreshSinceLastCommand) {
+					lastCommand = command;
+					refreshSinceLastCommand = false;
+				}
 			} else {
 				// Don't send messages until the game is started.
 				if (isStarted()) {
-					Utility.sendMessage(clientSocket, new Command(playerName, operation), ip, port);
+					Utility.sendMessage(clientSocket, command, ip, port);
+					if (refreshSinceLastCommand) {
+						lastCommand = command;
+						refreshSinceLastCommand = false;
+					}
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -195,6 +218,12 @@ public class Client {
 						}
 					} else { // we need to refresh the grid.
 						if (showGui) {
+							
+							if (!refreshSinceLastCommand) {
+								logger.logCommandLatency(lastCommand);
+								refreshSinceLastCommand = true;
+							}
+							
 							synchronized (lock) {
 								if (bc == null) {
 									bc = new BombermanClient((Square[][]) grid);
@@ -232,6 +261,7 @@ public class Client {
 	public void shutDown() {
 		setRunning(false);
 		clientSocket.close();
+		logger.shutdown();
 
 		if (showGui) {
 			bc.dispose();
@@ -262,4 +292,7 @@ public class Client {
 		}
 	}
 
+	public String getLogFile() {
+		return logger.getLogFile();
+	}
 }
