@@ -4,8 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Thread for logging Commands as they are processed by the server Also logs any
@@ -48,7 +46,8 @@ public abstract class Logger extends Thread {
 			directory.mkdir();
 			log = new BufferedWriter(new FileWriter(new File(logFilePath)));
 		} catch (IOException e) {
-			System.out.println("ERROR: Could not create log file: " + logFilePath);
+			System.out.println("ERROR: Could not create log file: "
+					+ logFilePath);
 			e.printStackTrace();
 		}
 	}
