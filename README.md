@@ -8,6 +8,7 @@ By Vinayak Bansal, Jarred Linthorne, Sean Byron & Chris Siewecke
 To start up the server, call its main method with the following arguments:
 * Mode - 1 starts the server in test mode, 0 starts the server in normal (game) mode
 * Port - Port to listed for clients on
+NOTE: In order to run multiple games on the same client, simply list more than one port number argument, one for each game.
 
 ###1.2 Client
 To start up a client, call its main method with the following arguments:
