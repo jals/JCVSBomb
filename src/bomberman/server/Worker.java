@@ -87,15 +87,16 @@ class Worker extends Thread {
 				done();
 				break;
 			} else if (c.getOperation() == Command.Operation.DROP_BOMB) {
-				ArrayList<PowerUp> powerups = p.getPowerUps();
-				PowerUp powerup = null;
-				for(PowerUp power: powerups){
-					if(power.getPower().equals(Powers.BOMB_INCREASED_RADIUS)){
-						powerup = power;
+				if(!p.hasWon()){
+					ArrayList<PowerUp> powerups = p.getPowerUps();
+					PowerUp powerup = null;
+					for(PowerUp power: powerups){
+						if(power.getPower().equals(Powers.BOMB_INCREASED_RADIUS)){
+							powerup = power;
+						}
 					}
+					server.addBomb(p.getLocation().x, p.getLocation().y, powerup);
 				}
-				
-				server.addBomb(p.getLocation().x, p.getLocation().y, powerup);
 			}
 			server.refreshGrid();
 		}

@@ -237,7 +237,9 @@ public class BoardDisplay extends JComponent {
 							 }
 							 if(model.getBoard()[i-1][j-1] != null){ //don't go out of bounds
 								 if(!model.getBoard()[i-1][j-1].hasWall()){ //don't blow up wall
-									 g.drawImage(imageIcon.getImage(), (j-1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, i * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+									 if((i-1) != 0 && (j-1) != 0){	//handle 0, 0 case
+										 g.drawImage(imageIcon.getImage(), (j-1) * CELL_PIXELS + X_OFFSET - X_PICTURE_OFFSET, i * CELL_PIXELS - Y_OFFSET - Y__PICTURE_OFFSET, null);
+									 }
 								 }
 							 }
 							 if(model.getBoard()[i+1][j-1] != null){ //don't go out of bounds
@@ -252,16 +254,18 @@ public class BoardDisplay extends JComponent {
 							 }
 						 }
 					} else if(p != null){
-						if(p.getName().equals("Enemy")){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else if(p.getLastDirection() == Model.LEFT){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else if(p.getLastDirection() == Model.RIGHT){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else if(p.getLastDirection() == Model.UP){
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Upward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else {
-							g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Downward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						if(!p.hasWon()){
+							if(p.getName().equals("Enemy")){
+								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							} else if(p.getLastDirection() == Model.LEFT){
+								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							} else if(p.getLastDirection() == Model.RIGHT){
+								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Rightward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							} else if(p.getLastDirection() == Model.UP){
+								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Upward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							} else {
+								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Downward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							}
 						}
 					} else if (d != null){
 						if (d.isVisible()){

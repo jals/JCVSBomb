@@ -61,13 +61,22 @@ public class Server {
 	 */
 	public Server(int port, boolean testing, String map, boolean enemies) throws SocketException {
 		listOfPlayers = new ArrayList<Player>();
+		serverSocket = new DatagramSocket(port);
+		gridLock = new ReentrantReadWriteLock();
+		isTesting = testing;
+		bombFactory = new BombFactory(this);
+		logger = new ServerLogger();
+		logger.start();
+		
 		/**
 		 * Set the map variable to the empty string to see the box creation.
 		 **/
+		initializeServer(map, enemies);
+	}
+	
+	private void initializeServer(String map, boolean enemies){
 		grid = new Model(map, null);
-		serverSocket = new DatagramSocket(port);
-		gridLock = new ReentrantReadWriteLock();
-
+		
 		if (!grid.hasDoor()) {
 			Box b = grid.getFreeBox();
 			door = new Door(new Point(b.getLocation().x, b.getLocation().y), false);
@@ -82,10 +91,7 @@ public class Server {
 			b.setPowerUp(p);
 		}
 
-		bombFactory = new BombFactory(this);
-		logger = new ServerLogger();
-		logger.start();
-		isTesting = testing;
+
 		this.enemies = enemies;
 	}
 
@@ -159,6 +165,18 @@ public class Server {
 		}
 		return toReturn;
 	}
+	
+	private boolean checkIfDone(){
+		boolean done = false;
+		for(Player p: listOfPlayers){
+			if(!p.getName().equals("Enemy")){
+				if(!p.hasWon()){
+					done = true;
+				}
+			}
+		}
+		return done;
+	}
 
 	/**
 	 * This is an important method that updates the grid. It changes the model,
@@ -173,21 +191,44 @@ public class Server {
 					grid.getBoard()[x][y].removePlayers();
 				}
 			}
+			
+			if(!checkIfDone()){
+				for (int x = 1; x < Model.BOARD_SIZE - 1; x++) {
+					for (int y = 1; y < Model.BOARD_SIZE - 1; y++) {
+						grid.getBoard()[x][y].removeBomb();
+						grid.getBoard()[x][y].removeBox();
+						grid.getBoard()[x][y].removeExplosion();
+						grid.getBoard()[x][y].removePowerUp();
+					}
+				}
+				initializeServer("src/bomberman/gui/defaultMap2.txt", false);
+				for(Player p: listOfPlayers){
+					if(p.hasWon()){
+						p.setWon(false);
+					}
+					p.setLocation(getFreePoint());
+				}
+			}
+			
 			// Open the door if the player is at the door.
 			for (Player p : listOfPlayers) {
-				grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
-				if (!p.getName().equals("Enemy")) { // Don't do specific player actions for enemies
-					if (door != null) {
-						if (p.getLocation().x == door.getLocation().x
-								&& p.getLocation().y == door.getLocation().y) {
-							door.setVisible(true);
-							p.setWon(true);
+				if(!p.hasWon()){
+					grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
+					if (!p.getName().equals("Enemy")) { // Don't do specific player actions for enemies
+						if (door != null) {
+							if (p.getLocation().x == door.getLocation().x
+									&& p.getLocation().y == door.getLocation().y) {
+								door.setVisible(true);
+								p.setWon(true);
+							}
+						}
+						PowerUp powerUp = grid.getBoard()[p.getLocation().x][p.getLocation().y].removePowerUp();
+						if (powerUp != null) {
+							p.addPowerUp(powerUp);
 						}
 					}
-					PowerUp powerUp = grid.getBoard()[p.getLocation().x][p.getLocation().y].removePowerUp();
-					if (powerUp != null) {
-						p.addPowerUp(powerUp);
-					}
+				} else {
+					grid.getBoard()[0][0].addObject(p);
 				}
 			}
 			// Check if two players are at the same location.
@@ -195,16 +236,20 @@ public class Server {
 			if (listOfPlayers.size() > 0) {
 				for (int i = 0; i < listOfPlayers.size(); i++) {
 					Player p = listOfPlayers.get(i);
-					for (int j = i; j < listOfPlayers.size(); j++) {
-						Player q = listOfPlayers.get(j);
-						if (p != q && p.getLocation().equals(q.getLocation())) {
-							if(!p.isInvincible()){
-								p.takeHit();
-								p.setInvincible(2000);
-							}
-							if(!q.isInvincible()){
-								q.takeHit();
-								q.setInvincible(2000);
+					if(!p.hasWon()){
+						for (int j = i; j < listOfPlayers.size(); j++) {
+							Player q = listOfPlayers.get(j);
+							if(!q.hasWon()){
+								if (p != q && p.getLocation().equals(q.getLocation())) {
+									if(!p.isInvincible()){
+										p.takeHit();
+										p.setInvincible(2000);
+									}
+									if(!q.isInvincible()){
+										q.takeHit();
+										q.setInvincible(2000);
+									}
+								}
 							}
 						}
 					}

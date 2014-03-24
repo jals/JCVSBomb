@@ -38,6 +38,7 @@ public class Model {
 	private Door door;
 	private List<Box> boxes;
 	private ArrayList<Player> playerList;
+	private ArrayList<Player> nextFloorPlayers;
 
 	/**
 	 * 
@@ -49,6 +50,7 @@ public class Model {
 	public Model(String filename, Square[][] grid) {
 		boxes = new ArrayList<Box>();
 		playerList = new ArrayList<Player>();
+		nextFloorPlayers = new ArrayList<Player>();
 		board = new Square[BOARD_SIZE][BOARD_SIZE];
 		if (!filename.isEmpty()) {
 			try {
@@ -89,6 +91,7 @@ public class Model {
 					}
 					a++;
 				}
+				board[0][0] = new Square();
 			}
 		} else {
 			makeMaze();
@@ -116,6 +119,17 @@ public class Model {
 				}
 			}
 		}
+		if(board[0][0] != null){
+			if(board[0][0].getPlayer() != null){
+				List<Object> objs = board[0][0].getObjects();
+				for(int x = 0; x < objs.size(); x++){
+					if (objs.get(x) instanceof Player){
+						playerList.add((Player) objs.get(x));
+					}
+				}
+			}
+		}
+		
 	}
 
 	/**
@@ -423,5 +437,15 @@ public class Model {
 
 	public ArrayList<Player> getPlayerList() {
 		return playerList;
+	}
+
+	public ArrayList<Player> getNextFloorPlayers() {
+		return nextFloorPlayers;
+	}
+
+	public void setNextFloorPlayers(ArrayList<Player> nextFloorPlayers) {
+		for(Player p: nextFloorPlayers){
+			this.nextFloorPlayers.add(p);
+		}
 	}
 }
