@@ -23,6 +23,7 @@ class Worker extends Thread {
 	Server server;
 	DatagramSocket socket;
 	Player p;
+	boolean done = false;
 
 	public Worker(final Server server, final Player p, final DatagramSocket socket) {
 		this.p = p;
@@ -35,7 +36,7 @@ class Worker extends Thread {
 		// and then send a new grid to the client.
 		new Thread() {
 			public void run() {
-				while (p.isAlive()) {
+				while (p.isAlive() && !done) {
 					synchronized (server.getLock().readLock()) {
 						Utility.sendMessage(socket, server.getGrid(), p.getAddress(), p.getPort());
 					}
@@ -111,6 +112,7 @@ class Worker extends Thread {
 		server.removePlayer(p);
 		server.refreshGrid();
 		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME, p.getAddress(), p.getPort());
+		done = true;
 	}
 
 }

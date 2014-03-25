@@ -24,7 +24,7 @@ public class Enemy implements Runnable {
 	@Override
 	public void run() {
 		Random rand = new Random();
-		while (true) {
+		while (s.isRunning()) {
 			Operation o = null;
 			int value = rand.nextInt() % 4;
 			switch (value) {
