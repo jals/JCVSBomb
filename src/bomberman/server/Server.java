@@ -175,11 +175,14 @@ public class Server {
 	}
 	
 	private boolean checkIfDone(){
-		boolean done = false;
+		boolean done = true;
+		if(isTesting){
+			return false;
+		}
 		for(Player p: listOfPlayers){
 			if(!p.getName().equals("Enemy")){
 				if(!p.hasWon()){
-					done = true;
+					return false;
 				}
 			}
 		}
@@ -200,7 +203,7 @@ public class Server {
 				}
 			}
 			
-			if(!checkIfDone()){
+			if(checkIfDone()){
 				for (int x = 1; x < Model.BOARD_SIZE - 1; x++) {
 					for (int y = 1; y < Model.BOARD_SIZE - 1; y++) {
 						grid.getBoard()[x][y].removeBomb();
