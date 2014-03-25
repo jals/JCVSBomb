@@ -30,6 +30,7 @@ import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.PowerUp;
+import bomberman.common.model.Wall;
 import bomberman.common.model.PowerUp.Powers;
 import bomberman.common.model.Square;
 import bomberman.log.ServerLogger;
@@ -50,6 +51,7 @@ public class Server {
 	private ReadWriteLock gridLock;
 	private BombFactory bombFactory;
 	private boolean enemies;
+	private int floor = 1;
 
 	/**
 	 * Instantiates a Server object with the given map
@@ -76,7 +78,13 @@ public class Server {
 	
 	private void initializeServer(String map, boolean enemies){
 		grid = new Model(map, null);
-		
+		floor++;
+		if(floor >=4){
+			floor = 1;
+		}
+		grid.getBoard()[0][1] = new Square();
+		grid.getBoard()[0][1].addObject(new Wall(new Point(0, 1)));
+		grid.getBoard()[0][1].getWall().setFloor(floor);
 		if (!grid.hasDoor()) {
 			Box b = grid.getFreeBox();
 			door = new Door(new Point(b.getLocation().x, b.getLocation().y), false);
@@ -103,7 +111,7 @@ public class Server {
 	 * @throws SocketException
 	 */
 	public Server(int port, boolean testing, boolean enemies) throws SocketException {
-		this(port, testing, "src/bomberman/gui/defaultMap.txt", enemies);
+		this(port, testing, "src/bomberman/gui/defaultMap1.txt", enemies);
 	}
 
 	protected void removePlayer(Player p) {
@@ -201,7 +209,7 @@ public class Server {
 						grid.getBoard()[x][y].removePowerUp();
 					}
 				}
-				initializeServer("src/bomberman/gui/defaultMap2.txt", false);
+				initializeServer("src/bomberman/gui/defaultMap" + floor + ".txt", false);
 				for(Player p: listOfPlayers){
 					if(p.hasWon()){
 						p.setWon(false);

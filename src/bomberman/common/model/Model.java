@@ -38,7 +38,6 @@ public class Model {
 	private Door door;
 	private List<Box> boxes;
 	private ArrayList<Player> playerList;
-	private ArrayList<Player> nextFloorPlayers;
 
 	/**
 	 * 
@@ -50,7 +49,6 @@ public class Model {
 	public Model(String filename, Square[][] grid) {
 		boxes = new ArrayList<Box>();
 		playerList = new ArrayList<Player>();
-		nextFloorPlayers = new ArrayList<Player>();
 		board = new Square[BOARD_SIZE][BOARD_SIZE];
 		if (!filename.isEmpty()) {
 			try {
@@ -439,13 +437,4 @@ public class Model {
 		return playerList;
 	}
 
-	public ArrayList<Player> getNextFloorPlayers() {
-		return nextFloorPlayers;
-	}
-
-	public void setNextFloorPlayers(ArrayList<Player> nextFloorPlayers) {
-		for(Player p: nextFloorPlayers){
-			this.nextFloorPlayers.add(p);
-		}
-	}
 }

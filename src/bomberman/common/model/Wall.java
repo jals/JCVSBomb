@@ -12,6 +12,7 @@ public class Wall implements Serializable {
 
 	private static final long serialVersionUID = -3005295060876171995L;
 	private Point location;
+	private int floor;
 
 	/**
 	 * @param location
@@ -31,5 +32,13 @@ public class Wall implements Serializable {
 
 	public String toString() {
 		return "Wall";
+	}
+
+	public int getFloor() {
+		return floor;
+	}
+
+	public void setFloor(int floor) {
+		this.floor = floor;
 	}
 }

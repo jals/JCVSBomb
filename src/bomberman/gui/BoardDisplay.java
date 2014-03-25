@@ -19,8 +19,8 @@ import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.PowerUp;
-import bomberman.common.model.Square;
 import bomberman.common.model.PowerUp.Powers;
+import bomberman.common.model.Wall;
 
 /**
  * This class is used by the GUI to create the visuals. The size of the
@@ -73,7 +73,6 @@ public class BoardDisplay extends JComponent {
 		} catch (IOException e1) {
 			System.err.println("Outer walls could not be created.");
 		}
-		fillInnerWalls(g);
 		g.setColor(Color.BLACK);
 		drawGridLines(g);
 		try {
@@ -99,25 +98,6 @@ public class BoardDisplay extends JComponent {
 		g.fillRect(CELL_PIXELS * PUZZLE_SIZE - CELL_PIXELS, 0, CELL_PIXELS
 				* PUZZLE_SIZE, CELL_PIXELS * PUZZLE_SIZE); // bottom border
 		g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Title.png")), 225, 0, null);
-	}
-
-	/**
-	 * This method is used to fill in the inner walls to show the squares that
-	 * aren't able to be walked on
-	 * 
-	 * @param g
-	 */
-	private void fillInnerWalls(Graphics g) {
-		Square[][] b = model.getBoard();
-		g.setColor(Color.GRAY);
-		for (int i = 1; i < PUZZLE_SIZE - 1; i++) {
-			for (int j = 1; j < PUZZLE_SIZE - 1; j++) {
-				if (b[i][j].hasWall()) {
-					g.fillRect(j * CELL_PIXELS, i * CELL_PIXELS,
-								1 * CELL_PIXELS, 1 * CELL_PIXELS);
-				}
-			}
-		}
 	}
 
 	/**
@@ -185,8 +165,14 @@ public class BoardDisplay extends JComponent {
 					Explosion ex = model.getBoard()[i][j].getExplosion();
 					PowerUp pu = model.getBoard()[i][j].getPowerUp();
 					Box box = model.getBoard()[i][j].getBox();
+					Wall w = model.getBoard()[i][j].getWall();
 					
-					if (ex != null) {
+					if(w != null){
+						if((i!=0) && j!=1){ //don't draw this, used for getting the correct floor
+							imageIcon = new ImageIcon(this.getClass().getResource("images/wall" + model.getBoard()[0][1].getWall().getFloor() + ".png"));
+							g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET - 12, yDisplacement - Y__PICTURE_OFFSET - 10, null);
+						}
+					} else if (ex != null) {
 						 imageIcon = new ImageIcon(this.getClass().getResource("images/Explosion.gif"));
 						 g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						 if(model.getBoard()[i][j+1] != null){ //don't go out of bounds

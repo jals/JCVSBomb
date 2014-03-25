@@ -67,6 +67,15 @@ public class Square implements Serializable {
 		}
 		return null;
 	}
+	
+	public Wall getWall() {
+		for (int x = 0; x < objects.size(); x++) {
+			if ((objects.get(x) instanceof Wall)) {
+				return (Wall) objects.get(x);
+			}
+		}
+		return null;
+	}
 
 	public boolean hasMultiplePlayers() {
 		return numPlayers() > 1;
