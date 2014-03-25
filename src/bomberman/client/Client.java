@@ -79,7 +79,7 @@ public class Client {
 	 */
 	public static void main(String[] args) {
 		if (args.length < 2) {
-			System.out.println("Please specify two command line arguments. localhost, and port number.");
+			System.out.println("Please specify two command line arguments. ip address, and port number.");
 			return;
 		}
 

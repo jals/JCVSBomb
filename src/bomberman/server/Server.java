@@ -294,7 +294,7 @@ public class Server {
 	public static void main(String[] args) {
 		if (args.length < 2) {
 			System.out.println("Please specify at least two command line arguments.");
-			System.out.println("The first one must be 0/1 for not testing/testing.");
+			System.out.println("The first one must be 0/1 for testing/not testing.");
 			System.out.println("This should be followed by at least one port number.");
 			System.out.print("The number of port numbers that you specify is the number of");
 			System.out.println(" separate games that will be started simultaneously.");
