@@ -46,7 +46,7 @@ public class Server {
 	// If we are testing, we put the players at specific locations
 	private boolean isTesting;
 	private int playerId = 1;
-	private boolean running = true;
+	private Boolean running = true;
 	private boolean gameStarted = false;
 	private ReadWriteLock gridLock;
 	private BombFactory bombFactory;
@@ -567,12 +567,20 @@ public class Server {
 	}
 
 	public void shutdownServer() {
-		running = false;
+		setRunning(false);
 		getServerSocket().close();
 	}
+	
+	public boolean isRunning() {
+		synchronized (running) {
+			return running;
+		}
+	}
 
-	public synchronized boolean isRunning() {
-		return running;
+	private void setRunning(boolean val) {
+		synchronized (running) {
+			running = val;
+		}
 	}
 
 	public boolean isGameStarted() {
