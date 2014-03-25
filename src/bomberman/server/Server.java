@@ -565,6 +565,7 @@ public class Server {
 
 	public void shutdownServer() {
 		running = false;
+		logger.shutdown();
 		getServerSocket().close();
 	}
 

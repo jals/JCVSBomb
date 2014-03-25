@@ -75,7 +75,7 @@ public class Player implements Serializable {
 		this.location = location;
 	}
 
-	public Boolean isAlive() {
+	public synchronized Boolean isAlive() {
 		return isAlive;
 	}
 

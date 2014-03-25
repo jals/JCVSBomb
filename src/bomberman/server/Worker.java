@@ -35,7 +35,7 @@ class Worker extends Thread {
 		// and then send a new grid to the client.
 		new Thread() {
 			public void run() {
-				while (server.isRunning()) {
+				while (p.isAlive()) {
 					synchronized (server.getLock().readLock()) {
 						Utility.sendMessage(socket, server.getGrid(), p.getAddress(), p.getPort());
 					}
@@ -64,7 +64,7 @@ class Worker extends Thread {
 		// just an ack saying that the game has started.
 		Utility.sendMessage(socket, Command.Operation.START_GAME, p.getAddress(), p.getPort());
 
-		while (server.isRunning()) {
+		while (p.isAlive()) {
 			Object o = Utility.receiveMessage(socket);
 			Command c = (Command) o;
 

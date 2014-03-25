@@ -56,8 +56,8 @@ public abstract class Logger extends Thread {
 	 * Loop while run is true (we haven't been shut down)
 	 */
 	public void run() {
-		while (run) {
-		}
+			while (isRunning()) {
+			}
 
 		// Close the buffered reader before exiting
 		try {
@@ -65,6 +65,10 @@ public abstract class Logger extends Thread {
 		} catch (IOException e) {
 			System.err.println("ERROR: Could not close file.");
 		}
+	}
+
+	private synchronized boolean isRunning() {
+		return run;
 	}
 
 	/**
@@ -88,7 +92,7 @@ public abstract class Logger extends Thread {
 	/**
 	 * Stop the logger thread
 	 */
-	public void shutdown() {
+	public synchronized void shutdown() {
 		run = false;
 	}
 
