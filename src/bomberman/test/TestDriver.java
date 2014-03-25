@@ -167,7 +167,7 @@ public class TestDriver {
 					commands.add(new Command(split[1], Operation.JOIN_GAME));
 
 					// Sleep for a time
-					Thread.sleep(500);
+					Thread.sleep(2000);
 				}
 
 				// Process the command
