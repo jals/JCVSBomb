@@ -16,12 +16,14 @@ import bomberman.common.Command.Operation;
 import bomberman.log.ServerLogger;
 
 /**
- * Simulates client/server interaction by executing test cases.
+ * This class will run a test suite of load tests to see how much the system can handle.
+ * This is based on the TestDriver class, simply more instances of client will be run to
+ * test behaviour under load.
  * 
- * @author spbyron
+ * @author spbyron, csiewecke
  * 
  */
-public class TestDriver {
+public class LoadTestDriver {
 
 	// Commands executed by the TestDriver are stored in an array list, to be
 	// compared with the list of commands recieved by the server later

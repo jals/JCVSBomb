@@ -46,7 +46,7 @@ public class Server {
 	// If we are testing, we put the players at specific locations
 	private boolean isTesting;
 	private int playerId = 1;
-	private boolean running = true;
+	private Boolean running = true;
 	private boolean gameStarted = false;
 	private ReadWriteLock gridLock;
 	private BombFactory bombFactory;
@@ -175,11 +175,14 @@ public class Server {
 	}
 	
 	private boolean checkIfDone(){
-		boolean done = false;
+		boolean done = true;
+		if(isTesting){
+			return false;
+		}
 		for(Player p: listOfPlayers){
 			if(!p.getName().equals("Enemy")){
 				if(!p.hasWon()){
-					done = true;
+					return false;
 				}
 			}
 		}
@@ -200,7 +203,7 @@ public class Server {
 				}
 			}
 			
-			if(!checkIfDone()){
+			if(checkIfDone()){
 				for (int x = 1; x < Model.BOARD_SIZE - 1; x++) {
 					for (int y = 1; y < Model.BOARD_SIZE - 1; y++) {
 						grid.getBoard()[x][y].removeBomb();
@@ -291,7 +294,7 @@ public class Server {
 	public static void main(String[] args) {
 		if (args.length < 2) {
 			System.out.println("Please specify at least two command line arguments.");
-			System.out.println("The first one must be 0/1 for not testing/testing.");
+			System.out.println("The first one must be 0/1 for testing/not testing.");
 			System.out.println("This should be followed by at least one port number.");
 			System.out.print("The number of port numbers that you specify is the number of");
 			System.out.println(" separate games that will be started simultaneously.");
@@ -564,13 +567,21 @@ public class Server {
 	}
 
 	public void shutdownServer() {
-		running = false;
 		logger.shutdown();
+		setRunning(false);
 		getServerSocket().close();
 	}
+	
+	public boolean isRunning() {
+		synchronized (running) {
+			return running;
+		}
+	}
 
-	public synchronized boolean isRunning() {
-		return running;
+	private void setRunning(boolean val) {
+		synchronized (running) {
+			running = val;
+		}
 	}
 
 	public boolean isGameStarted() {

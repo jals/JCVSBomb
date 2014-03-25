@@ -168,7 +168,7 @@ public class BoardDisplay extends JComponent {
 					Wall w = model.getBoard()[i][j].getWall();
 					
 					if(w != null){
-						if((i!=0) && j!=1){ //don't draw this, used for getting the correct floor
+						if((i!=0) || j!=1){ //don't draw this, used for getting the correct floor
 							imageIcon = new ImageIcon(this.getClass().getResource("images/wall" + model.getBoard()[0][1].getWall().getFloor() + ".png"));
 							g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET - 12, yDisplacement - Y__PICTURE_OFFSET - 10, null);
 						}
