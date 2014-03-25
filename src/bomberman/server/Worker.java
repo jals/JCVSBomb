@@ -111,7 +111,6 @@ class Worker extends Thread {
 		server.removePlayer(p);
 		server.refreshGrid();
 		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME, p.getAddress(), p.getPort());
-
 	}
 
 }
