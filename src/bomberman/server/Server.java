@@ -206,6 +206,7 @@ public class Server {
 			if(checkIfDone()){
 				for (int x = 1; x < Model.BOARD_SIZE - 1; x++) {
 					for (int y = 1; y < Model.BOARD_SIZE - 1; y++) {
+						bombFactory.removeBomb(grid.getBoard()[x][y].getBomb());
 						grid.getBoard()[x][y].removeBomb();
 						grid.getBoard()[x][y].removeBox();
 						grid.getBoard()[x][y].removeExplosion();

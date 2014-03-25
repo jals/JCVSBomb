@@ -21,6 +21,12 @@ public class BombFactory extends Thread {
 			bombs.add(b);
 		}
 	}
+	
+	public void removeBomb(Bomb b) {
+		synchronized (bombs) {
+			bombs.remove(b);
+		}
+	}
 
 	public void run() {
 		while (server.isRunning()) {
