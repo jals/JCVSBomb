@@ -207,7 +207,9 @@ public class Client {
 			public void run() {
 				while (isRunning()) { // Iterate until LEAVE_GAME is received.
 					Object grid = Utility.receiveMessage(clientSocket);
-					if (grid instanceof Command.Operation) {
+					if (grid == null) {
+						shutDown();
+					} else if (grid instanceof Command.Operation) {
 						Command.Operation c = (Command.Operation) grid;
 						if (c == Command.Operation.LEAVE_GAME) {
 							shutDown();
@@ -280,7 +282,7 @@ public class Client {
 		}
 	}
 
-	private synchronized Boolean isStarted() {
+	private Boolean isStarted() {
 		synchronized (started) {
 			return started;
 		}

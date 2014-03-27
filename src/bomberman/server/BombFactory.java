@@ -53,13 +53,15 @@ public class BombFactory extends Thread {
 		}
 	}
 
-	public synchronized boolean isBombAt(Point point) {
-		for (Bomb bomb : bombs) {
-			if (bomb.getLocation().equals(point)) {
-				return true;
+	public boolean isBombAt(Point point) {
+		synchronized(bombs) {
+			for (Bomb bomb : bombs) {
+				if (bomb.getLocation().equals(point)) {
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
 	}
 
 }

@@ -101,18 +101,19 @@ class Worker extends Thread {
 			}
 			server.refreshGrid();
 		}
-		socket.close();
+		done();
 		return;
 	}
 
 	/**
 	 * The game is over. Tell the client that.
 	 */
-	private void done() {
+	public void done() {
 		server.removePlayer(p);
-		server.refreshGrid();
+		//server.refreshGrid();
 		Utility.sendMessage(socket, Command.Operation.LEAVE_GAME, p.getAddress(), p.getPort());
 		done = true;
+		socket.close();
 	}
 
 }

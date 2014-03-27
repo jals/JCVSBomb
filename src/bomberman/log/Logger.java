@@ -31,7 +31,7 @@ public abstract class Logger extends Thread {
 	// The full path to the log file
 	private String logFilePath;
 	// Boolean to control when the thread should shut down
-	private boolean run = true;
+	private Boolean run = true;
 
 	/**
 	 * Create a new logger object Write the log to the given file
@@ -67,8 +67,10 @@ public abstract class Logger extends Thread {
 		}
 	}
 
-	private synchronized boolean isRunning() {
-		return run;
+	private boolean isRunning() {
+		synchronized(run) {
+			return run;
+		}
 	}
 
 	/**
@@ -92,8 +94,10 @@ public abstract class Logger extends Thread {
 	/**
 	 * Stop the logger thread
 	 */
-	public synchronized void shutdown() {
-		run = false;
+	public void shutdown() {
+		synchronized(run) {
+			run = false;
+		}
 	}
 
 	/**
@@ -108,7 +112,7 @@ public abstract class Logger extends Thread {
 				log.newLine();
 				log.flush();
 			} catch (IOException e) {
-				e.printStackTrace();
+				// Do nothing
 			}
 		}
 	}
