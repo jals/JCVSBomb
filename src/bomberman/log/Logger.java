@@ -108,7 +108,7 @@ public abstract class Logger extends Thread {
 				log.newLine();
 				log.flush();
 			} catch (IOException e) {
-				e.printStackTrace();
+				// Do nothing
 			}
 		}
 	}

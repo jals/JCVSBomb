@@ -52,6 +52,8 @@ public class Server {
 	private BombFactory bombFactory;
 	private boolean enemies;
 	private int floor = 1;
+	
+	private ArrayList<Worker> workers = new ArrayList<Worker>();
 
 	/**
 	 * Instantiates a Server object with the given map
@@ -281,15 +283,27 @@ public class Server {
 	 * 
 	 */
 	protected void prunePlayers() {
+		boolean enemyPresent = false;
+		
 		List<Player> newPlayers = new ArrayList<Player>();
 		for (Player p : listOfPlayers) {
 			if (p.isAlive()) {
+				if (p.getName().equals("Enemy")) {
+					enemyPresent = true;
+				}
 				newPlayers.add(p);
 			} else {
 				grid.getBoard()[p.getLocation().x][p.getLocation().y].removePlayers();
 			}
 		}
 		listOfPlayers = newPlayers;
+		
+		// If all players are gone, or only one player is left wich is the enemy, end the game
+		if (listOfPlayers.size() == 0 || (listOfPlayers.size() == 1 && enemyPresent)) {
+			if (isRunning()) {
+				shutdownServer();
+			}
+		}
 	}
 
 	public static void main(String[] args) {
@@ -328,7 +342,7 @@ public class Server {
 	public void startServer() {
 		byte[] receiveData = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
-		List<Worker> workers = new LinkedList<Worker>();
+
 		while (!gameStarted) {
 			try {
 				getServerSocket().receive(packet);
@@ -568,8 +582,13 @@ public class Server {
 	}
 
 	public void shutdownServer() {
-		logger.shutdown();
 		setRunning(false);
+		
+		// Stop all of the workers
+		for (Worker worker : workers) {
+			worker.done();
+		}
+		logger.shutdown();
 		getServerSocket().close();
 	}
 	
@@ -617,4 +636,5 @@ public class Server {
 	public Square getSquare(int x, int y) {
 		return grid.getBoard()[x][y];
 	}
+	
 }

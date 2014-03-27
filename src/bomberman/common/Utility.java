@@ -18,6 +18,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 import bomberman.common.Command.Operation;
 import bomberman.common.model.Model;
@@ -52,10 +53,11 @@ public class Utility {
 		DatagramPacket receivePacket = new DatagramPacket(receiveData,
 				receiveData.length);
 		try {
+			socket.setSoTimeout(5000);
 			socket.receive(receivePacket);
 			return deserialize(receiveData);
 		} catch (Exception e) {
-			if(e instanceof SocketException) {
+			if(e instanceof SocketException || e instanceof SocketTimeoutException) {
 				// Socket was closed, just return (no error)
 				return null;
 			}

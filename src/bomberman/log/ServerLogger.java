@@ -104,7 +104,7 @@ public class ServerLogger extends Logger {
 				log.flush();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			// Do nothing
 		}
 	}
 
