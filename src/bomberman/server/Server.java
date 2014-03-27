@@ -15,6 +15,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -326,11 +327,7 @@ public class Server {
 		new Thread() {
 			public void run() {
 				try {
-					if(!testing){//if not testing add enemies
-						new Server(port, testing, true).startServer();
-					}else{//if testing turn enemies off
-						new Server(port, testing, false).startServer();
-					}
+					new Server(port, testing, true).startServer();
 				} catch (SocketException e) {
 					System.err.println("ERROR: The server could not be initialized properly!");
 					System.err.println("Have you specified a socket?");
@@ -470,9 +467,9 @@ public class Server {
 		} else {
 			toReturn = new Player(name, playerId);
 			playerId++;
-			if (playerId > 4) { // Only have 4 different colours for players
+			/**if (playerId > 4) { // Only have 4 different colours for players
 				playerId = 1;
-			}
+			}**/
 		}
 
 		toReturn.setIsAlive(true);
@@ -486,13 +483,9 @@ public class Server {
 			}
 			if (numPlayers == 0) {
 				toReturn.setLocation(new Point(1, 1));
-			} else{ //if there is one player on the board, put the next one in the bottom right corner
+			} else {
 				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2, Model.BOARD_SIZE - 2));
-			} 
-			if (toReturn.getIdentifier() == 3){ //if there are two players on the board, put the next one in the top right corner
-				toReturn.setLocation(new Point(1, Model.BOARD_SIZE - 2));
-			} else if (toReturn.getIdentifier() == 4){ //if there are three players on the board, put the next one in the bottom left corner
-				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2, 1));
+
 			}
 		}
 		return toReturn;
