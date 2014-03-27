@@ -26,7 +26,7 @@ import bomberman.log.ServerLogger;
 public class LoadTestDriver {
 
 	// Commands executed by the TestDriver are stored in an array list, to be
-	// compared with the list of commands recieved by the server later
+	// compared with the list of commands received by the server later
 	private static ArrayList<Command> commands = new ArrayList<Command>();
 
 	/**
@@ -39,7 +39,7 @@ public class LoadTestDriver {
 		String location = new String();
 
 		if (args.length < 1) {
-			location = "tests/";
+			location = "loadTests/";
 		} else {
 			location = args[0];
 		}
