@@ -327,7 +327,11 @@ public class Server {
 		new Thread() {
 			public void run() {
 				try {
-					new Server(port, testing, true).startServer();
+					if(!testing){//if not testing add enemies
+						new Server(port, testing, true).startServer();
+					}else{//if testing turn enemies off
+						new Server(port, testing, false).startServer();
+					}
 				} catch (SocketException e) {
 					System.err.println("ERROR: The server could not be initialized properly!");
 					System.err.println("Have you specified a socket?");
