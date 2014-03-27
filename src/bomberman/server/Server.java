@@ -469,9 +469,13 @@ public class Server {
 			}
 			if (numPlayers == 0) {
 				toReturn.setLocation(new Point(1, 1));
-			} else {
+			} else{ //if there is one player on the board, put the next one in the bottom right corner
 				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2, Model.BOARD_SIZE - 2));
-
+			} 
+			if (toReturn.getIdentifier() == 3){ //if there are two players on the board, put the next one in the top right corner
+				toReturn.setLocation(new Point(1, Model.BOARD_SIZE - 2));
+			} else if (toReturn.getIdentifier() == 4){ //if there are three players on the board, put the next one in the bottom left corner
+				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2, 1));
 			}
 		}
 		return toReturn;
