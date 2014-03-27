@@ -19,10 +19,14 @@ public class ServerThread extends Thread {
 	}
 
 	public ServerThread(int port, boolean enemies) {
+		this(port, true, enemies);
+	}
+	
+	public ServerThread(int port, boolean testing, boolean enemies) {
 		try {
-			server = new Server(port, true, enemies);
+			server = new Server(port, testing, enemies);
 		} catch (SocketException e) {
-			e.printStackTrace();
+			System.err.println("Port is already active (another server may already be running)");
 		}
 	}
 
