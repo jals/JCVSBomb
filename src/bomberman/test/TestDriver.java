@@ -217,7 +217,7 @@ public class TestDriver {
 
 			// Wait for the client to shutdown
 			try {
-				clients.get(s).join();
+				clients.get(s).join(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -228,7 +228,7 @@ public class TestDriver {
 
 		// Wait for the server to shutdown before continuing
 		try {
-			server.join();
+			server.join(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

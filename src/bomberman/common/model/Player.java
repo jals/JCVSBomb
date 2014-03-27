@@ -75,12 +75,16 @@ public class Player implements Serializable {
 		this.location = location;
 	}
 
-	public synchronized Boolean isAlive() {
-		return isAlive;
+	public Boolean isAlive() {
+		synchronized(isAlive) {
+			return isAlive;
+		}
 	}
 
 	public void setIsAlive(Boolean isAlive) {
-		this.isAlive = isAlive;
+		synchronized(isAlive) {
+			this.isAlive = isAlive;
+		}
 	}
 
 	public InetAddress getAddress() {

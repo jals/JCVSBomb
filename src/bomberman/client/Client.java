@@ -282,7 +282,7 @@ public class Client {
 		}
 	}
 
-	private synchronized Boolean isStarted() {
+	private Boolean isStarted() {
 		synchronized (started) {
 			return started;
 		}
