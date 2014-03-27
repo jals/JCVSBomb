@@ -13,6 +13,7 @@ public class ClientThread extends Thread {
 
 	// Underlying client object, that the thread runs
 	private Client client;
+	private boolean isTesting;
 
 	/**
 	 * Create a new ClientThread, giving the Client the given name
@@ -23,15 +24,20 @@ public class ClientThread extends Thread {
 	}
 	
 	public ClientThread(String player, int port, boolean gui) {
+		this(player, "127.0.0.1", port, gui, true);
+	}
+	
+	public ClientThread(String player, String host, int port, boolean gui, boolean isTesting) {
+		this.isTesting = isTesting;
 		try {
-			client = new Client(player, "127.0.0.1", port, gui);
+			client = new Client(player, host, port, gui);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public void run() {
-		client.startClient(true);
+		client.startClient(isTesting);
 		
 		while (client.isRunning()) {
 			
