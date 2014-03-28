@@ -93,7 +93,7 @@ public class ClientLatencyAnalyser {
 			grandTotal += total;
 			int totalLatencies = moveLatencies.size() + bombLatencies.size();
 			
-			if (totalLatencies > 0) {
+			if (totalLatencies > 0 && bombLatencies.size() > 0) {
 				System.out.println("Average total latency: \t\t\t\t" + (grandTotal/totalLatencies) + "ms");
 			}
 			

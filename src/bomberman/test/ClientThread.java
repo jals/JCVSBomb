@@ -12,7 +12,7 @@ import bomberman.client.Client;
 public class ClientThread extends Thread {
 
 	// Underlying client object, that the thread runs
-	private Client client;
+	protected Client client;
 	private boolean isTesting;
 
 	/**

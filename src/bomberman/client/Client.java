@@ -219,13 +219,11 @@ public class Client {
 							}
 						}
 					} else { // we need to refresh the grid.
+						if (!refreshSinceLastCommand) {
+							logger.logCommandLatency(lastCommand);
+							refreshSinceLastCommand = true;
+						}
 						if (showGui) {
-							
-							if (!refreshSinceLastCommand) {
-								logger.logCommandLatency(lastCommand);
-								refreshSinceLastCommand = true;
-							}
-							
 							synchronized (lock) {
 								if (bc == null) {
 									bc = new BombermanClient((Square[][]) grid);
