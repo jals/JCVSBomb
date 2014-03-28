@@ -15,7 +15,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -30,9 +29,9 @@ import bomberman.common.model.Explosion;
 import bomberman.common.model.Model;
 import bomberman.common.model.Player;
 import bomberman.common.model.PowerUp;
-import bomberman.common.model.Wall;
 import bomberman.common.model.PowerUp.Powers;
 import bomberman.common.model.Square;
+import bomberman.common.model.Wall;
 import bomberman.log.ServerLogger;
 
 public class Server {
