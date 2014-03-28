@@ -39,6 +39,7 @@ public class ServerLauncher implements ActionListener{
 		frame.add(jp);
 		frame.setVisible(true);
 		frame.setSize(300, 300);
+		frame.setLocationRelativeTo(null);
 	}
 	
 	public void changeLauncher(){
