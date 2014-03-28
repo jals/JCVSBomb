@@ -467,9 +467,9 @@ public class Server {
 		} else {
 			toReturn = new Player(name, playerId);
 			playerId++;
-			/**if (playerId > 4) { // Only have 4 different colours for players
+			if (playerId > 4) { // Only have 4 different colours for players
 				playerId = 1;
-			}**/
+			}
 		}
 
 		toReturn.setIsAlive(true);
@@ -485,8 +485,8 @@ public class Server {
 				toReturn.setLocation(new Point(1, 1));
 			} else {
 				toReturn.setLocation(new Point(Model.BOARD_SIZE - 2, Model.BOARD_SIZE - 2));
-
 			}
+			
 		}
 		return toReturn;
 
