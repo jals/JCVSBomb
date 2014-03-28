@@ -124,7 +124,9 @@ public class Server {
 	 * @return the grid of Square of Objects
 	 */
 	protected Square[][] getGrid() {
-		return grid.getBoard();
+		synchronized (gridLock.readLock()) {
+			return grid.getBoard();
+		}
 	}
 
 	protected ReadWriteLock getLock() {
