@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -17,8 +18,7 @@ import bomberman.log.ServerLogger;
 
 /**
  * This class will run a test suite of load tests to see how much the system can handle.
- * This is based on the TestDriver class, simply more instances of client will be run to
- * test behaviour under load.
+ * This was based on the TestDriver class...
  * 
  * @author spbyron, csiewecke
  * 
@@ -28,6 +28,7 @@ public class LoadTestDriver {
 	// Commands executed by the TestDriver are stored in an array list, to be
 	// compared with the list of commands received by the server later
 	private static ArrayList<Command> commands = new ArrayList<Command>();
+	//private int numberOfPlayers;
 
 	/**
 	 * Usage: TestDriver {test_directory} (optional)
@@ -36,62 +37,28 @@ public class LoadTestDriver {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String location = new String();
 
-		if (args.length < 1) {
-			location = "loadTests/";
-		} else {
-			location = args[0];
-		}
-
-		File testDirectory = new File(location);
-
-		if (!testDirectory.exists()) {
-			System.out.println("ERROR: Directory specified does not exist");
-			return;
-		}
-
-		if (!testDirectory.isDirectory()) {
-			System.out.println("ERROR: Location specified is not a directory");
-			return;
-		}
-
-		File[] files = testDirectory.listFiles();
-
-		for (int i = 0; i < files.length; i++) {
-			System.out.println(i + "\t" + files[i].getName());
-		}
-
-		System.out.print("Type a test number and press enter to run it (all to run all tests, exit to quit): ");
+		System.out.print("Please input the desired number of players for this test (possible values range from 1 to 10, type 'exit' to quit): ");
 		Scanner console = new Scanner(System.in);
 		String input = console.nextLine();
 
 		while (!input.equals("exit")) {
-			if (input.equals("all")) {
-				runAll(files);
-			} else if (input.equals("exit")) {
-				break;
-			} else {
-				int numEntered = -1;
-				
-				try {
-					numEntered = Integer.parseInt(input);
-				} catch (Exception e) {
-					// Do nothing
-				}
-				
-				if (numEntered < files.length && numEntered > -1) {
-					executeTestCase(files[numEntered]);
-				} else {
-					System.out.println("\nInvalid number entered. Please enter a number between 0 and " + (files.length - 1));
-				}
 
-				for (int i = 0; i < files.length; i++) {
-					System.out.println(i + "\t" + files[i].getName());
-				}
+			int numEntered = -1;
+
+			try {
+				numEntered = Integer.parseInt(input);
+			} catch (Exception e) {
+				// Do nothing
 			}
 
-			System.out.print("Type a test number and press enter to run it (all to run all tests, exit to quit): ");
+			if (numEntered < 11 && numEntered > 0) {
+				executeTestCase(numEntered);
+			} else {
+				System.out.println("\nInvalid number entered. Please enter a number between 1 and 10");
+			}
+
+			System.out.print("Please input the desired number of players for this test (possible values range from 1 to 10, type 'exit' to quit): ");
 			input = console.nextLine();
 		}
 
@@ -100,25 +67,14 @@ public class LoadTestDriver {
 	}
 
 	/**
-	 * Executes each of the files in the array
-	 * 
-	 * @param files
-	 */
-	private static void runAll(File[] files) {
-		for (int i = 0; i < files.length; i++) {
-			executeTestCase(files[i]);
-		}
-	}
-
-	/**
 	 * Execute a test case
 	 * 
 	 * @param file
 	 */
-	private static void executeTestCase(File file) {
-		System.out.println("Executing test case " + file.getName());
-		String logFile = runTest(file);
-
+	private static void executeTestCase(int numberOfPlayers) {
+		System.out.println("Executing test case with "+numberOfPlayers+" players.");
+		String logFile = runTest(numberOfPlayers);
+		
 		if (!verifyServerLog(logFile)) {
 			System.out.println("Server log file does not match the list of commands " + "sent by the test case.\n" + "Test case DID NOT execute successfully.\n");
 		} else {
@@ -131,78 +87,55 @@ public class LoadTestDriver {
 	 * 
 	 * @param testFile
 	 */
-	private static String runTest(File testFile) {
+	private static String runTest(int numberOfPlayers) {
 		// Start up a server
-		ServerThread server = new ServerThread();
+		ServerThread server = new ServerThread(false);
 		server.start();
 
 		// Hashmap to keep track of the clients that have been spawned off
 		HashMap<String, ClientThread> clients = new HashMap<String, ClientThread>();
 
-		// Open the file for reading
-		BufferedReader reader;
-		try {
-			reader = new BufferedReader(new FileReader(testFile));
-		} catch (FileNotFoundException e1) {
-			System.out.println("ERROR: File not found");
-			return server.getLogFile();
-		}
-
 		// Start processing the test case
 		try {
-			String line = reader.readLine();
 
-			while (line != null) {
-				String[] split = line.split(",");
+			
+			// Create new clients
+			for (int i = 1; i < numberOfPlayers+1; i++) {
+				System.out.println("Adding new player: Player "+i );
 
-				// Create a new client
-				if (split[0].equals(ServerLogger.PLAYER)) {
-					System.out.println("Adding new player: " + split[1]);
+				ClientThread clientThread = new ClientThread("Player"+i);
+				clients.put("Player"+i, clientThread);
 
-					ClientThread clientThread = new ClientThread(split[1]);
-					clients.put(split[1], clientThread);
+				clientThread.start();
 
-					clientThread.start();
-
-					// Add the command into the array list to track what has
-					// been done
-					commands.add(new Command(split[1], Operation.JOIN_GAME));
-
-					// Sleep for a time
-					Thread.sleep(2000);
-				}
-
-				// Process the command
-				if (split[0].equals(ServerLogger.COMMAND)) {
-					System.out.println("Executing command: " + split[2] + " (" + split[1] + ")");
-
-					// Add the command into the array list to track what has
-					// been done
-					Command.Operation operation = Command.Operation.valueOf(split[2].toUpperCase());
-					commands.add(new Command(split[1], operation));
-
-					// Send the command to the correct client
-					ClientThread clientThread = clients.get(split[1]);
-					clientThread.getClient().processCommand(Command.Operation.valueOf((split[2]).toUpperCase()));
-
-					// Sleep for a time
-					Thread.sleep(500);
-				}
-
-				line = reader.readLine();
+				// Add the command into the array list to track what has
+				// been done
+				commands.add(new Command("Player"+i, Operation.JOIN_GAME));
+				
+				// Sleep for a time
+				Thread.sleep(2000);
 			}
+			
+			commands.add(new Command("Player1", Operation.START_GAME));// once all Players have been added, start the game.
+			System.out.println("Executing command: START_GAME (Player1)");
+			clients.get("Player1").getClient().processCommand(Command.Operation.START_GAME);
+			Thread.sleep(500);
+			
+			for(int j = 0; j<10; j++){
+				for(int k = 1;k < numberOfPlayers+1;k++){
+					commands.add(new Command("Player"+k, randomOperation()));
+					
+					System.out.println("Executing command: "+randomOperation()+" (Player"+k+")");
+					ClientThread clientThread = clients.get("Player"+k);
+					clientThread.getClient().processCommand(randomOperation());
+					Thread.sleep(500);
+					
+				}
+			}
+			
 
-		} catch (IOException e) {
-			System.out.println("ERROR: Error reading file");
-			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 
 		// Shutdown all the clients
@@ -236,7 +169,31 @@ public class LoadTestDriver {
 		}
 		return log;
 	}
-
+	/**
+	 * Creates a random movement Operation.
+	 * @return
+	 */
+	private static Operation randomOperation(){
+		Random rand = new Random();
+		Operation o = null;
+		int value = rand.nextInt(4);
+		switch (value) {
+		case 0:
+			o = Operation.MOVE_DOWN;
+			break;
+		case 1:
+			o = Operation.MOVE_LEFT;
+			break;
+		case 2:
+			o = Operation.MOVE_RIGHT;
+			break;
+		case 3:
+			o = Operation.MOVE_UP;
+			break;
+		}
+		
+		return o;
+	}
 	/**
 	 * Compares the list of commands executed by the TestDriver to the log file
 	 * generated by the server. If the two match, the test case completed
