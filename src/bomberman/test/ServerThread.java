@@ -22,6 +22,10 @@ public class ServerThread extends Thread {
 		this(port, true, enemies);
 	}
 	
+	public ServerThread(boolean testing){
+		this(9876, testing, true);
+	}
+	
 	public ServerThread(int port, boolean testing, boolean enemies) {
 		try {
 			server = new Server(port, testing, enemies);
