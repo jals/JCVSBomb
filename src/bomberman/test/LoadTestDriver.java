@@ -95,7 +95,7 @@ public class LoadTestDriver {
 		// Hashmap to keep track of the clients that have been spawned off
 		HashMap<String, ClientThread> clients = new HashMap<String, ClientThread>();
 
-		// Start processing the test case
+		// Start the test case
 		try {
 
 			
@@ -131,6 +131,14 @@ public class LoadTestDriver {
 					Thread.sleep(500);
 					
 				}
+			}
+			//everybody leaves the game? may not work since some could be gone already...
+			for(int l = 1; l < numberOfPlayers+1;l++){
+				commands.add(new Command("Player"+l, Command.Operation.LEAVE_GAME));
+				System.out.println("Executing command: "+Command.Operation.LEAVE_GAME+" (Player"+l+")");
+				ClientThread clientThread = clients.get("Player"+l);
+				clientThread.getClient().processCommand(Command.Operation.LEAVE_GAME);
+				Thread.sleep(500);
 			}
 			
 
