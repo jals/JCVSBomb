@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class PowerUp implements Serializable {
 	
 	public enum Powers {
-		HEALTH_UP, BOMB_INCREASED_RADIUS;
+		HEALTH_UP, BOMB_INCREASED_RADIUS, INVINCIBILITY;
 	}
 
 	private static final long serialVersionUID = 5359130147473094881L;

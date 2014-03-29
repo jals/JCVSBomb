@@ -241,8 +241,10 @@ public class BoardDisplay extends JComponent {
 						 }
 					} else if(p != null){
 						if(!p.hasWon()){
-							if(p.getName().equals("Enemy")){
-								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							if(p.getName().equals("Enemy1")){
+								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy1.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+							} else if(p.getName().equals("Enemy2")){
+								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Enemy2.png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 							} else if(p.getLastDirection() == Model.LEFT){
 								g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Leftward" + p.getIdentifier() + ".png")), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 							} else if(p.getLastDirection() == Model.RIGHT){
@@ -270,7 +272,10 @@ public class BoardDisplay extends JComponent {
 						if(pu.getPower().equals(Powers.HEALTH_UP)){
 							imageIcon = new ImageIcon(this.getClass().getResource("images/Heart.gif"));
 							g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
-						} else {
+						} else if(pu.getPower().equals(Powers.INVINCIBILITY)){
+							imageIcon = new ImageIcon(this.getClass().getResource("images/star.gif"));
+							g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
+						} else if(pu.getPower().equals(Powers.BOMB_INCREASED_RADIUS)){
 							imageIcon = new ImageIcon(this.getClass().getResource("images/SuperBomb.png"));
 							g.drawImage(imageIcon.getImage(), xDisplacement - X_PICTURE_OFFSET, yDisplacement - Y__PICTURE_OFFSET, null);
 						}

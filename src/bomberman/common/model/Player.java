@@ -58,6 +58,9 @@ public class Player implements Serializable {
 		if(powerUp.getPower().equals(Powers.HEALTH_UP)){
 			health++;
 		}
+		if(powerUp.getPower().equals(Powers.INVINCIBILITY)){
+			setInvincible(5000);
+		}
 	}
 	
 	public void setLocation(Point location) {

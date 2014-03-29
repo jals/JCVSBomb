@@ -111,7 +111,7 @@ public class Model {
 		for (int j = 1; j < BOARD_SIZE - 1; j++) {
 			for (int k = 1; k < BOARD_SIZE - 1; k++) {
 				if (board[j][k].getPlayer() != null) {
-					if (!board[j][k].getPlayer().getName().equals("Enemy")) {
+					if (!board[j][k].getPlayer().getName().contains("Enemy")) {
 						playerList.add(board[j][k].getPlayer());
 					}
 				}

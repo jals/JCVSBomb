@@ -183,7 +183,7 @@ public class Server {
 			return false;
 		}
 		for(Player p: listOfPlayers){
-			if(!p.getName().equals("Enemy")){
+			if(!p.getName().contains("Enemy")){
 				if(!p.hasWon()){
 					return false;
 				}
@@ -217,6 +217,11 @@ public class Server {
 					}
 				}
 				initializeServer("src/bomberman/gui/defaultMap" + floor + ".txt", false);
+				if(floor == 3){
+					final Player enemy = getNewPlayer("Enemy2");
+					listOfPlayers.add(enemy);
+					new Thread(new Enemy(this, enemy)).start();
+				}
 				for(Player p: listOfPlayers){
 					if(p.hasWon()){
 						p.setWon(false);
@@ -229,7 +234,7 @@ public class Server {
 			for (Player p : listOfPlayers) {
 				if(!p.hasWon()){
 					grid.getBoard()[(int) p.getLocation().getX()][(int) p.getLocation().getY()].addObject(p);
-					if (!p.getName().equals("Enemy")) { // Don't do specific player actions for enemies
+					if (!p.getName().contains("Enemy")) { // Don't do specific player actions for enemies
 						if (door != null) {
 							if (p.getLocation().x == door.getLocation().x
 									&& p.getLocation().y == door.getLocation().y) {
@@ -289,7 +294,7 @@ public class Server {
 		List<Player> newPlayers = new ArrayList<Player>();
 		for (Player p : listOfPlayers) {
 			if (p.isAlive()) {
-				if (p.getName().equals("Enemy")) {
+				if (p.getName().contains("Enemy")) {
 					enemyPresent = true;
 				}
 				newPlayers.add(p);
@@ -376,7 +381,7 @@ public class Server {
 		}
 
 		if (enemies) {
-			final Player enemy = getNewPlayer("Enemy");
+			final Player enemy = getNewPlayer("Enemy1");
 			listOfPlayers.add(enemy);
 			new Thread(new Enemy(this, enemy)).start();
 		}
@@ -463,7 +468,7 @@ public class Server {
 
 	private Player getNewPlayer(String name) {
 		Player toReturn;
-		if (name.equals("Enemy")) {
+		if (name.contains("Enemy")) {
 			toReturn = new Player(name, 0);
 		} else {
 			toReturn = new Player(name, playerId);
@@ -520,12 +525,18 @@ public class Server {
 						p.setInvincible(2000);
 					}
 					if (!p.isAlive()) {
-						if (p.getName().equals("Enemy")) {
+						if (p.getName().equals("Enemy1")) {
 							grid.getBoard()[p.getLocation().x][p.getLocation().y]
 									.addObject(new PowerUp(
 											new Point(p.getLocation().x, p
 													.getLocation().y),
 											Powers.BOMB_INCREASED_RADIUS));
+						} else if(p.getName().equals("Enemy2")){
+							grid.getBoard()[p.getLocation().x][p.getLocation().y]
+									.addObject(new PowerUp(
+											new Point(p.getLocation().x, p
+													.getLocation().y),
+											Powers.INVINCIBILITY));
 						} else {
 							grid.getBoard()[p.getLocation().x][p.getLocation().y]
 									.addObject(new PowerUp(
