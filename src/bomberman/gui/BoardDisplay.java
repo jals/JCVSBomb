@@ -94,9 +94,9 @@ public class BoardDisplay extends JComponent {
 		g.fillRect(0, 0, CELL_PIXELS * PUZZLE_SIZE, CELL_PIXELS); // top border
 		g.fillRect(0, 0, CELL_PIXELS, CELL_PIXELS * PUZZLE_SIZE); // left border
 		g.fillRect(0, CELL_PIXELS * PUZZLE_SIZE - CELL_PIXELS, CELL_PIXELS
-				* PUZZLE_SIZE, CELL_PIXELS * PUZZLE_SIZE); // right border
-		g.fillRect(CELL_PIXELS * PUZZLE_SIZE - CELL_PIXELS, 0, CELL_PIXELS
 				* PUZZLE_SIZE, CELL_PIXELS * PUZZLE_SIZE); // bottom border
+		g.fillRect(CELL_PIXELS * PUZZLE_SIZE - CELL_PIXELS, 0, CELL_PIXELS
+				* PUZZLE_SIZE, CELL_PIXELS * PUZZLE_SIZE + 1); // right border
 		g.drawImage(ImageIO.read(new File("src/bomberman/gui/images/Title.png")), 225, 0, null);
 	}
 
