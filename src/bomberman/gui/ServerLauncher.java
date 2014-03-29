@@ -2,6 +2,7 @@ package bomberman.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,19 +17,20 @@ public class ServerLauncher implements ActionListener{
 	private JButton portButton;
 	private JButton closeButton;
 	private JFrame frame;
-	private ServerThread s;
+	private ArrayList<ServerThread> servers = new ArrayList<ServerThread>();
+	
 	
 	public ServerLauncher(){
 		frame = new JFrame("Server Launcher");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		textField = new JTextField(20);
-		portButton = new JButton("Start Server");
+		portButton = new JButton("Start Server(s)");
 		portButton.addActionListener(this);
-		closeButton = new JButton("Shut Down Server");
+		closeButton = new JButton("Shut Down Server(s)");
 		closeButton.addActionListener(this);
 		
 		JTextField tf = new JTextField();
-		tf.setText("Enter a port number:");
+		tf.setText("Enter one or more port numbers seperated by a space:");
 		tf.setEditable(false);
 
 		JPanel jp = new JPanel();
@@ -38,7 +40,7 @@ public class ServerLauncher implements ActionListener{
 		
 		frame.add(jp);
 		frame.setVisible(true);
-		frame.setSize(300, 300);
+		frame.setSize(320, 320);
 		frame.setLocationRelativeTo(null);
 	}
 	
@@ -60,14 +62,21 @@ public class ServerLauncher implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource().equals(portButton)){
 			try {
-				s = new ServerThread(Integer.parseInt(textField.getText()), false, true);
-				s.start();
+				ServerThread s;
+				String[] splitInput = textField.getText().split(" ");
+				for(int i=0; i<splitInput.length ; i++){
+					s = new ServerThread(Integer.parseInt(splitInput[i]), false, true);
+					s.start();
+					servers.add(s);
+				}
 				changeLauncher();
 			} catch (NumberFormatException e1) {
 				System.err.println("Bad port number!");
 			}
 		} else if (e.getSource().equals(closeButton)){
-			s.shutdown();
+			for(ServerThread s: servers){
+				s.shutdown();
+			}
 			frame.dispose();
 		}
 	}
