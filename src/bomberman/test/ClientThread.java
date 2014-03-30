@@ -14,6 +14,7 @@ public class ClientThread extends Thread {
 	// Underlying client object, that the thread runs
 	protected Client client;
 	private boolean isTesting;
+	private String player;
 
 	/**
 	 * Create a new ClientThread, giving the Client the given name
@@ -29,6 +30,8 @@ public class ClientThread extends Thread {
 	
 	public ClientThread(String player, String host, int port, boolean gui, boolean isTesting) {
 		this.isTesting = isTesting;
+		this.player = player;
+		
 		try {
 			client = new Client(player, host, port, gui);
 		} catch (Exception e) {
@@ -58,6 +61,10 @@ public class ClientThread extends Thread {
 	
 	public String getLogFile() {
 		return client.getLogFile();
+	}
+	
+	public String toString() {
+		return player;
 	}
 	
 }

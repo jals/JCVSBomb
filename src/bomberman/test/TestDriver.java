@@ -7,9 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 
 import bomberman.common.Command;
 import bomberman.common.Command.Operation;
@@ -23,50 +24,204 @@ import bomberman.log.ServerLogger;
  */
 public class TestDriver {
 
-	// Commands executed by the TestDriver are stored in an array list, to be
-	// compared with the list of commands recieved by the server later
-	private static ArrayList<Command> commands = new ArrayList<Command>();
-
 	/**
-	 * Usage: TestDriver {test_directory} (optional)
+	 * Main method which launches the interactive test driver
 	 * 
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String location = new String();
-
-		if (args.length < 1) {
-			location = "tests/";
+		Scanner console = new Scanner(System.in);
+		
+		System.out.println("Welcome to the Bomberman test driver! Select one of the following options:");
+		System.out.println("0\tRun functional tests");
+		System.out.println("1\tRun load tester");
+		
+		String selection = console.nextLine();
+		if (selection.equals("0")) {
+			runFunctionalTests();
+		} else if (selection.equals("1")) {
+			runLoadTesting();
 		} else {
-			location = args[0];
+			System.out.println("ERROR: Invalid selection");
+		}
+		
+		console.close();
+	}
+	
+	private static void runLoadTesting() throws InterruptedException {
+		/*
+		 * Get the required parameters from the user
+		 */
+		Scanner console = new Scanner(System.in);
+
+		System.out.println("Enter the number of clients for this test (integer greater than 0): ");
+		String input = console.nextLine();
+
+		int numberOfPlayers;
+		try {
+			numberOfPlayers = Integer.parseInt(input);
+		} catch (Exception e) {
+			// Catch any number formatting exceptions
+			System.out.println("ERROR: Please enter a valid number of clients (greater than 0)");
+			console.close();
+			return;
+		}
+		
+		// Make sure a non-zero integer was entered
+		if (numberOfPlayers <= 0) {
+			System.out.println("ERROR: Please enter a valid number of clients (greater than 0)");
+			console.close();
+			return;
+		}
+		
+		boolean startServer;
+		System.out.println("Start a server? (y to start a server locally/n if the server is running on a separate machine) : ");
+		input = console.nextLine();
+		
+		if (input.toLowerCase().equals("y")) {
+			startServer = true;
+		} else if (input.toLowerCase().equals("n")) {
+			startServer = false;
+		} else {
+			System.out.println("ERROR: Please enter y or n");
+			console.close();
+			return;
+		}
+		
+		int port;
+		System.out.println("Enter a port number to communicate over: ");
+		input = console.nextLine();
+		try {
+			port = Integer.parseInt(input);
+		} catch (Exception e) {
+			// Catch any number formatting exceptions
+			System.out.println("ERROR: Please enter a valid port");
+			console.close();
+			return;
+		}
+		
+		// Make sure a non-zero port was entered
+		if (port <= 0) {
+			System.out.println("ERROR: Please enter a valid port");
+			console.close();
+			return;
+		}
+		
+		System.out.println("Enter a host (IP address/localhost) the clients should connect to:");
+		String host = console.nextLine();
+		
+		boolean autoStart;
+		System.out.println("Auto start game? (y/n) : ");
+		input = console.nextLine();
+		
+		if (input.toLowerCase().equals("y")) {
+			autoStart = true;
+		} else if (input.toLowerCase().equals("n")) {
+			autoStart = false;
+		} else {
+			System.out.println("ERROR: Please enter y or n");
+			console.close();
+			return;
+		}
+		
+		/*
+		 * Start testing
+		 */
+		
+		ServerThread server = null;
+		if (startServer) {
+			// Start up a server
+			server = new ServerThread(port, false, true); // No test mode, with enemies
+			server.start();
+			System.out.println("Server started");
+		}
+		
+		// Hashmap to keep track of the clients that have been spawned off
+		ArrayList<ClientThread> clients = new ArrayList<ClientThread>();
+		
+		// Create new clients
+		for (int i = 0; i < numberOfPlayers; i++) {
+			System.out.println("Adding new player: Player "+i );
+
+			ClientThread clientThread = new ClientThread("Player"+i, host, port, true, false);
+			clients.add(clientThread);
+
+			clientThread.start();
+			
+			// Sleep for a time
+			Thread.sleep(2000);
+		}
+		
+		if (!autoStart) {
+			System.out.println("When ready press enter to start testing");
+			console.nextLine();
 		}
 
-		File testDirectory = new File(location);
-
+		System.out.println("Executing command: START_GAME (Player1)");
+		clients.get(0).getClient().processCommand(Command.Operation.START_GAME);
+		Thread.sleep(500);
+		
+		//Run a series of random commands
+		for(int j = 0; j<10; j++){
+			for(int k = 0;k < numberOfPlayers;k++){
+				System.out.println("Executing command: "+randomOperation()+" (Player"+k+")");
+				ClientThread clientThread = clients.get(k);
+				clientThread.getClient().processCommand(randomOperation());
+				Thread.sleep(500);
+				
+			}
+		}
+		
+		// Leave the game
+		for(int l = 0; l < numberOfPlayers;l++){
+			System.out.println("Executing command: "+Command.Operation.LEAVE_GAME+" (Player"+l+")");
+			ClientThread clientThread = clients.get(l);
+			clientThread.getClient().processCommand(Command.Operation.LEAVE_GAME);
+			Thread.sleep(1000);
+		}
+		
+		// Compute latencies, and shutdown all the clients
+		shutdownClients(clients);
+		
+		// Shutdown the server
+		shutdownServer(server);
+		
+		console.close();
+		return;
+	}
+	
+	private static void runFunctionalTests() {
+		System.out.println("\nAvailable tests:");
+		Scanner console = new Scanner(System.in);
+		File testDirectory = new File("tests/");
+		
 		if (!testDirectory.exists()) {
-			System.out.println("ERROR: Directory specified does not exist");
+			System.out.println("ERROR: Tests directory does not exist!");
+			console.close();
 			return;
 		}
-
+		
 		if (!testDirectory.isDirectory()) {
-			System.out.println("ERROR: Location specified is not a directory");
+			System.out.println("ERROR: Location is not a directory!");
+			console.close();
 			return;
 		}
-
+		
 		File[] files = testDirectory.listFiles();
-
+		
 		for (int i = 0; i < files.length; i++) {
 			System.out.println(i + "\t" + files[i].getName());
 		}
-
+		
 		System.out.print("Type a test number and press enter to run it (all to run all tests, exit to quit): ");
-		Scanner console = new Scanner(System.in);
 		String input = console.nextLine();
-
+		
 		while (!input.equals("exit")) {
 			if (input.equals("all")) {
-				runAll(files);
+				for (int i = 0; i < files.length; i++) {
+					executeFunctionalTestCase(files[i]);
+				}
 			} else if (input.equals("exit")) {
 				break;
 			} else {
@@ -79,33 +234,22 @@ public class TestDriver {
 				}
 				
 				if (numEntered < files.length && numEntered > -1) {
-					executeTestCase(files[numEntered]);
+					executeFunctionalTestCase(files[numEntered]);
 				} else {
 					System.out.println("\nInvalid number entered. Please enter a number between 0 and " + (files.length - 1));
 				}
-
+				
 				for (int i = 0; i < files.length; i++) {
 					System.out.println(i + "\t" + files[i].getName());
 				}
 			}
-
+			
 			System.out.print("Type a test number and press enter to run it (all to run all tests, exit to quit): ");
 			input = console.nextLine();
 		}
-
+		
 		console.close();
-
-	}
-
-	/**
-	 * Executes each of the files in the array
-	 * 
-	 * @param files
-	 */
-	private static void runAll(File[] files) {
-		for (int i = 0; i < files.length; i++) {
-			executeTestCase(files[i]);
-		}
+		return;
 	}
 
 	/**
@@ -113,23 +257,11 @@ public class TestDriver {
 	 * 
 	 * @param file
 	 */
-	private static void executeTestCase(File file) {
+	private static void executeFunctionalTestCase(File file) {
+		ArrayList<Command> commands = new ArrayList<Command>();
+		
 		System.out.println("Executing test case " + file.getName());
-		String logFile = runTest(file);
-
-		if (!verifyServerLog(logFile)) {
-			System.out.println("Server log file does not match the list of commands " + "sent by the test case.\n" + "Test case DID NOT execute successfully.\n");
-		} else {
-			System.out.println("Test case completed successfully\n");
-		}
-	}
-
-	/**
-	 * Runs the given test case
-	 * 
-	 * @param testFile
-	 */
-	private static String runTest(File testFile) {
+		
 		// Start up a server
 		ServerThread server = new ServerThread();
 		server.start();
@@ -140,10 +272,10 @@ public class TestDriver {
 		// Open the file for reading
 		BufferedReader reader;
 		try {
-			reader = new BufferedReader(new FileReader(testFile));
+			reader = new BufferedReader(new FileReader(file));
 		} catch (FileNotFoundException e1) {
 			System.out.println("ERROR: File not found");
-			return server.getLogFile();
+			return;
 		}
 
 		// Start processing the test case
@@ -204,45 +336,30 @@ public class TestDriver {
 		}
 
 		// Shutdown all the clients
-		Set<String> players = clients.keySet();
-		for (String s : players) {
-			
-			// Compute the latencies
-			System.out.println("Client " + s + " latencies: ");
-			File log = new File(clients.get(s).getLogFile());
-			ClientLatencyAnalyser.computeLatencies(log);
-			
-			// Shutdown the client
-			clients.get(s).shutdown();
+		shutdownClients(clients.values());
 
-			// Wait for the client to shutdown
-			try {
-				clients.get(s).join(2000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		String logFile = server.getLogFile();
+				
+		// Shutdown the server
+		shutdownServer(server);
+
+		// Verify the commands were received by the server
+		if (!verifyServerLog(logFile, commands)) {
+			System.out.println("Server log file does not match the list of commands " + "sent by the test case.\n" + "Test case DID NOT execute successfully.\n");
+		} else {
+			System.out.println("Test case completed successfully\n");
 		}
-
-		String log = server.getLogFile();
-		server.shutdown();
-
-		// Wait for the server to shutdown before continuing
-		try {
-			server.join(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return log;
 	}
 
 	/**
 	 * Compares the list of commands executed by the TestDriver to the log file
 	 * generated by the server. If the two match, the test case completed
 	 * successfully
+	 * @param commands 
 	 * 
 	 * @return
 	 */
-	private static boolean verifyServerLog(String logFile) {
+	private static boolean verifyServerLog(String logFile, ArrayList<Command> commands) {
 		BufferedReader reader = null;
 		boolean ret = true;
 
@@ -500,6 +617,71 @@ public class TestDriver {
 		}
 
 		return numPlayers;
+	}
+	
+	/**
+	 * Creates a random movement Operation.
+	 * @return
+	 */
+	private static Operation randomOperation(){
+		Random rand = new Random();
+		Operation o = null;
+		int value = rand.nextInt(4);
+		switch (value) {
+		case 0:
+			o = Operation.MOVE_DOWN;
+			break;
+		case 1:
+			o = Operation.MOVE_LEFT;
+			break;
+		case 2:
+			o = Operation.MOVE_RIGHT;
+			break;
+		case 3:
+			o = Operation.MOVE_UP;
+			break;
+		}
+		
+		return o;
+	}
+	
+	/**
+	 * Shut down all the clients in the list
+	 * @param clients
+	 */
+	private static void shutdownClients(Collection<ClientThread> clients) {
+		for (ClientThread client : clients) {
+			
+			// Compute the latencies
+			System.out.println("Client " + client + " latencies: ");
+			File log = new File(client.getLogFile());
+			ClientLatencyAnalyser.computeLatencies(log);
+			
+			// Shutdown the client
+			client.shutdown();
+
+			// Wait for the client to shutdown
+			try {
+				client.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Shuts down the specified server
+	 * @param server
+	 */
+	private static void shutdownServer(ServerThread server) {
+		server.shutdown();
+
+		// Wait for the server to shutdown before continuing
+		try {
+			server.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
