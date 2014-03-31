@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -117,7 +116,6 @@ public class Server {
 	}
 
 	protected void removePlayer(Player p) {
-		p.setIsAlive(false);
 		listOfPlayers.remove(p);
 	}
 
@@ -394,7 +392,6 @@ public class Server {
 		}
 		while (isRunning()) {
 			try {
-				//getServerSocket().setSoTimeout(1000);
 				getServerSocket().receive(packet);
 			} catch (IOException e) {
 				if (e instanceof SocketException) {
