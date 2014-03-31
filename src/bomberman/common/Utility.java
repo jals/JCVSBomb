@@ -56,6 +56,10 @@ public class Utility {
 			socket.receive(receivePacket);
 			return deserialize(receiveData);
 		} catch (Exception e) {
+			if (e instanceof SocketException) {
+				//Do nothing
+				return null;
+			}
 			e.printStackTrace();
 		}
 		return null;
