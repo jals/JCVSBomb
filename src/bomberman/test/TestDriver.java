@@ -198,8 +198,10 @@ public class TestDriver {
 		// Compute latencies, and shutdown all the clients
 		shutdownClients(clients);
 		
-		// Shutdown the server
-		shutdownServer(server);
+		if (startServer) {
+			// Shutdown the server
+			shutdownServer(server);
+		}
 		
 		console.close();
 		return;
