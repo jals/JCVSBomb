@@ -137,7 +137,7 @@ public class TestDriver {
 			System.out.println("Server started");
 		}
 		
-		// Hashmap to keep track of the clients that have been spawned off
+		// ArrayList to keep track of the clients that have been spawned off
 		ArrayList<ClientThread> clients = new ArrayList<ClientThread>();
 		
 		// Create new clients
