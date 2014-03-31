@@ -263,7 +263,7 @@ public class Client {
 		clientSocket.close();
 		logger.shutdown();
 
-		if (showGui) {
+		if (showGui && bc != null) {
 			bc.dispose();
 		}
 	}
