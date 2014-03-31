@@ -55,7 +55,7 @@ public class TestDriver {
 		 */
 		Scanner console = new Scanner(System.in);
 
-		System.out.println("Enter the number of clients for this test (integer greater than 0): ");
+		System.out.println("Enter the number of clients for this test (integer between 0 and 4): ");
 		String input = console.nextLine();
 
 		int numberOfPlayers;
@@ -63,16 +63,31 @@ public class TestDriver {
 			numberOfPlayers = Integer.parseInt(input);
 		} catch (Exception e) {
 			// Catch any number formatting exceptions
-			System.out.println("ERROR: Please enter a valid number of clients (greater than 0)");
+			System.out.println("Enter the number of clients for this test (integer between 0 and 4): ");
 			console.close();
 			return;
 		}
 		
 		// Make sure a non-zero integer was entered
-		if (numberOfPlayers <= 0) {
-			System.out.println("ERROR: Please enter a valid number of clients (greater than 0)");
+		if (numberOfPlayers <= 0 || numberOfPlayers > 4) {
+			System.out.println("Enter the number of clients for this test (integer between 0 and 4): ");
 			console.close();
 			return;
+		}
+		
+		long sleepTime;
+		System.out.println("Enter the amount of time to sleep between commands: ");
+		input = console.nextLine();
+		try {
+			sleepTime = Long.valueOf(input);
+		} catch (Exception e) {
+			System.out.println("ERROR: Please enter a valid amount of time (>= 0)");
+			console.close();
+			return;
+		}
+		
+		if (sleepTime < 0) {
+			System.out.println("ERROR: Please enter a valid amount of time (>= 0)");
 		}
 		
 		boolean startServer;
@@ -160,7 +175,7 @@ public class TestDriver {
 
 		System.out.println("Executing command: START_GAME (Player1)");
 		clients.get(0).getClient().processCommand(Command.Operation.START_GAME);
-		Thread.sleep(500);
+		Thread.sleep(sleepTime);
 		
 		//Run a series of random commands
 		for(int j = 0; j<10; j++){
@@ -168,8 +183,7 @@ public class TestDriver {
 				System.out.println("Executing command: "+randomOperation()+" (Player"+k+")");
 				ClientThread clientThread = clients.get(k);
 				clientThread.getClient().processCommand(randomOperation());
-				Thread.sleep(500);
-				
+				Thread.sleep(sleepTime);
 			}
 		}
 		
@@ -662,7 +676,7 @@ public class TestDriver {
 
 			// Wait for the client to shutdown
 			try {
-				client.join();
+				client.join(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
