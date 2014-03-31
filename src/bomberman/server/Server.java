@@ -117,6 +117,7 @@ public class Server {
 	}
 
 	protected void removePlayer(Player p) {
+		p.setIsAlive(false);
 		listOfPlayers.remove(p);
 	}
 
@@ -393,10 +394,10 @@ public class Server {
 		}
 		while (isRunning()) {
 			try {
-				getServerSocket().setSoTimeout(1000);
+				//getServerSocket().setSoTimeout(1000);
 				getServerSocket().receive(packet);
 			} catch (IOException e) {
-				if (e instanceof SocketException || e instanceof SocketTimeoutException) {
+				if (e instanceof SocketException) {
 					// Socket was closed, just return (no error)
 					return;
 				}
@@ -443,7 +444,7 @@ public class Server {
 	 *            : True if the game has started
 	 * @return: True if it was a start_game call
 	 */
-	private boolean addPlayer(DatagramPacket packet, List<Worker> workers,
+	private synchronized boolean addPlayer(DatagramPacket packet, List<Worker> workers,
 			Command c, boolean hasStarted) throws SocketException {
 		Player p = null;
 

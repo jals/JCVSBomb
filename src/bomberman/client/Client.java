@@ -208,7 +208,7 @@ public class Client {
 				while (isRunning()) { // Iterate until LEAVE_GAME is received.
 					Object grid = Utility.receiveMessage(clientSocket);
 					if (grid == null) {
-						shutDown();
+						//shutDown();
 					} else if (grid instanceof Command.Operation) {
 						Command.Operation c = (Command.Operation) grid;
 						if (c == Command.Operation.LEAVE_GAME) {

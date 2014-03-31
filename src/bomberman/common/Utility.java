@@ -53,14 +53,9 @@ public class Utility {
 		DatagramPacket receivePacket = new DatagramPacket(receiveData,
 				receiveData.length);
 		try {
-			socket.setSoTimeout(5000);
 			socket.receive(receivePacket);
 			return deserialize(receiveData);
 		} catch (Exception e) {
-			if(e instanceof SocketException || e instanceof SocketTimeoutException) {
-				// Socket was closed, just return (no error)
-				return null;
-			}
 			e.printStackTrace();
 		}
 		return null;
